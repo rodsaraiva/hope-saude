@@ -1,0 +1,412 @@
+/* static/css/style.css */
+
+:root {
+    --hope-azul-sereno: #A0D2DB; /* Cor Primária Principal [cite: 26] */
+    --hope-azul-sereno-rgb: 160, 210, 219; /* [cite: 26] */
+    --hope-verde-salvia: #B2C2B3; /* Cor Primária Secundária [cite: 27] */
+    --hope-verde-salvia-rgb: 178, 194, 179; /* [cite: 27] */
+    --hope-pessego-delicado: #FFDAB9; /* Cor de Destaque [cite: 28] */
+    --hope-coral-suave: #FFB6C1; /* Cor de Destaque Alternativa [cite: 28] */
+    
+    --hope-branco-gelo: #F8F8FF; /* Neutra para fundos principais [cite: 31] */
+    --hope-cinza-claro-bordas: #E0E0E0; /* Neutra para divisórias, bordas [cite: 32] */
+    --hope-texto-principal: #606060; /* Cinza Médio para corpo de texto [cite: 33] */
+    --hope-titulos-principais: #333333; /* Cinza Escuro para títulos [cite: 34] */
+
+    /* Fontes conforme o manual (Nunito Sans para títulos, Open Sans para corpo) */
+    --hope-fonte-titulos: 'Nunito Sans', 'Poppins', sans-serif; /* [cite: 38] */
+    --hope-fonte-corpo: 'Open Sans', 'Lato', sans-serif; /* [cite: 42] */
+}
+
+body {
+    font-family: var(--hope-fonte-corpo);
+    color: var(--hope-texto-principal);
+    background-color: var(--hope-branco-gelo); /* [cite: 31] */
+    line-height: 1.65; /* Espaçamento entre linhas generoso [cite: 49] */
+    font-size: 1rem; /* Base para unidades rem */
+    -webkit-font-smoothing: antialiased; /* Melhora renderização de fontes */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--hope-fonte-titulos);
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+    font-weight: 600; /* SemiBold como ponto de partida [cite: 41] */
+    margin-bottom: 0.75rem; 
+    line-height: 1.3;
+}
+
+/* Títulos de Display (Maiores) */
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    font-family: var(--hope-fonte-titulos);
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+    font-weight: 700; /* Bold para títulos de display [cite: 41] */
+    letter-spacing: -0.02em; /* Ajuste sutil */
+}
+
+.lead {
+    font-weight: 400; /* Peso regular */
+    font-size: 1.2rem; 
+    line-height: 1.7;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+}
+
+/* Links Gerais */
+a, .link-hope {
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+a:hover, .link-hope:hover {
+    color: #82b3b9; /* Azul Sereno um pouco mais escuro para hover */
+    text-decoration: none; /* Mantém sem sublinhado por padrão, pode adicionar se preferir */
+}
+
+/* Botões Customizados Hope Saúde */
+.btn-hope-primary {
+    background-color: var(--hope-azul-sereno); /* [cite: 26] */
+    border-color: var(--hope-azul-sereno); /* [cite: 26] */
+    color: var(--hope-titulos-principais) !important; /* Cor do texto no botão */
+    font-family: var(--hope-fonte-titulos); /* */
+    font-weight: 600; /* [cite: 41] */
+    padding: 0.65rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 0.3rem; 
+    transition: all 0.2s ease-in-out;
+}
+.btn-hope-primary:hover, .btn-hope-primary:focus, .btn-hope-primary:active {
+    background-color: #8abcc2; 
+    border-color: #82b3b9;
+    color: var(--hope-titulos-principais) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-hope-destaque {
+    background-color: var(--hope-pessego-delicado); /* [cite: 28] */
+    border-color: var(--hope-pessego-delicado); /* [cite: 28] */
+    color: var(--hope-titulos-principais) !important; /* */
+    font-family: var(--hope-fonte-titulos); /* */
+    font-weight: 600; /* [cite: 41] */
+    padding: 0.65rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 0.3rem;
+    transition: all 0.2s ease-in-out;
+}
+.btn-hope-destaque:hover, .btn-hope-destaque:focus, .btn-hope-destaque:active {
+    background-color: #f2c7a0; 
+    border-color: #e7bba0;
+    color: var(--hope-titulos-principais) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-hope-outline-secondary {
+    border-color: var(--hope-verde-salvia); /* [cite: 27] */
+    color: var(--hope-verde-salvia); /* [cite: 27] */
+    font-family: var(--hope-fonte-titulos); /* */
+    font-weight: 600; /* [cite: 41] */
+    padding: 0.5rem 1rem; 
+    font-size: 0.9rem; 
+    border-radius: 0.3rem;
+    transition: all 0.2s ease-in-out;
+}
+.btn-hope-outline-secondary:hover, .btn-hope-outline-secondary:focus {
+    background-color: var(--hope-verde-salvia); /* [cite: 27] */
+    color: white !important; /* Garante contraste */
+    border-color: var(--hope-verde-salvia); /* [cite: 27] */
+}
+
+/* Navbar - Ajustes finos para alinhamento com a identidade */
+.navbar.navbar-hope { /* Adicione a classe 'navbar-hope' à sua tag nav no base.html */
+    background-color: var(--hope-branco-gelo) !important; /* [cite: 31] */
+    border-bottom: 1px solid var(--hope-cinza-claro-bordas); /* [cite: 32, 58] */
+}
+.navbar-hope .navbar-brand { 
+    font-family: var(--hope-fonte-titulos);
+    font-weight: 700; /* [cite: 41] */
+    color: var(--hope-titulos-principais) !important; /* [cite: 34] */
+}
+.navbar-hope .navbar-brand .bi { /* Ícone da marca */
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+}
+.navbar-hope .nav-link { 
+    font-family: var(--hope-fonte-titulos);
+    font-weight: 500;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+.navbar-hope .nav-link.active {
+    color: var(--hope-azul-sereno) !important; /* [cite: 26] */
+    font-weight: 700; /* [cite: 41] */
+}
+.navbar-hope .nav-link:hover, .navbar-hope .nav-link:focus {
+    color: var(--hope-azul-sereno) !important; /* [cite: 26] */
+}
+.navbar-hope .btn-hope-primary { /* Botão de Registrar na Navbar */
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+/* Seções com Fundos e Paddings Padrão */
+.section-padding {
+    padding: 3rem 0;
+}
+@media (min-width: 992px) { /* lg e acima */
+    .section-padding {
+        padding: 5rem 0; /* Mais padding em telas maiores */
+    }
+}
+.section-bg-azul-sereno-muito-suave {
+    background-color: rgba(var(--hope-azul-sereno-rgb), 0.08); /* [cite: 26] Opacidade ainda menor */
+}
+.section-bg-verde-salvia-muito-suave {
+    background-color: rgba(var(--hope-verde-salvia-rgb), 0.08); /* [cite: 27] Opacidade ainda menor */
+}
+
+/* Ícones de Feature (para seções "Como funciona" / "Benefícios") */
+.feature-icon-hope {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 4.5rem; height: 4.5rem; margin-bottom: 1.5rem; font-size: 2rem; /* Reduzido o ícone um pouco */
+    border-radius: 0.75rem; 
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.feature-icon-hope:hover { transform: translateY(-4px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.075); }
+
+.icon-bg-azul-sereno { background-color: var(--hope-azul-sereno); color: white; } /* [cite: 26] */
+.icon-bg-verde-salvia { background-color: var(--hope-verde-salvia); color: white; } /* [cite: 27] */
+.icon-bg-pessego { background-color: var(--hope-pessego-delicado); color: var(--hope-titulos-principais); } /* [cite: 28] */
+
+.feature-title {
+    font-size: 1.4rem; /* Ajustado */
+    font-weight: 700; /* Bold [cite: 41] */
+    margin-bottom: 0.75rem;
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+}
+.feature-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+}
+
+/* Cartões de Testemunho */
+.testimonial-card {
+    border: 1px solid var(--hope-cinza-claro-bordas); /* [cite: 32] */
+    background-color: white; 
+    height: 100%; 
+    display: flex; flex-direction: column;
+    border-radius: 0.5rem; /* Cantos mais arredondados */
+    overflow: hidden; /* Para garantir que o box-shadow não seja cortado */
+}
+.testimonial-card .card-body {
+    position: relative;
+    padding: 2rem; /* Mais padding interno */
+    padding-top: 3.5rem; /* Espaço para a aspa */
+    display: flex; flex-direction: column; flex-grow: 1;
+}
+.testimonial-card .quote-icon {
+    position: absolute;
+    top: 1rem; 
+    left: 1.5rem;
+    font-size: 3rem; /* Aspa maior */
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+    opacity: 0.3; /* Mais sutil */
+}
+.testimonial-card .card-text {
+    font-size: 1rem; /* Texto do testemunho um pouco maior */
+    font-style: italic;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+    flex-grow: 1; /* Empurra o autor para baixo */
+    margin-bottom: 1.5rem;
+}
+.testimonial-card .profile-icon {
+    font-size: 2.5rem; 
+    color: var(--hope-verde-salvia); /* [cite: 27] */
+}
+.testimonial-card h5 {
+    font-size: 1.05rem; /* Nome do autor */
+    font-weight: 600; /* [cite: 41] */
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+}
+.testimonial-card small.text-muted {
+    font-size: 0.85rem;
+}
+
+/* Seção CTA Final */
+.cta-final-section h2 { font-weight: 700; /* [cite: 41] */ }
+.cta-final-section .btn-hope-destaque,
+.cta-final-section .btn-outline-dark { /* Assumindo que btn-outline-dark é o seu secundário aqui */
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1.05rem;
+}
+
+/* Estilos Específicos para LISTA_PROFISSIONAIS.HTML */
+.form-filtro-profissionais {
+    background-color: rgba(var(--hope-azul-sereno-rgb), 0.07) !important; /* [cite: 26] */
+    padding: 1.75rem; /* Mais padding */
+    border-radius: 0.5rem;
+    margin-bottom: 3rem !important;
+}
+.form-filtro-profissionais legend {
+    font-size: 1.2rem !important; /* Legenda maior */
+    font-weight: 600; /* [cite: 41] */
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+    margin-bottom: 1rem;
+}
+.form-filtro-profissionais .form-check-label {
+    font-size: 0.9rem;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+}
+.form-filtro-profissionais .form-control {
+    font-size: 0.95rem;
+}
+
+.professional-list-row .col {
+    display: flex; 
+    flex-direction: column;
+}
+.card-profissional {
+    border: 1px solid var(--hope-cinza-claro-bordas); /* [cite: 32] */
+    transition: box-shadow 0.25s ease-in-out, transform 0.25s ease-in-out;
+    display: flex; 
+    flex-direction: column; 
+    flex-grow: 1; 
+    background-color: white; /* Garante fundo branco para o card */
+    border-radius: 0.5rem; /* Cantos arredondados */
+    overflow: hidden; /* Para o placeholder não vazar */
+}
+.card-profissional:hover {
+    box-shadow: 0 0.75rem 1.75rem rgba(var(--hope-azul-sereno-rgb), 0.15); /* Sombra com cor da marca */
+    transform: translateY(-5px);
+}
+.profile-card-image-placeholder {
+    width: 100%;
+    height: 160px; /* Altura ajustada */
+    display: flex; align-items: center; justify-content: center;
+    background-color: rgba(var(--hope-azul-sereno-rgb), 0.1); /* [cite: 26] */
+    /* border-bottom: 1px solid var(--hope-cinza-claro-bordas); */ /* Removido, pode ser desnecessário com bg */
+}
+.profile-card-image-placeholder .icon-placeholder {
+    font-size: 4rem; 
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+    opacity: 0.8;
+}
+.card-profissional .card-body {
+    display: flex; flex-direction: column; flex-grow: 1;
+    padding: 1.25rem; /* Padding do corpo do card */
+}
+.card-profissional .card-title {
+    margin-bottom: 0.25rem !important; /* Menos margem abaixo do título */
+}
+.card-profissional .card-title a {
+    font-weight: 700; /* [cite: 41] */
+    font-size: 1.25rem;
+    color: var(--hope-titulos-principais); /* [cite: 34] */
+}
+.card-profissional .card-title a:hover {
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+}
+.card-profissional .card-subtitle {
+    font-size: 0.85rem; /* Subtítulo menor */
+    font-family: var(--hope-fonte-corpo); /* */
+    margin-bottom: 0.75rem !important;
+}
+.badge-especialidade-hope {
+    background-color: var(--hope-verde-salvia) !important; /* [cite: 27] */
+    color: white !important; 
+    font-weight: 500; /* [cite: 41] */
+    padding: 0.35em 0.7em;
+    font-size: 0.7rem; /* Badges menores */
+    margin-bottom: 0.3rem;
+    margin-right: 0.3rem;
+    display: inline-block;
+    border-radius: 0.25rem;
+}
+.card-profissional .card-text.bio-summary {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--hope-texto-principal); /* [cite: 33] */
+    flex-grow: 1; 
+    margin-bottom: 1rem; 
+}
+.card-profissional .btn.btn-hope-outline-secondary { /* Botão "Ver Perfil" */
+    margin-top: auto; 
+    align-self: flex-start; 
+}
+
+/* Sombra Suave Bootstrap (se não quiser a classe shadow-soft customizada) */
+/* .shadow-sm */
+
+/* Paginação */
+.pagination .page-item.active .page-link {
+    background-color: var(--hope-azul-sereno); /* [cite: 26] */
+    border-color: var(--hope-azul-sereno); /* [cite: 26] */
+    color: white;
+}
+.pagination .page-link {
+    color: var(--hope-azul-sereno); /* [cite: 26] */
+}
+.pagination .page-link:hover {
+    color: #82b3b9; /* Azul Sereno mais escuro */
+}
+.pagination .page-item.disabled .page-link {
+    color: #999; /* Cor para links desabilitados */
+}
+
+/* static/css/style.css */
+
+/* ... (todos os estilos anteriores) ... */
+
+.agendamento-item {
+    border-left-width: 0.25rem; /* Uma borda lateral colorida para indicar status */
+    border-radius: 0.375rem; /* Bootstrap .rounded */
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+    background-color: white; /* Fundo branco para o item do agendamento */
+    border: 1px solid var(--hope-cinza-claro-bordas);
+}
+
+/* Cores da borda lateral baseadas no status do agendamento */
+.agendamento-item.status-pendente { border-left-color: var(--hope-pessego-delicado); } /* Pêssego para Pendente */
+.agendamento-item.status-confirmado { border-left-color: var(--hope-azul-sereno); } /* Azul Sereno para Confirmado */
+.agendamento-item.status-realizado { border-left-color: var(--hope-verde-salvia); } /* Verde Sálvia para Realizado */
+.agendamento-item.status-cancelado { border-left-color: var(--hope-cinza-claro-bordas); }
+
+.agendamento-item .agendamento-data-hora {
+    font-family: var(--hope-fonte-titulos);
+    font-weight: 600;
+    color: var(--hope-titulos-principais);
+    font-size: 1.1rem;
+}
+
+.agendamento-item .agendamento-participante {
+    font-size: 0.95rem;
+    color: var(--hope-texto-principal);
+}
+
+.agendamento-item .agendamento-status .badge { /* Estilo para os badges de status */
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.4em 0.7em;
+}
+/* Cores específicas para badges de status (exemplo) */
+.badge.bg-status-pendente { background-color: var(--hope-pessego-delicado) !important; color: var(--hope-titulos-principais) !important; }
+.badge.bg-status-confirmado { background-color: var(--hope-azul-sereno) !important; color: var(--hope-titulos-principais) !important; }
+.badge.bg-status-realizado { background-color: var(--hope-verde-salvia) !important; color: white !important; } /* Verde com texto branco */
+.badge.bg-status-cancelado { background-color: var(--hope-cinza-claro-bordas) !important; color: var(--hope-texto-principal) !important; }
+
+.agendamento-item .agendamento-notas {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 0.5rem;
+    padding-left: 1.5rem; /* Indentação para notas */
+    border-left: 2px dotted var(--hope-cinza-claro-bordas);
+}
+
+.agendamento-acoes .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem; /* Para empilhamento em telas pequenas */
+}

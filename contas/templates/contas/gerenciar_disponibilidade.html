@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Minha Disponibilidade{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Gerenciar Minha Disponibilidade Semanal</h1>
+
+    {# Formulário para adicionar nova disponibilidade #}
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header">
+            <h2 class="h4 mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Novo Horário</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.dia_semana.id_for_label }}" class="form-label">{{ form.dia_semana.label }}</label>
+                        {{ form.dia_semana }}
+                        {% for error in form.dia_semana.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.hora_inicio.id_for_label }}" class="form-label">{{ form.hora_inicio.label }}</label>
+                        {{ form.hora_inicio }}
+                        {% for error in form.hora_inicio.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.hora_fim.id_for_label }}" class="form-label">{{ form.hora_fim.label }}</label>
+                        {{ form.hora_fim }}
+                        {% for error in form.hora_fim.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle-fill me-1"></i>Adicionar Horário</button>
+            </form>
+        </div>
+    </div>
+
+    {# Lista de disponibilidades cadastradas #}
+    <h2 class="h4 mb-3"><i class="bi bi-list-ul me-2"></i>Minhas Disponibilidades Cadastradas</h2>
+    {% if disponibilidades %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered"> {# Adiciona table-bordered #}
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="bi bi-calendar-week me-1"></i>Dia da Semana</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário de Início</th>
+                        <th><i class="bi bi-clock-fill me-1"></i>Horário de Fim</th>
+                        <th><i class="bi bi-gear-fill me-1"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for disp in disponibilidades %}
+                    <tr>
+                        <td>{{ disp.get_dia_semana_display }}</td>
+                        <td>{{ disp.hora_inicio|time:"H:i" }}</td>
+                        <td>{{ disp.hora_fim|time:"H:i" }}</td>
+                        <td>
+                            <a href="{% url 'contas:editar_disponibilidade' disponibilidade_id=disp.id %}" class="btn btn-secondary btn-sm me-1" title="Editar">
+                                <i class="bi bi-pencil-fill"></i> {# Ícone Editar #}
+                            </a>
+                            <form action="{% url 'contas:excluir_disponibilidade' disponibilidade_id=disp.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este horário de disponibilidade?');" title="Excluir">
+                                    <i class="bi bi-trash-fill"></i> {# Ícone Excluir #}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma disponibilidade semanal.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

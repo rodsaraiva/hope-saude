@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão de Regra{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-soft">
+                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+                    <h1 class="h3 mb-0" style="color: var(--hope-titulos-principais);">
+                        <i class="bi bi-exclamation-triangle-fill me-2" style="color: var(--hope-coral-suave);"></i>Confirmar Exclusão
+                    </h1>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead">Você tem certeza que deseja excluir a seguinte regra de disponibilidade?</p>
+                    <div class="alert alert-secondary">
+                        <strong>Detalhes da Regra:</strong>
+                        <p class="mb-0 mt-2">
+                            {{ object }} {# 'object' é o nome padrão do contexto para a instância do modelo em DeleteView #}
+                        </p>
+                        <ul class="list-unstyled mt-2 mb-0">
+                            <li><strong>Profissional:</strong> {{ object.profissional.user.get_full_name|default:object.profissional.user.username }}</li>
+                            <li><strong>Tipo:</strong> {{ object.get_tipo_regra_display }}</li>
+                            {% if object.tipo_regra == 'SEMANAL' %}
+                                <li><strong>Dia:</strong> {{ object.get_dia_semana_display }}</li>
+                                <li><strong>Horário:</strong> {{ object.hora_inicio_recorrente|time:"H:i" }} - {{ object.hora_fim_recorrente|time:"H:i" }}</li>
+                            {% elif object.tipo_regra == 'ESPECIFICA' %}
+                                <li><strong>Início:</strong> {{ object.data_hora_inicio_especifica|date:"d/m/Y H:i" }}</li>
+                                <li><strong>Fim:</strong> {{ object.data_hora_fim_especifica|date:"d/m/Y H:i" }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-trash-fill me-2"></i>Sim, Excluir Regra</button>
+                            <a href="{% url 'contas:gerenciar_regras_disponibilidade' %}" class="btn btn-secondary btn-lg"><i class="bi bi-x-circle me-2"></i>Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+Olá {{ destinatario_nome }},
+
+O agendamento listado abaixo foi CANCELADO por {{ cancelado_por }}.
+
+Paciente: {{ paciente_nome }}
+Profissional: Dr(a). {{ profissional_nome }}
+Data e Hora: {{ data_hora_agendamento|date:"d/m/Y \à\s H:i" }}
+
+Se precisar reagendar ou tiver dúvidas, por favor, entre em contato através da plataforma.
+
+Atenciosamente,
+Plataforma Saúde Mental

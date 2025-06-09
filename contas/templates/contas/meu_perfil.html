@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meu Perfil - {{ user.username }} - Hope Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <h1 class="display-5 fw-bold mb-0" style="color: var(--hope-titulos-principais);">
+                    <i class="bi bi-person-circle me-2" style="color: var(--hope-azul-sereno);"></i>Meu Perfil
+                </h1>
+                <a href="{% url 'contas:editar_perfil' %}" class="btn btn-hope-primary">
+                    <i class="bi bi-pencil-square me-1"></i>Editar Perfil
+                </a>
+            </div>
+
+            {# Card de Informações da Conta #}
+            <div class="card shadow-soft mb-4">
+                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                        <i class="bi bi-person-vcard-fill me-2" style="color: var(--hope-azul-sereno);"></i>Informações da Conta
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <dl class="row">
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Nome de Usuário:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ user.username }}</dd>
+
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Email:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ user.email|default:"Não informado" }}</dd>
+
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Nome Completo:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ user.get_full_name|default:"Não informado" }}</dd>
+
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Membro Desde:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ user.date_joined|date:"d \d\e F \d\e Y" }}</dd>
+                    </dl>
+                    <div class="mt-3 text-sm-end">
+                         <a href="{% url 'password_change' %}" class="btn btn-hope-outline-secondary btn-sm">
+                            <i class="bi bi-key-fill me-1"></i>Mudar Senha
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {# Card de Detalhes Específicos do Perfil de Profissional #}
+            {% if perfil_profissional %}
+            <div class="card shadow-soft mb-4">
+                <div class="card-header section-bg-verde-salvia-muito-suave py-3">
+                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                        <i class="bi bi-briefcase-fill me-2" style="color: var(--hope-verde-salvia);"></i>Meu Perfil de Profissional
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <dl class="row">
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Tipo:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.get_tipo_profissional_display|default:"Não informado" }}</dd>
+
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Registro (CRP/CRM):</dt>
+                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.numero_registro|default:"Não informado" }}</dd>
+                        
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Anos de Experiência:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.anos_experiencia|default:"Não informado" }}</dd>
+                        
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Telefone Contato:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.telefone_contato|default:"Não informado" }}</dd>
+                        
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Endereço Consultório:</dt>
+                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.endereco_consultorio|default:"Não informado"|linebreaksbr }}</dd>
+                        
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Especialidades:</dt>
+                        <dd class="col-sm-8 col-md-9">
+                            {% for esp in perfil_profissional.especialidades.all %}
+                                <span class="badge badge-especialidade-hope me-1 mb-1">{{ esp.nome }}</span>
+                            {% empty %}
+                                Nenhuma especialidade informada.
+                            {% endfor %}
+                        </dd>
+                        
+                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold mt-2">Sobre Mim / Abordagem:</dt>
+                        <dd class="col-sm-8 col-md-9 mt-2">{{ perfil_profissional.bio|default:"Nenhuma biografia disponível."|linebreaksbr }}</dd>
+                    </dl>
+                </div>
+            </div>
+            {% elif perfil_paciente %}
+                {# Bloco para perfil de paciente (já fornecido na Resposta #159) - pode manter ou adaptar se necessário #}
+                <div class="card shadow-soft mb-4">
+                    <div class="card-header section-bg-verde-salvia-muito-suave py-3">
+                        <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                            <i class="bi bi-person-heart me-2" style="color: var(--hope-verde-salvia);"></i>Meu Perfil de Paciente
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4 text-sm-end fw-semibold">Data de Nascimento:</dt>
+                            <dd class="col-sm-8">{{ perfil_paciente.data_nascimento|date:"d/m/Y"|default:"Não informado" }}</dd>
+                            <dt class="col-sm-4 text-sm-end fw-semibold">Telefone Contato:</dt>
+                            <dd class="col-sm-8">{{ perfil_paciente.telefone_contato|default:"Não informado" }}</dd>
+                            <dt class="col-sm-4 text-sm-end fw-semibold">Endereço:</dt>
+                            <dd class="col-sm-8">{{ perfil_paciente.endereco|default:"Não informado"|linebreaksbr }}</dd>
+                            <dt class="col-sm-4 text-sm-end fw-semibold">Contato de Emergência:</dt>
+                            <dd class="col-sm-8">{{ perfil_paciente.contato_emergencia|default:"Não informado" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            {% elif erro_perfil %}
+                <div class="alert alert-warning">{{ erro_perfil }}</div>
+            {% else %}
+                <div class="alert alert-secondary">Informações de perfil adicionais não disponíveis. Complete seu cadastro.</div>
+            {% endif %}
+
+            {# Card de Ações Rápidas #}
+            {% if user.is_authenticated %}
+            <div class="card shadow-soft">
+                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                        <i class="bi bi-lightning-charge-fill me-2" style="color: var(--hope-azul-sereno);"></i>Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body text-center p-4">
+                    <a href="{% url 'contas:meus_agendamentos' %}" class="btn btn-hope-primary btn-lg m-1">
+                        <i class="bi bi-calendar-check-fill me-1"></i>Meus Agendamentos
+                    </a>
+                    {% if perfil_profissional %}
+                        <a href="{% url 'contas:gerenciar_regras_disponibilidade' %}" class="btn btn-hope-destaque btn-lg m-1"> {# Usando cor de destaque #}
+                            <i class="bi bi-calendar-range me-1"></i>Gerenciar Disponibilidade
+                        </a>
+                        <a href="{% url 'contas:meu_calendario' %}" class="btn btn-hope-primary btn-lg m-1">  {# Usando cor primária #}
+                            <i class="bi bi-calendar3-week me-1"></i>Meu Calendário Visual
+                        </a>
+                    {% elif perfil_paciente %}
+                         <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-destaque btn-lg m-1">
+                            <i class="bi bi-search-heart-fill me-1"></i>Encontrar Profissional
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div> {# Fim col #}
+    </div> {# Fim row #}
+</div> {# Fim container #}
+{% endblock %}

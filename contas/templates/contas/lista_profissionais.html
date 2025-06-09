@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Encontre Profissionais - Hope Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h1 class="display-5 fw-bold mb-4 text-center" style="color: var(--hope-titulos-principais);">Encontre o Profissional Ideal para Você</h1>
+    <!-- <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principal);">Utilize nossos filtros para encontrar psicólogos e psiquiatras que melhor se adequam às suas necessidades.</p> -->
+
+    {# Formulário de Busca e Filtro (mantido como na Resposta #161) #}
+    <form method="get" action="{% url 'contas:lista_profissionais' %}" class="mb-5 p-4 form-filtro-profissionais shadow-soft">
+        {# ... (conteúdo do formulário como antes: input de busca, fieldset de especialidades, botão de busca) ... #}
+        {# Certifique-se que o botão de busca usa a classe .btn-hope-primary #}
+        <div class="row g-3 align-items-center mb-3">
+            <div class="col-lg">
+                <label for="searchQueryInput" class="form-label visually-hidden">Buscar por Palavra-chave:</label>
+                <input type="text" name="q" id="searchQueryInput" class="form-control" placeholder="Nome, abordagem, etc..." value="{{ search_query|default:'' }}">
+            </div>
+            <div class="col-lg-auto align-self-end">
+                <button type="submit" class="btn btn-hope-primary px-4 py-2 w-100"><i class="bi bi-search me-2"></i>Buscar</button>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                 <fieldset class="border p-3 rounded bg-white">
+                     <legend class="float-none w-auto px-2 h6" style="font-size: 1rem; color: var(--hope-titulos-principais);">Filtrar por Especialidade:</legend>
+                     <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                     {% for esp in todas_especialidades %}
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="especialidade" value="{{ esp.id }}" id="esp_{{ esp.id }}"
+                                    {% if esp.id in selected_specialty_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="esp_{{ esp.id }}">
+                                    {{ esp.nome }}
+                                </label>
+                            </div>
+                         </div>
+                     {% empty %}
+                         <div class="col-12"><p class="text-muted mb-0">Nenhuma especialidade para filtro.</p></div>
+                     {% endfor %}
+                    </div>
+                 </fieldset>
+             </div>
+        </div>
+    </form>
+
+    {% if search_query or selected_specialty_ids %}
+        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Resultados da sua busca:</h2>
+    {% else %}
+        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Conheça Nossos Profissionais:</h2>
+    {% endif %}
+
+    {% if page_obj %}
+       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 professional-list-row"> {# Classe para garantir flex #}
+           {% for perfil in page_obj %}
+                <div class="col"> {# .col já é flex item da .row. CSS .professional-list-row .col o torna flex container #}
+                    <div class="card card-profissional shadow-soft"> {# card-profissional aplica flex e flex-grow #}
+                        <div class="profile-card-image-placeholder">
+                            <i class="bi bi-person-bounding-box icon-placeholder"></i>
+                        </div>
+                        <div class="card-body"> {# card-body também é flex column com flex-grow #}
+                            <h5 class="card-title mb-1">
+                                <a href="{% url 'contas:perfil_profissional_detail' pk=perfil.pk %}" class="link-hope stretched-link">
+                                    {{ perfil.user.get_full_name|default:perfil.user.username }}
+                                </a>
+                            </h5>
+                            <h6 class="card-subtitle mb-2 text-muted fw-normal">{{ perfil.get_tipo_profissional_display|default:"Não informado" }}</h6>
+                            <div class="mb-2 py-1 d-flex flex-wrap gap-1">
+                                {% for esp in perfil.especialidades.all|slice:":2" %}
+                                    <span class="badge badge-especialidade-hope">{{ esp.nome }}</span>
+                                    {% if forloop.counter == 2 and perfil.especialidades.all|length > 2 %}
+                                        <span class="badge bg-light text-dark fw-normal">...</span>
+                                    {% endif %}
+                                {% empty %}
+                                    <small class="text-muted d-block" style="font-size: 0.85em;">Nenhuma especialidade.</small>
+                                {% endfor %}
+                            </div>
+                            <p class="card-text bio-summary"> {# .flex-grow-1 removido daqui, pois .card-body já é flex e este é o último elemento flexível antes do botão #}
+                                {{ perfil.bio|truncatewords_html:12|default:"(Sem biografia)" }}
+                            </p>
+                            {# O botão Ver Perfil é desnecessário se o card inteiro é clicável com stretched-link no título #}
+                            {# Se quiser manter o botão, remova stretched-link do título e estilize o botão com .btn-hope-outline-secondary #}
+                            {# <a href="{% url 'contas:perfil_profissional_detail' pk=perfil.pk %}" class="btn btn-hope-outline-secondary btn-sm"> #}
+                            {#    <i class="bi bi-eye-fill me-1"></i> Ver Perfil Completo #}
+                            {# </a> #}
+                        </div>
+                    </div>
+                </div>
+           {% endfor %}
+       </div>
+
+       {# --- Controles de Paginação (como na Resposta #161) --- #}
+       <nav aria-label="Navegação de página" class="mt-5 d-flex justify-content-center">
+           {% if page_obj.has_other_pages %}
+           <ul class="pagination shadow-sm">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page=1{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Primeira"><span aria-hidden="true">&laquo;&laquo;</span></a></li><li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Anterior"><span aria-hidden="true">&laquo;</span> Anterior</a></li>{% else %}<li class="page-item disabled"><span class="page-link" aria-hidden="true">&laquo;&laquo;</span></li><li class="page-item disabled"><span class="page-link">Anterior</span></li>{% endif %}
+                <li class="page-item active" aria-current="page"><span class="page-link" style="background-color: var(--hope-azul-sereno); border-color: var(--hope-azul-sereno);">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li> {# Cor na paginação ativa #}
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Próxima">Próxima <span aria-hidden="true">&raquo;</span></a></li><li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Última"><span aria-hidden="true">&raquo;&raquo;</span></a></li>{% else %}<li class="page-item disabled"><span class="page-link">Próxima</span></li><li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>{% endif %}
+           </ul>
+           {% endif %}
+       </nav>
+
+    {% else %}
+         {% if search_query or selected_specialty_ids %}
+              <div class="alert alert-warning mt-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i>Nenhum profissional encontrado. Tente refinar sua busca ou filtros.</div>
+         {% else %}
+              <div class="alert alert-info mt-4" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Nenhum profissional cadastrado no momento.</div>
+         {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

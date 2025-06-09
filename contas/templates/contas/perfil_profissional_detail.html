@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load tz static %} {# Adicionado static #}
+
+{% block title %}Perfil de {{ perfil.user.get_full_name|default:perfil.user.username }} - Hope Saúde{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    {# --- Card Principal com Informações do Perfil --- #}
+    <div class="card shadow-soft mb-5">
+        <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+            <div class="d-flex align-items-center">
+                <div class="profile-card-image-placeholder me-3" style="width: 80px; height: 80px; background-color: rgba(var(--hope-azul-sereno-rgb), 0.2);">
+                    <i class="bi bi-person-bounding-box icon-placeholder" style="font-size: 2.5rem;"></i>
+                    {# No futuro, substitua por: <img src="{{ perfil.imagem_url|default_if_none:'{% static 'img/placeholder_profissional.png' %}' }}" alt="Foto de {{ perfil.user.get_full_name }}" class="img-fluid rounded-circle" style="width: 80px; height: 80px; object-fit: cover;"> #}
+                </div>
+                <div>
+                    <h1 class="h2 mb-0" style="color: var(--hope-titulos-principais);">{{ perfil.user.get_full_name|default:perfil.user.username }}</h1>
+                    <p class="lead fs-6 mb-0" style="color: var(--hope-texto-principal);">{{ perfil.get_tipo_profissional_display|default:"Tipo não informado" }}
+                        {% if perfil.numero_registro %}
+                            <span class="text-muted small">- Registro: {{ perfil.numero_registro }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    {% if perfil.bio %}
+                        <h5 class="mb-2 fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-file-earmark-person-fill me-2" style="color: var(--hope-azul-sereno);"></i>Sobre o Profissional</h5>
+                        <p class="feature-text mb-4">{{ perfil.bio|linebreaksbr }}</p>
+                    {% endif %}
+
+                    <h5 class="mb-2 fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-stars me-2" style="color: var(--hope-verde-salvia);"></i>Especialidades</h5>
+                    <div class="mb-4">
+                        {% for esp in perfil.especialidades.all %}
+                            <span class="badge badge-especialidade-hope me-1 mb-1">{{ esp.nome }}</span>
+                        {% empty %}
+                            <p class="text-muted feature-text">Nenhuma especialidade informada.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-5 border-lg-start ps-lg-4">
+                    {% if perfil.anos_experiencia is not None %}
+                        <div class="mb-3">
+                            <h6 class="fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-hourglass-split me-2" style="color: var(--hope-verde-salvia);"></i>Experiência</h6>
+                            <p class="feature-text mb-0">{{ perfil.anos_experiencia }} anos</p>
+                        </div>
+                    {% endif %}
+
+                    <h6 class="fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-telephone-inbound-fill me-2" style="color: var(--hope-verde-salvia);"></i>Informações de Contato</h6>
+                    <ul class="list-unstyled feature-text">
+                        <li><i class="bi bi-envelope-fill me-2 opacity-75"></i><a href="mailto:{{ perfil.user.email }}" class="link-hope">{{ perfil.user.email|default:"Não informado" }}</a></li>
+                        {% if perfil.telefone_contato %}
+                            <li><i class="bi bi-telephone-fill me-2 opacity-75"></i>{{ perfil.telefone_contato }}</li>
+                        {% endif %}
+                    </ul>
+
+                    {% if perfil.endereco_consultorio %}
+                        <h6 class="fw-semibold mt-3" style="color: var(--hope-titulos-principais);"><i class="bi bi-geo-alt-fill me-2" style="color: var(--hope-verde-salvia);"></i>Consultório</h6>
+                        <p class="feature-text">{{ perfil.endereco_consultorio|linebreaksbr }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- Card para o Calendário de Disponibilidade do Paciente --- #}
+    <div class="card shadow-soft mb-4">
+        <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+             <h2 class="h4 mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                <i class="bi bi-calendar-plus-fill me-2" style="color: var(--hope-azul-sereno);"></i>Agende Sua Consulta
+            </h2>
+        </div>
+        <div class="card-body p-3 p-md-4">
+            <div id='calendar' class="rounded border" style="min-height: 450px; background-color: white;"></div> {# Fundo branco para o calendário em si #}
+            
+            {{ calendar_events_data|json_script:"calendar-events-data" }}
+            
+            <form id="booking-form" method="post" style="display: none;">{% csrf_token %}</form>
+            
+            <small class="d-block text-muted mt-3 fst-italic">
+                <i class="bi bi-info-circle me-1"></i>Clique em um bloco "Horários Disponíveis" no calendário e, em seguida, escolha um horário específico no pop-up que aparecerá.
+            </small>
+
+             {% if request.user.is_authenticated and not request.user.perfil_paciente %}
+                 <div class="alert alert-warning mt-3" role="alert"><i class="bi bi-exclamation-triangle-fill me-1"></i> Apenas pacientes podem solicitar agendamentos.</div>
+             {% elif not request.user.is_authenticated %}
+                 <div class="alert alert-info mt-3" role="alert"><i class="bi bi-box-arrow-in-right me-1"></i> <a href="{% url 'login' %}?next={{ request.path }}" class="alert-link link-hope">Faça login como paciente</a> para solicitar um agendamento.</div>
+             {% endif %}
+        </div>
+    </div>
+
+    {# --- MODAL PARA ESCOLHER HORÁRIO ESPECÍFICO (como na Resposta #155) --- #}
+    <div class="modal fade" id="escolherHorarioModal" tabindex="-1" aria-labelledby="escolherHorarioModalLabel" aria-hidden="true">
+        {# ... (Conteúdo do modal como na Resposta #155, o HTML dele não precisa mudar) ... #}
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title" id="escolherHorarioModalLabel"><i class="bi bi-clock-history me-2"></i>Escolha um Horário para Agendar</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body">
+            <p id="escolherHorarioModalInfoPeriodo" class="text-muted mb-3 border-bottom pb-2"></p>
+            <div id="listaHorariosModal" class="list-group">
+              {# JS Popula Aqui #}
+            </div>
+            <div id="escolherHorarioModalAlertPlaceholder" class="mt-3"></div>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+    <p class="text-center">
+        <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-outline-secondary">
+            <i class="bi bi-arrow-left-circle me-1"></i>Voltar para Lista de Profissionais
+        </a>
+    </p>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function getCookie(name) {let cV=null;if(document.cookie && document.cookie !== ''){const c=document.cookie.split(';');for(let i=0;i<c.length;i++){const ck=c[i].trim();if(ck.substring(0,name.length+1)===(name+'=')){cV=decodeURIComponent(ck.substring(name.length+1));break}}}return cV;}
+    const csrftoken = getCookie('csrftoken'); 
+    function showAlert(msg,type,pId='alertPlaceholderGlobal',clr=true){const ap=document.getElementById(pId);if(ap){if(clr)ap.innerHTML='';const w=document.createElement('div');w.innerHTML=[`<div class="alert alert-${type} alert-dismissible fade show mt-2" role="alert">`,`   <div>${msg}</div>`,`   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`,`</div>`].join('');ap.append(w);}}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // console.log("DEBUG (Perfil Paciente): DOMContentLoaded disparado.");
+        const eventsDataElement = document.getElementById('calendar-events-data');
+        if (!eventsDataElement) { console.error("DEBUG (Perfil Paciente): Elem 'calendar-events-data' não encontrado."); return; }
+        
+        let calendarEvents = [];
+        try {
+            const parsedData = JSON.parse(eventsDataElement.textContent);
+            if (Array.isArray(parsedData)) { calendarEvents = parsedData; } 
+            else { console.error("DEBUG (Perfil Paciente): Dados NÃO são Array! Tipo:", typeof parsedData); }
+            // console.log("DEBUG (Perfil Paciente): Eventos p/ calendário paciente (blocos grandes):", calendarEvents.length, calendarEvents);
+        } catch (e) { console.error("DEBUG (Perfil Paciente): Erro JSON.parse:", e); return; }
+
+        const calendarEl = document.getElementById('calendar');
+        if (!calendarEl) { console.error("DEBUG (Perfil Paciente): Elem 'calendar' não encontrado."); return; }
+        
+        let escolherHorarioModalInstance;
+        var escolherHorarioModalEl = document.getElementById('escolherHorarioModal');
+        if (escolherHorarioModalEl) {
+            escolherHorarioModalInstance = new bootstrap.Modal(escolherHorarioModalEl);
+        } else { console.error("DEBUG (Perfil Paciente): Modal 'escolherHorarioModal' NÃO encontrado!"); return;}
+
+        const duracaoConsultaMinutos = parseInt("{{ duracao_consulta_minutos|default:60 }}");
+        // console.log("DEBUG (Perfil Paciente): Duração Consulta (min):", duracaoConsultaMinutos);
+
+        try {
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+              initialView: 'timeGridWeek',
+              headerToolbar: {left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek,timeGridDay,listWeek'},
+              locale: 'pt-br', buttonText: {today:'Hoje',month:'Mês',week:'Semana',day:'Dia',list:'Lista'},
+              allDaySlot: false, slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
+              businessHours: {daysOfWeek:[1,2,3,4,5],startTime:'08:00',endTime:'18:00'},
+              nowIndicator: true, expandRows: true, handleWindowResize: true, height: 'auto',
+              navLinks: true, editable: false, selectable: false, 
+              events: calendarEvents, 
+              eventDisplay: 'block', 
+              eventColor: '#28a745', 
+              eventBorderColor: '#23923d',
+              eventTimeFormat: {hour:'2-digit',minute:'2-digit',hour12:false},
+              eventDidMount: function(info) { if (info.event.title && info.el) { info.el.setAttribute('title', info.event.title + " (Clique para ver horários)"); } },
+              
+              eventClick: function(info) {
+                  console.log("DEBUG (Perfil Paciente): Bloco Disponível Clicado:", info.event.title, info.event.start, info.event.end, info.event.extendedProps);
+                  document.getElementById('escolherHorarioModalAlertPlaceholder').innerHTML = '';
+                  
+                  const eventType = info.event.extendedProps.tipo;
+                  if (eventType === 'bloco_disponivel_paciente' && escolherHorarioModalInstance) {
+                      const horariosIniciaisISO = info.event.extendedProps.horarios_iniciais_disponiveis_iso;
+                      const listaHorariosModalEl = document.getElementById('listaHorariosModal');
+                      const profissionalId = parseInt("{{ perfil.id }}");
+                      
+                      document.getElementById('escolherHorarioModalInfoPeriodo').textContent = 
+                          `Período selecionado: ${info.event.start.toLocaleDateString('pt-BR')} das ${info.event.start.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})} às ${info.event.end.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+
+                      listaHorariosModalEl.innerHTML = ''; 
+
+                      if (horariosIniciaisISO && Array.isArray(horariosIniciaisISO) && horariosIniciaisISO.length > 0) {
+                          horariosIniciaisISO.forEach(function(horarioISO) {
+                              const horarioDate = new Date(horarioISO);
+                              const fimSlotDate = new Date(horarioDate.getTime() + duracaoConsultaMinutos * 60000);
+                              const horarioFormatadoInicio = horarioDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                              const horarioFormatadoFim = fimSlotDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                              const btnHorario = document.createElement('button');
+                              btnHorario.type = 'button';
+                              btnHorario.classList.add('list-group-item', 'list-group-item-action', 'text-center', 'py-2');
+                              btnHorario.innerHTML = `<i class="bi bi-clock-fill me-2"></i>${horarioFormatadoInicio} - ${horarioFormatadoFim}`;
+                              btnHorario.dataset.timestampStr = horarioISO;
+
+                              btnHorario.addEventListener('click', function() {
+                                  const ts = this.dataset.timestampStr;
+                                  const dataAg = new Date(ts);
+                                  const confirmMsg = `Confirmar agendamento para ${dataAg.toLocaleDateString('pt-BR')} às ${horarioFormatadoInicio}?`;
+                                  
+                                  if (confirm(confirmMsg)) {
+                                      const bookingForm = document.getElementById('booking-form');
+                                      const bookingUrlTemplate = "{% url 'contas:criar_agendamento' 0 'SLOT_PLACEHOLDER' %}";
+                                      const bookingUrl = bookingUrlTemplate.replace('0', profissionalId.toString()).replace('SLOT_PLACEHOLDER', ts);
+                                      
+                                      if (bookingForm) {
+                                          bookingForm.action = bookingUrl;
+                                          console.log("DEBUG (Perfil Paciente): Submetendo booking form para:", bookingUrl);
+                                          bookingForm.submit();
+                                      } else { console.error("DEBUG (Perfil Paciente): booking-form não encontrado!"); }
+                                      if (escolherHorarioModalInstance) escolherHorarioModalInstance.hide();
+                                  }
+                              });
+                              listaHorariosModalEl.appendChild(btnHorario);
+                          });
+                      } else {
+                          listaHorariosModalEl.innerHTML = '<p class="text-muted text-center my-3">Nenhum horário específico disponível para agendamento neste bloco.</p>';
+                      }
+                      escolherHorarioModalInstance.show();
+                  } else {
+                      console.log("DEBUG (Perfil Paciente): Clique em evento não agendável ou modal ausente. Tipo:", eventType);
+                  }
+              } // Fim eventClick
+            });
+            calendar.render();
+            console.log("DEBUG (Perfil Paciente): Calendário do paciente renderizado.");
+        } catch (e) {
+            console.error("DEBUG (Perfil Paciente): Erro ao inicializar ou renderizar o FullCalendar:", e);
+        }
+    });
+</script>
+{% endblock %}

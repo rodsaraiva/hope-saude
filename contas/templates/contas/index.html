@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hope Saúde - Cuidado, Confiança e Esperança para Seu Bem-Estar Mental{% endblock %}
+
+{% block content %}
+
+{# Seção Hero - Com Azul Sereno Suave no Fundo e Estrutura Melhorada #}
+<section class="hero-section section-padding section-bg-azul-sereno-suave">
+    <div class="container">
+        <div class="row align-items-center g-lg-5">
+            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+                <h1 class="display-3 fw-bold lh-1 mb-4">Seu Caminho Seguro para o Equilíbrio e Saúde Mental.</h1>
+                <p class="lead col-lg-10 mb-4 pb-2">
+                    Na Hope Saúde, conectamos você a profissionais qualificados de psicologia e psiquiatria de forma simples, acolhedora e eficaz. Encontre o suporte que precisa, no seu tempo e conforto.
+                </p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-start">
+                    <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-primary btn-lg px-4 py-3">
+                        <i class="bi bi-search me-2"></i>Encontrar um Profissional
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'contas:registro' %}" class="btn btn-hope-outline-secondary btn-lg px-4 py-3">
+                        <i class="bi bi-person-plus-fill me-2"></i>Cadastre-se Gratuitamente
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                {# SUGESTÃO: Imagem ou ilustração que transmita calma, esperança. Formato SVG é ideal. #}
+                {# Exemplo: <img src="{% static 'contas/img/hero_illustration.svg' %}" class="img-fluid" alt="Ilustração de bem-estar" style="max-width: 450px;"> #}
+                <div class="p-3">
+                    <i class="bi bi-hearts" style="font-size: 12rem; color: rgba(var(--hope-verde-salvia-rgb), 0.5);"></i> {# Ícone mais suave e temático #}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Seção "Nossos Pilares" (Benefícios) - Fundo Branco Gelo, elementos usam cores da marca #}
+<section class="features-section section-padding">
+    <div class="container px-4">
+        <h2 class="pb-2 border-bottom text-center mb-5 display-5">Cuidado, Confiança e Clareza na Sua Jornada</h2>
+        <div class="row g-lg-5 py-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
+            <div class="col d-flex flex-column align-items-center text-center mb-4">
+                <div class="feature-icon-hope icon-bg-azul-sereno shadow-soft">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3 class="feature-title mt-3">Confiança e Segurança</h3>
+                <p class="feature-text px-3">Conecte-se com profissionais de saúde mental verificados e experientes, em um ambiente digital protegido e confidencial.</p>
+            </div>
+            <div class="col d-flex flex-column align-items-center text-center mb-4">
+                <div class="feature-icon-hope icon-bg-verde-salvia shadow-soft">
+                    <i class="bi bi-calendar2-heart-fill"></i>
+                </div>
+                <h3 class="feature-title mt-3">Acolhimento e Acesso</h3>
+                <p class="feature-text px-3">Agende suas consultas online com flexibilidade e encontre o suporte que você precisa, de forma humana e acessível.</p>
+            </div>
+            <div class="col d-flex flex-column align-items-center text-center mb-4">
+                <div class="feature-icon-hope icon-bg-pessego shadow-soft">
+                    <i class="bi bi-lightbulb-fill"></i>
+                </div>
+                <h3 class="feature-title mt-3">Clareza e Esperança</h3>
+                <p class="feature-text px-3">Navegue em uma plataforma intuitiva e encontre um caminho claro para o seu bem-estar e a esperança de uma vida equilibrada.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Seção de Testemunhos (Placeholder) - Fundo Branco Gelo #}
+<section class="py-5 section-bg-azul-sereno-muito-suave">
+    <div class="container px-4 py-5">
+        <h2 class="text-center mb-5 display-5">Histórias que Inspiram Esperança</h2>
+        <div class="row gx-lg-5 justify-content-center">
+            <div class="col-lg-5 mb-4"> {# Aumentado para dois depoimentos lado a lado em telas maiores #}
+                <div class="card shadow-soft h-100 testimonial-card">
+                    <div class="card-body">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <p class="card-text fst-italic mb-4">"A Hope Saúde facilitou minha busca por um profissional que realmente entende minhas necessidades. Acolhimento e profissionalismo definem minha experiência."</p>
+                        <div class="d-flex align-items-center mt-auto pt-3">
+                            <i class="bi bi-person-circle profile-icon me-3"></i>
+                            <div>
+                                <h5 class="fw-bold mb-0">L. S.</h5>
+                                <small class="text-muted">Paciente da Plataforma</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-soft h-100 testimonial-card">
+                     <div class="card-body">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <p class="card-text fst-italic mb-4">"Como profissional, a plataforma me oferece as ferramentas que preciso para gerenciar minha agenda e me conectar com pacientes de forma eficaz e segura."</p>
+                        <div class="d-flex align-items-center mt-auto pt-3">
+                             <i class="bi bi-person-circle profile-icon me-3"></i>
+                            <div>
+                                <h5 class="fw-bold mb-0">Dr(a). M. R.</h5>
+                                <small class="text-muted">Profissional da Saúde</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Seção CTA Final - Fundo Verde Sálvia Suave #}
+<section class="cta-final-section text-center section-padding section-bg-verde-salvia-suave">
+    <div class="container">
+        <i class="bi bi-emoji-heart-eyes-fill display-1 mb-4" style="color: var(--hope-pessego-delicado);"></i>
+        <h2 class="display-5 fw-bold mb-3">Pronto para Cultivar seu Bem-Estar?</h2>
+        <p class="lead col-lg-9 mx-auto mb-4 pb-2">
+            A Hope Saúde oferece um caminho seguro e compreensivo para o seu equilíbrio mental. <br>Comece hoje mesmo.
+        </p>
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+            <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-destaque btn-lg px-4 py-3 rounded-pill shadow-sm">
+                <i class="bi bi-search-heart-fill me-2"></i>Encontrar Meu Profissional
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'contas:registro' %}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm"> {# Botão mais sutil #}
+                <i class="bi bi-box-arrow-in-right me-2"></i>Criar Minha Conta
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

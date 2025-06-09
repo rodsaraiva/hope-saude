@@ -1,0 +1,14 @@
+Olá {{ paciente_nome }},
+
+Seu agendamento foi CONFIRMADO!
+
+Profissional: Dr(a). {{ profissional_nome }}
+Data e Hora: {{ data_hora_agendamento|date:"d/m/Y \à\s H:i" }}
+
+Você pode ver seus agendamentos aqui:
+{{ link_meus_agendamentos }}
+
+Lembre-se de se conectar no horário para sua consulta.
+
+Atenciosamente,
+Plataforma Saúde Mental

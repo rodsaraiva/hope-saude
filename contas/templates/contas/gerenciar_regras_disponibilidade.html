@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load tz %} {# Para formatar datas e horas com fuso horário, se necessário #}
+
+{% block title %}Gerenciar Minha Disponibilidade{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Gerenciar Minha Disponibilidade</h1>
+    <p class="text-muted mb-4">Adicione ou remova suas regras de disponibilidade. Escolha "Semanal Recorrente" para horários que se repetem toda semana, ou "Data/Hora Específica" para definir um período único de disponibilidade.</p>
+
+    {# Formulário para Adicionar Nova Regra de Disponibilidade #}
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header">
+            <h2 class="h4 mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Nova Regra de Disponibilidade</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'contas:gerenciar_regras_disponibilidade' %}" novalidate id="formRegraDisponibilidade">
+                {% csrf_token %}
+
+                {# Exibe erros não associados a campos (non-field errors), como o IntegrityError ou do clean() geral #}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# Campo Tipo de Regra - Controla os outros campos #}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ form.tipo_regra.label_tag }}</label>
+                    {% for radio in form.tipo_regra %}
+                        <div class="form-check">
+                            {{ radio.tag }} {# Renderiza <input type="radio" ...> #}
+                            <label for="{{ radio.id_for_label }}" class="form-check-label">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                    {% if form.tipo_regra.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.tipo_regra.help_text }}</small>{% endif %}
+                    {% for error in form.tipo_regra.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Campos para Disponibilidade Semanal Recorrente #}
+                <div id="campos-semanal" class="conditional-fields" style="display: none;"> {# Começa escondido por padrão #}
+                    <h5 class="text-muted mb-3 border-bottom pb-2">Detalhes para Semanal Recorrente</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.dia_semana.id_for_label }}" class="form-label">{{ form.dia_semana.label }}</label>
+                            {{ form.dia_semana }} {# Widget já tem form-select #}
+                            {% if form.dia_semana.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.dia_semana.help_text }}</small>{% endif %}
+                            {% for error in form.dia_semana.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.hora_inicio_recorrente.id_for_label }}" class="form-label">{{ form.hora_inicio_recorrente.label }}</label>
+                            {{ form.hora_inicio_recorrente }} {# Widget já tem form-control e type="time" #}
+                            {% if form.hora_inicio_recorrente.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.hora_inicio_recorrente.help_text }}</small>{% endif %}
+                            {% for error in form.hora_inicio_recorrente.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.hora_fim_recorrente.id_for_label }}" class="form-label">{{ form.hora_fim_recorrente.label }}</label>
+                            {{ form.hora_fim_recorrente }} {# Widget já tem form-control e type="time" #}
+                            {% if form.hora_fim_recorrente.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.hora_fim_recorrente.help_text }}</small>{% endif %}
+                            {% for error in form.hora_fim_recorrente.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                {# Campos para Disponibilidade de Data/Hora Específica #}
+                <div id="campos-especifica" class="conditional-fields" style="display: none;"> {# Começa escondido por padrão #}
+                    <h5 class="text-muted mb-3 border-bottom pb-2">Detalhes para Data/Hora Específica</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.data_hora_inicio_especifica.id_for_label }}" class="form-label">{{ form.data_hora_inicio_especifica.label }}</label>
+                            {{ form.data_hora_inicio_especifica }} {# Widget já tem form-control e type="datetime-local" #}
+                            {% if form.data_hora_inicio_especifica.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.data_hora_inicio_especifica.help_text }}</small>{% endif %}
+                            {% for error in form.data_hora_inicio_especifica.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.data_hora_fim_especifica.id_for_label }}" class="form-label">{{ form.data_hora_fim_especifica.label }}</label>
+                            {{ form.data_hora_fim_especifica }} {# Widget já tem form-control e type="datetime-local" #}
+                            {% if form.data_hora_fim_especifica.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.data_hora_fim_especifica.help_text }}</small>{% endif %}
+                            {% for error in form.data_hora_fim_especifica.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-plus-circle-fill me-1"></i>Adicionar Regra</button>
+            </form>
+        </div>
+    </div>
+
+    {# Lista de Regras de Disponibilidade Cadastradas #}
+    <h2 class="h4 mb-3 mt-5"><i class="bi bi-list-ul me-2"></i>Minhas Regras de Disponibilidade Cadastradas</h2>
+    {% if regras_disponibilidade %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Detalhes</th>
+                        <th>Criado em</th>
+                        <th><i class="bi bi-gear-fill me-1"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for regra in regras_disponibilidade %}
+                    <tr>
+                        <td>{{ regra.get_tipo_regra_display }}</td>
+                        <td>
+                            {% if regra.tipo_regra == 'SEMANAL' %}
+                                {{ regra.get_dia_semana_display }}: {{ regra.hora_inicio_recorrente|time:"H:i" }} - {{ regra.hora_fim_recorrente|time:"H:i" }}
+                            {% elif regra.tipo_regra == 'ESPECIFICA' %}
+                                {{ regra.data_hora_inicio_especifica|date:"d/m/y H:i" }} até {{ regra.data_hora_fim_especifica|date:"d/m/y H:i" }}
+                            {% endif %}
+                        </td>
+                        <td>{{ regra.criado_em|date:"d/m/y H:i" }}</td>
+                        <td>
+                            {# Botão Editar FUNCIONAL #}
+                            <a href="{% url 'contas:editar_regra_disponibilidade' regra_id=regra.id %}" class="btn btn-outline-secondary btn-sm me-1" title="Editar">
+                                <i class="bi bi-pencil-fill"></i> Editar
+                            </a>
+                            {# Formulário para Excluir Funcional #}
+                            <form action="{% url 'contas:excluir_regra_disponibilidade' regra_id=regra.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta regra de disponibilidade? Esta ação não pode ser desfeita.');" title="Excluir">
+                                    <i class="bi bi-trash-fill"></i> Excluir
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+         <div class="alert alert-info" role="alert">
+             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma regra de disponibilidade.
+        </div>
+    {% endif %}
+
+</div> {# Fim container #}
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoRegraRadios = document.querySelectorAll('input[name="tipo_regra"]');
+    const camposSemanal = document.getElementById('campos-semanal');
+    const camposEspecifica = document.getElementById('campos-especifica');
+
+    function toggleCampos(tipoSelecionado) {
+        if (camposSemanal && camposEspecifica) { // Garante que os elementos existem
+            if (tipoSelecionado === 'SEMANAL') {
+                camposSemanal.style.display = 'block';
+                camposEspecifica.style.display = 'none';
+            } else if (tipoSelecionado === 'ESPECIFICA') {
+                camposSemanal.style.display = 'none';
+                camposEspecifica.style.display = 'block';
+            } else {
+                camposSemanal.style.display = 'none';
+                camposEspecifica.style.display = 'none';
+            }
+        }
+    }
+
+    // Verifica o estado inicial ao carregar a página
+    let tipoInicial = '';
+    tipoRegraRadios.forEach(function(radio) {
+        if (radio.checked) {
+            tipoInicial = radio.value;
+        }
+    });
+    // Chama a função para configurar a visibilidade inicial dos campos
+    // mesmo se nenhum radio estiver selecionado (esconderá ambos os blocos)
+    toggleCampos(tipoInicial);
+
+
+    // Adiciona listener para mudanças nos radios
+    tipoRegraRadios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            toggleCampos(this.value);
+        });
+    });
+});
+</script>
+{% endblock %}

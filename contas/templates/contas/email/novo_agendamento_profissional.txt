@@ -1,0 +1,12 @@
+Olá Dr(a). {{ profissional_nome }},
+
+Você recebeu uma nova solicitação de agendamento:
+
+Paciente: {{ paciente_nome }}
+Data e Hora: {{ data_hora_agendamento|date:"d/m/Y \à\s H:i" }}
+
+Por favor, acesse a plataforma para confirmar ou gerenciar este agendamento:
+{{ link_meus_agendamentos }}
+
+Atenciosamente,
+Plataforma Saúde Mental
