@@ -128,6 +128,12 @@ DATABASES = {
     }
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://teste-rodrigo-test.5udrnk.easypanel.host",
+    # Adicione outros domínios se sua aplicação for acessível por mais de um
+    # Ex: "https://www.seudominio.com",
+    # "http://localhost:8000" # Para desenvolvimento local, se for o caso
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
