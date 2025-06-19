@@ -1,7 +1,7 @@
 # Use uma imagem base oficial do Python. É uma boa prática usar uma versão específica
 # para garantir consistência. Escolha uma que corresponda à sua versão de Python.
 # 'slim-buster' é uma versão menor e mais segura para produção.
-FROM python:3.9-slim-buster
+FROM python:3.12-slim-buster
 
 # Define o diretório de trabalho dentro do container. Todos os comandos subsequentes
 # serão executados a partir deste diretório.
