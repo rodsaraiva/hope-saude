@@ -37,7 +37,7 @@ COPY . /app/
 
 # Expõe a porta em que sua aplicação Django será executada dentro do container.
 # Por padrão, Gunicorn (o servidor WSGI recomendado) usa a porta 8000.
-EXPOSE 8000
+EXPOSE 80
 
 # Comando para iniciar a aplicação.
 # Recomendado: Usar Gunicorn como servidor WSGI de produção.
