@@ -33,7 +33,7 @@ COPY . /app/
 # Opcional: Coleta arquivos estáticos (se você estiver servindo-os com Django ou um servidor web).
 # Este passo deve vir DEPOIS de copiar todo o código.
 # Certifique-se de que collectstatic esteja configurado corretamente no seu settings.py.
-# RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 # Expõe a porta em que sua aplicação Django será executada dentro do container.
 # Por padrão, Gunicorn (o servidor WSGI recomendado) usa a porta 8000.
