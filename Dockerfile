@@ -41,6 +41,6 @@ EXPOSE 8000
 
 # Comando para iniciar a aplicação.
 # Recomendado: Usar Gunicorn como servidor WSGI de produção.
-# 'seu_projeto.wsgi:application' deve ser o caminho para o seu arquivo WSGI.
+# 'meuprojeto.wsgi:application' deve ser o caminho para o seu arquivo WSGI.
 # '-b 0.0.0.0:8000' faz o Gunicorn escutar em todas as interfaces na porta 8000.
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "seu_projeto.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "meuprojeto.wsgi:application"]
