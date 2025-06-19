@@ -78,6 +78,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -162,6 +163,9 @@ STATICFILES_DIRS = [
 # --- ADICIONE ESTA LINHA ---
 # Diretório onde o collectstatic irá juntar todos os arquivos estáticos para produção
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_production') 
+
+# Configuração para Whitenoise (apenas esta linha)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- ADICIONE AS CONFIGURAÇÕES DE MÍDIA ABAIXO ---
 # URL base para servir os arquivos de mídia enviados pelos usuários
