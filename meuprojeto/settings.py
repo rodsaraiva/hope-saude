@@ -47,6 +47,7 @@ if not SECRET_KEY:
 
 # DEBUG
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+print(f"DEBUG setting is: {DEBUG}") # <-- Adicione esta linha
 
 # ALLOWED_HOSTS
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
