@@ -11,7 +11,7 @@ WORKDIR /app
 # Defina DJANGO_SETTINGS_MODULE para o seu arquivo de settings.
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV DJANGO_SETTINGS_MODULE=meuprojeto.settings  # <-- MUDE AQUI PARA O SEU ARQUIVO DE SETTINGS
+ENV DJANGO_SETTINGS_MODULE=meuprojeto.settings
 
 # Instala as dependências do sistema operacional necessárias para o Python e alguns pacotes.
 # 'gcc' e 'postgresql-client' são comuns para dependências de banco de dados como psycopg2.
