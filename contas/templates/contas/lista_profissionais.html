@@ -56,9 +56,14 @@
            {% for perfil in page_obj %}
                 <div class="col"> {# .col já é flex item da .row. CSS .professional-list-row .col o torna flex container #}
                     <div class="card card-profissional shadow-soft"> {# card-profissional aplica flex e flex-grow #}
-                        <div class="profile-card-image-placeholder">
-                            <i class="bi bi-person-bounding-box icon-placeholder"></i>
-                        </div>
+                        {# ALTERADO Bloco de imagem para mostrar foto ou placeholder #}
+                        {% if perfil.foto_perfil %}
+                            <img src="{{ perfil.foto_perfil.url }}" alt="Foto de {{ perfil.user.get_full_name }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                        {% else %}
+                            <div class="profile-card-image-placeholder" style="height: 180px;">
+                                <i class="bi bi-person-bounding-box icon-placeholder"></i>
+                            </div>
+                        {% endif %}
                         <div class="card-body"> {# card-body também é flex column com flex-grow #}
                             <h5 class="card-title mb-1">
                                 <a href="{% url 'contas:perfil_profissional_detail' pk=perfil.pk %}" class="link-hope stretched-link">
@@ -66,6 +71,21 @@
                                 </a>
                             </h5>
                             <h6 class="card-subtitle mb-2 text-muted fw-normal">{{ perfil.get_tipo_profissional_display|default:"Não informado" }}</h6>
+                            
+                            {# --- BLOCO NOVO ADICIONADO --- #}
+                            {% if perfil.total_avaliacoes > 0 %}
+                            <div class="mb-2 d-flex align-items-center" style="color: #ffc107;">
+                                <i class="bi bi-star-fill me-1"></i>
+                                <span class="fw-bold me-2">{{ perfil.nota_media }}</span>
+                                <span class="text-muted small">({{ perfil.total_avaliacoes }} avaliações)</span>
+                            </div>
+                            {% else %}
+                            <div class="mb-2 d-flex align-items-center">
+                                <span class="text-muted small">Ainda não há avaliações</span>
+                            </div>
+                            {% endif %}
+                            {# --- FIM DO BLOCO NOVO --- #}
+
                             <div class="mb-2 py-1 d-flex flex-wrap gap-1">
                                 {% for esp in perfil.especialidades.all|slice:":2" %}
                                     <span class="badge badge-especialidade-hope">{{ esp.nome }}</span>

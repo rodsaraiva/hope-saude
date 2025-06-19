@@ -1,0 +1,86 @@
+{% load tz %} {# Carrega a tag de timezone #}
+
+<div class="agendamento-item shadow-sm 
+    {% if ag.status == 'PENDENTE' %}status-pendente
+    {% elif ag.status == 'CONFIRMADO' %}status-confirmado
+    {% elif ag.status == 'REALIZADO' %}status-realizado
+    {% elif ag.status == 'CANCELADO' %}status-cancelado opacity-75
+    {% else %}status-confirmado opacity-75
+    {% endif %}">
+    <div class="row align-items-center gy-2">
+        <div class="col-lg-7 col-xl-8">
+            <p class="agendamento-data-hora mb-1">
+                <i class="bi bi-clock-history me-2"></i>{{ ag.data_hora|date:"l, d/m/Y \à\s H:i" }}
+            </p>
+            <p class="agendamento-participante mb-1">
+                {% if is_profissional %}
+                    <i class="bi bi-person me-2"></i><strong>Paciente:</strong> {{ ag.paciente.user.get_full_name|default:ag.paciente.user.username }}
+                {% else %}
+                    <i class="bi bi-person-workspace me-2"></i><strong>Profissional:</strong> {{ ag.profissional.user.get_full_name|default:ag.profissional.user.username }}
+                    <span class="text-muted small">({{ ag.profissional.get_tipo_profissional_display }})</span>
+                {% endif %}
+            </p>
+            <div class="agendamento-status mb-2">
+                <span class="badge rounded-pill
+                    {% if ag.status == 'PENDENTE' %} bg-status-pendente
+                    {% elif ag.status == 'CONFIRMADO' %} bg-status-confirmado
+                    {% elif ag.status == 'CANCELADO' %} bg-status-cancelado
+                    {% elif ag.status == 'REALIZADO' %} bg-status-realizado
+                    {% else %} bg-light text-dark {% endif %}
+                ">{{ ag.get_status_display }}</span>
+            </div>
+        </div>
+        <div class="col-lg-5 col-xl-4 text-lg-end mt-3 mt-lg-0 agendamento-acoes">
+            {# Botão Entrar na Consulta (para agendamentos ativos ou futuros) #}
+            {% if ag.status == 'CONFIRMADO' %}
+                <button type="button" 
+                        class="btn btn-hope-destaque btn-sm mb-1 entrar-consulta-btn"
+                        data-agendamento-id="{{ ag.id }}">
+                    <i class="bi bi-camera-video-fill me-1"></i>Entrar na Consulta
+                </button>
+            {% endif %}
+
+            {# Botão Cancelar #}
+            {% if ag.status == 'PENDENTE' or ag.status == 'CONFIRMADO' %}
+                <form action="{% url 'contas:cancelar_agendamento' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');" class="btn btn-hope-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1"></i>Cancelar Ag.
+                    </button>
+                </form>
+            {% endif %}
+
+            {# Botão Confirmar #}
+            {% if is_profissional and ag.status == 'PENDENTE' %}
+                 <form action="{% url 'contas:confirmar_agendamento' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-hope-primary btn-sm">
+                        <i class="bi bi-check-circle me-1"></i>Confirmar Ag.
+                    </button>
+                </form>
+            {% endif %}
+            
+            {# Botão Marcar como Realizado #}
+            {% if is_profissional and ag.status == 'CONFIRMADO' and ag.data_hora|timezone:settings.TIME_ZONE <= timezone.now %}
+                <form action="{% url 'contas:marcar_realizado' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="bi bi-check2-all me-1"></i>Marcar como Realizado
+                    </button>
+                </form>
+            {% endif %}
+
+            {# Botão Avaliar #}
+            {% if not is_profissional and ag.status == 'REALIZADO' and not ag.avaliacao %}
+                <button type="button" class="btn btn-hope-destaque btn-sm mb-1 btn-avaliar-consulta"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#avaliacaoModal"
+                        data-agendamento-id="{{ ag.id }}">
+                    <i class="bi bi-star-fill me-1"></i>Avaliar Consulta
+                </button>
+            {% elif not is_profissional and ag.status == 'REALIZADO' and ag.avaliacao %}
+                <span class="badge bg-light text-dark fw-normal"><i class="bi bi-check-circle-fill me-1"></i>Avaliado</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

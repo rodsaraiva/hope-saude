@@ -1,3 +1,5 @@
 venv/
 db.sqlite3
 staticfiles_production/
+contas/__pycache__/
+media/

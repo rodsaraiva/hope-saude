@@ -3,7 +3,7 @@
 from django.contrib import admin
 from .models import (
     PerfilProfissional, PerfilPaciente, Especialidade, Agendamento,
-    RegraDisponibilidade # <-- RegraDisponibilidade adicionado
+    RegraDisponibilidade, Avaliacao  # <-- RegraDisponibilidade adicionado
     # Remova Disponibilidade e DisponibilidadeAvulsa dos imports se estiverem aqui
 )
 from django.utils import timezone
@@ -15,7 +15,7 @@ class EspecialidadeAdmin(admin.ModelAdmin):
 
 @admin.register(PerfilProfissional)
 class PerfilProfissionalAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tipo_profissional', 'numero_registro')
+    list_display = ('user', 'tipo_profissional', 'numero_registro', 'valor_consulta')
     list_filter = ('tipo_profissional',)
     search_fields = ('user__username', 'numero_registro', 'especialidades__nome')
     filter_horizontal = ('especialidades',)
@@ -27,8 +27,8 @@ class PerfilPacienteAdmin(admin.ModelAdmin):
 
 @admin.register(Agendamento)
 class AgendamentoAdmin(admin.ModelAdmin):
-    list_display = ('data_hora', 'paciente', 'profissional', 'status', 'criado_em')
-    list_filter = ('status', 'profissional', 'paciente', 'data_hora')
+    list_display = ('data_hora', 'paciente', 'profissional', 'status', 'status_pagamento', 'criado_em')
+    list_filter = ('status', 'status_pagamento', 'profissional', 'paciente', 'data_hora')
     search_fields = ('paciente__user__username', 'profissional__user__username', 'notas_paciente', 'notas_profissional')
     date_hierarchy = 'data_hora'
     raw_id_fields = ('paciente', 'profissional') # Útil para muitos usuários
@@ -94,3 +94,13 @@ class RegraDisponibilidadeAdmin(admin.ModelAdmin):
         return timezone.localtime(obj.data_hora_fim_especifica).strftime('%d/%m/%y %H:%M') if obj.tipo_regra == 'ESPECIFICA' and obj.data_hora_fim_especifica else "-"
     data_hora_fim_especifica_formatada.admin_order_field = 'data_hora_fim_especifica'
     data_hora_fim_especifica_formatada.short_description = 'Fim (Específico)'
+
+# --- NOVA CLASSE ADICIONADA ---
+@admin.register(Avaliacao)
+class AvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ('agendamento', 'avaliador', 'avaliado', 'nota', 'data_criacao')
+    list_filter = ('nota', 'avaliado')
+    search_fields = ('avaliador__user__username', 'avaliado__user__username', 'comentario')
+    # raw_id_fields é útil quando há muitos usuários, para não carregar um dropdown gigante
+    raw_id_fields = ('agendamento', 'avaliador', 'avaliado')
+    readonly_fields = ('data_criacao',) # Não permite editar a data de criação

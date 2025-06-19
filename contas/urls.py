@@ -12,7 +12,6 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
 
     path('meu-perfil/', views.meu_perfil, name='meu_perfil'),
-    # LINHA ALTERADA:
     path('meu-perfil/editar/', views.EditarPerfilView.as_view(), name='editar_perfil'),
     path('meus-agendamentos/', views.meus_agendamentos, name='meus_agendamentos'),
     path('agendamentos/cancelar/<int:agendamento_id>/', views.cancelar_agendamento, name='cancelar_agendamento'),
@@ -20,18 +19,14 @@ urlpatterns = [
     path('agendamentos/confirmar/<int:agendamento_id>/', views.confirmar_agendamento, name='confirmar_agendamento'),
     path('agendamentos/marcar-realizado/<int:agendamento_id>/', views.marcar_realizado, name='marcar_realizado'),
 
-    # URLs para Regras de Disponibilidade usando Class-Based Views
-    path('minhas-regras-disponibilidade/',
-         views.GerenciarRegrasDisponibilidadeView.as_view(),
-         name='gerenciar_regras_disponibilidade'),
-    path('minhas-regras-disponibilidade/editar/<int:regra_id>/',
-         views.EditarRegraDisponibilidadeView.as_view(),
-         name='editar_regra_disponibilidade'),
-    path('minhas-regras-disponibilidade/excluir/<int:regra_id>/',
-         views.ExcluirRegraDisponibilidadeView.as_view(),
-         name='excluir_regra_disponibilidade'),
+    path('agendamentos/<int:agendamento_id>/pagamento/', views.processar_pagamento, name='processar_pagamento'),
+    path('agendamentos/<int:agendamento_id>/sala/', views.sala_videochamada, name='sala_videochamada'),
+
+    path('webhooks/stripe/', views.stripe_webhook, name='stripe_webhook'),
 
     path('meu-calendario/', views.calendario_profissional, name='meu_calendario'),
+
+    path('api/avaliacoes/submeter/', views.api_submeter_avaliacao, name='api_submeter_avaliacao'),
 
     # URLs de API
     path('api/disponibilidade-avulsa/criar/', views.api_criar_disp_avulsa, name='api_criar_disp_avulsa'),

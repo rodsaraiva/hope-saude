@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pagamento da Consulta{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-soft">
+                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+                    <h1 class="h3 mb-0">Pagamento da Consulta</h1>
+                </div>
+                <div class="card-body p-4">
+                    <p>Você está agendando uma consulta com <strong>{{ agendamento.profissional.user.get_full_name }}</strong>.</p>
+                    <p>Data: <strong>{{ agendamento.data_hora|date:"d/m/Y \à\s H:i" }}</strong></p>
+                    <p class="lead">Valor: <strong>R$ {{ agendamento.profissional.valor_consulta }}</strong></p>
+                    <hr>
+                    
+                    <form id="payment-form">
+                        <div id="payment-element" class="mb-3">
+                            </div>
+                        <button id="submit" class="btn btn-hope-destaque btn-lg w-100">
+                            <div class="spinner-border spinner-border-sm d-none" role="status">
+                                <span class="visually-hidden">Processando...</span>
+                            </div>
+                            <span id="button-text">Pagar Agora</span>
+                        </button>
+                        <div id="payment-message" class="text-danger mt-2 small"></div>
+                    </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# Carrega a biblioteca do Stripe #}
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stripe = Stripe("{{ stripe_public_key }}");
+        const clientSecret = "{{ client_secret }}";
+
+        // Inicializa os Elementos de Pagamento do Stripe
+        const elements = stripe.elements({ clientSecret });
+        const paymentElement = elements.create("payment");
+        paymentElement.mount("#payment-element");
+
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit');
+        const paymentMessage = document.getElementById('payment-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            setLoading(true);
+
+            // A URL de retorno é para onde o Stripe redirecionará após a autenticação 3D Secure, se necessária.
+            // Aqui, vamos redirecionar para a página de "Meus Agendamentos".
+            const returnUrl = new URL("{% url 'contas:meus_agendamentos' %}", window.location.origin).href;
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: returnUrl,
+                },
+            });
+
+            // Este ponto só é alcançado se houver um erro imediato.
+            // Se o pagamento for bem-sucedido, o usuário será redirecionado.
+            if (error) {
+                paymentMessage.textContent = error.message;
+                setLoading(false);
+            }
+        });
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                submitButton.querySelector(".spinner-border").classList.remove("d-none");
+                submitButton.querySelector("#button-text").classList.add("d-none");
+            } else {
+                submitButton.disabled = false;
+                submitButton.querySelector(".spinner-border").classList.add("d-none");
+                submitButton.querySelector("#button-text").classList.remove("d-none");
+            }
+        }
+    });
+</script>
+{% endblock %}

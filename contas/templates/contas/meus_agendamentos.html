@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
-{% load tz static %} {# Garanta que 'static' está carregado #}
+{% load tz static %}
 
 {% block title %}Meus Agendamentos - Hope Saúde{% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
+{# Adicionamos um ID e o data-attribute ao container principal #}
+<div class="container mt-4 mb-5" id="agendamentos-container" 
+     data-api-sala-video-url-template="{% url 'contas:api_obter_ou_criar_sala_video' 0 %}"
+     data-sala-url-template="{% url 'contas:sala_videochamada' 0 %}">
+
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <h1 class="display-5 fw-bold mb-0" style="color: var(--hope-titulos-principais);">Meus Agendamentos</h1>
         {% if not is_profissional and user.is_authenticated %}
@@ -16,6 +20,23 @@
 
     {# Placeholder para Alertas Globais #}
     <div id="alertPlaceholderGlobal" class="mb-3"></div>
+
+    {# --- SEÇÃO EM ANDAMENTO --- #}
+    {% if agendamentos_ativos %}
+    {# A alteração está na linha abaixo: trocamos as classes de cor #}
+    <div class="card shadow-soft mb-5" style="border-color: var(--hope-azul-sereno);">
+        <div class="card-header section-bg-azul-sereno-muito-suave py-3">
+            <h2 class="h4 mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
+                <i class="bi bi-broadcast-pin me-2" style="color: var(--hope-azul-sereno);"></i>Em Andamento
+            </h2>
+        </div>
+        <div class="card-body p-3 p-md-4">
+            {% for ag in agendamentos_ativos %}
+                {% include 'contas/partials/agendamento_item.html' with ag=ag %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     {# --- Seção Próximos Agendamentos --- #}
     <div class="card shadow-soft mb-5">
@@ -51,25 +72,19 @@
                                     {% else %} bg-light text-dark {% endif %}
                                 ">{{ ag.get_status_display }}</span>
                             </div>
-                            {% if is_profissional and ag.notas_profissional %}
-                                <div class="agendamento-notas"><small><strong>Suas Notas:</strong> {{ ag.notas_profissional|linebreaksbr }}</small></div>
-                            {% elif not is_profissional and ag.notas_paciente %}
-                                 <div class="agendamento-notas"><small><strong>Suas Notas:</strong> {{ ag.notas_paciente|linebreaksbr }}</small></div>
-                            {% endif %}
                         </div>
                         <div class="col-lg-5 col-xl-4 text-lg-end mt-3 mt-lg-0 agendamento-acoes">
                             {% if ag.status == 'CONFIRMADO' %}
                                 <button type="button" 
-                                        class="btn btn-hope-destaque btn-sm mb-1 entrar-consulta-btn" {# Classe de botão atualizada #}
-                                        data-agendamento-id="{{ ag.id }}"
-                                        data-sala-url="{{ ag.url_videochamada|default_if_none:'' }}">
+                                        class="btn btn-hope-destaque btn-sm mb-1 entrar-consulta-btn"
+                                        data-agendamento-id="{{ ag.id }}">
                                     <i class="bi bi-camera-video-fill me-1"></i>Entrar na Consulta
                                 </button>
                             {% endif %}
                             {% if ag.status == 'PENDENTE' or ag.status == 'CONFIRMADO' %}
                                 <form action="{% url 'contas:cancelar_agendamento' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
                                     {% csrf_token %}
-                                    <button type="submit" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');" class="btn btn-hope-outline-secondary btn-sm"> {# Classe de botão atualizada #}
+                                    <button type="submit" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');" class="btn btn-hope-outline-secondary btn-sm">
                                         <i class="bi bi-x-circle me-1"></i>Cancelar Ag.
                                     </button>
                                 </form>
@@ -77,7 +92,7 @@
                             {% if is_profissional and ag.status == 'PENDENTE' %}
                                  <form action="{% url 'contas:confirmar_agendamento' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-hope-primary btn-sm"> {# Classe de botão atualizada #}
+                                    <button type="submit" class="btn btn-hope-primary btn-sm">
                                         <i class="bi bi-check-circle me-1"></i>Confirmar Ag.
                                     </button>
                                 </form>
@@ -88,14 +103,13 @@
                 {% empty %}
                     <div class="alert alert-info" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Você não tem agendamentos futuros.</div>
                 {% endfor %}
-            {# Removido um {% else %} que parecia fora do lugar e adicionado {% endif %} para fechar o if agendamentos_futuros #}
-            {% else %} {# Este else pertence ao if agendamentos_futuros #}
+            {% else %}
                  <div class="alert alert-info" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Você não tem agendamentos futuros.</div>
             {% endif %}
         </div>
     </div>
 
-    {# --- Seção Agendamentos Anteriores --- #}
+    {# --- Seção Agendamentos Anteriores --- (sem alterações) #}
     <div class="card shadow-soft mb-4">
         <div class="card-header section-bg-verde-salvia-muito-suave py-3">
             <h2 class="h4 mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
@@ -129,164 +143,85 @@
                                     {% else %} bg-light text-dark {% endif %}
                                 ">{{ ag.get_status_display }}</span>
                             </div>
-                            {% if ag.notas_paciente and not is_profissional %}<div class="agendamento-notas"><small><strong>Suas Notas:</strong> {{ ag.notas_paciente|linebreaksbr }}</small></div>{% endif %}
-                            {% if ag.notas_profissional and is_profissional %}<div class="agendamento-notas"><small><strong>Suas Notas:</strong> {{ ag.notas_profissional|linebreaksbr }}</small></div>{% endif %}
                         </div>
                         <div class="col-lg-5 col-xl-4 text-lg-end mt-3 mt-lg-0 agendamento-acoes">
-                             {% if is_profissional and ag.status == 'CONFIRMADO' and ag.data_hora <= timezone.now %}
+                            {% if is_profissional and ag.status == 'CONFIRMADO' and ag.data_hora|timezone:settings.TIME_ZONE <= timezone.now %}
                                 <form action="{% url 'contas:marcar_realizado' agendamento_id=ag.id %}" method="post" class="d-inline-block mb-1">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-hope-primary btn-sm"> {# Classe de botão atualizada #}
+                                    <button type="submit" class="btn btn-hope-primary btn-sm">
                                         <i class="bi bi-check2-all me-1"></i>Marcar como Realizado
                                     </button>
                                 </form>
-                             {% endif %}
+                            {% endif %}
+                            {# BLOCO NOVO: Botão para Paciente Avaliar #}
+                            {% if not is_profissional and ag.status == 'REALIZADO' and not ag.avaliacao %}
+                                <button type="button" class="btn btn-hope-destaque btn-sm mb-1 btn-avaliar-consulta"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#avaliacaoModal"
+                                        data-agendamento-id="{{ ag.id }}">
+                                    <i class="bi bi-star-fill me-1"></i>Avaliar Consulta
+                                </button>
+                            {% elif not is_profissional and ag.status == 'REALIZADO' and ag.avaliacao %}
+                                <span class="badge bg-light text-dark fw-normal"><i class="bi bi-check-circle-fill me-1"></i>Avaliado</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
                 {% empty %}
                     <div class="alert alert-info" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Você não tem agendamentos anteriores.</div>
                 {% endfor %}
-            {% else %} {# Este else pertence ao if agendamentos_passados #}
+            {% else %}
                  <div class="alert alert-info" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Você não tem agendamentos anteriores.</div>
             {% endif %}
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="avaliacaoModal" tabindex="-1" aria-labelledby="avaliacaoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="avaliacaoModalLabel">Avaliar Consulta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formAvaliacao" action="{% url 'contas:api_submeter_avaliacao' %}" method="POST">
+          <input type="hidden" name="agendamento_id" id="agendamentoIdInput">
+          
+          <div class="mb-3 text-center">
+            <label class="form-label d-block">Sua nota:</label>
+            <div class="rating-stars">
+                <input type="radio" id="star5" name="nota" value="5" /><label for="star5" title="5 estrelas">★</label>
+                <input type="radio" id="star4" name="nota" value="4" /><label for="star4" title="4 estrelas">★</label>
+                <input type="radio" id="star3" name="nota" value="3" /><label for="star3" title="3 estrelas">★</label>
+                <input type="radio" id="star2" name="nota" value="2" /><label for="star2" title="2 estrelas">★</label>
+                <input type="radio" id="star1" name="nota" value="1" /><label for="star1" title="1 estrela">★</label>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="comentarioInput" class="form-label">Comentário (opcional):</label>
+            <textarea class="form-control" id="comentarioInput" name="comentario" rows="4"></textarea>
+          </div>
+          
+          <div id="avaliacaoModalAlertPlaceholder"></div>
+
+          <div class="modal-footer pb-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-hope-primary">Enviar Avaliação</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 
 {% block extra_js %}
-<script>
-    // INÍCIO: Inclua as definições de getCookie e showAlert aqui se não estiverem globais
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    function showAlert(message, type, placeholderId = 'alertPlaceholderGlobal', clearPrevious = true) {
-        const alertPlaceholder = document.getElementById(placeholderId);
-        if (alertPlaceholder) {
-            if(clearPrevious) alertPlaceholder.innerHTML = '';
-            const wrapper = document.createElement('div');
-            // Adiciona classes Bootstrap e ícone ao alerta
-            let iconHtml = '';
-            if (type === 'success') iconHtml = '<i class="bi bi-check-circle-fill me-2"></i>';
-            else if (type === 'danger') iconHtml = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
-            else if (type === 'warning') iconHtml = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
-            else if (type === 'info') iconHtml = '<i class="bi bi-info-circle-fill me-2"></i>';
-
-            wrapper.innerHTML = [
-                `<div class="alert alert-${type} alert-dismissible fade show mt-2" role="alert">`,
-                `   <div>${iconHtml}${message}</div>`,
-                '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-                '</div>'
-            ].join('');
-            alertPlaceholder.append(wrapper);
-        } else {
-            console.error(`DEBUG: Placeholder de alerta '${placeholderId}' não encontrado para a mensagem: ${message}`);
-            // Fallback para alert nativo se o placeholder não for encontrado
-            // alert(`${type.toUpperCase()}: ${message}`);
-        }
-    }
-    // FIM: Inclua as definições de getCookie e showAlert aqui se não estiverem globais
-
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("DEBUG: DOMContentLoaded para meus_agendamentos.html (vídeo)");
-
-        const entrarConsultaButtons = document.querySelectorAll('.entrar-consulta-btn');
-        if (entrarConsultaButtons.length > 0) {
-            console.log("DEBUG: Botões '.entrar-consulta-btn' encontrados:", entrarConsultaButtons.length);
-        } else {
-            console.log("DEBUG: Nenhum botão '.entrar-consulta-btn' encontrado na página.");
-        }
-
-        entrarConsultaButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const agendamentoId = this.dataset.agendamentoId;
-                // let salaUrlExistente = this.dataset.salaUrl; // Não usaremos mais a URL armazenada diretamente
-                                                            // Sempre pediremos uma nova URL com token para a API
-                
-                const apiUrlTemplate = "{% url 'contas:api_obter_ou_criar_sala_video' 0 %}";
-                const apiUrl = apiUrlTemplate.replace('0', agendamentoId.toString());
-
-                const alertPlaceholderGlobal = document.getElementById('alertPlaceholderGlobal');
-                if (alertPlaceholderGlobal) alertPlaceholderGlobal.innerHTML = ''; // Limpa alertas globais
-
-                console.log("DEBUG: Botão 'Entrar na Consulta' clicado. Agendamento ID:", agendamentoId);
-                console.log("DEBUG: URL da API a ser chamada:", apiUrl);
-
-                this.disabled = true;
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Carregando sala...';
-                const originalButtonText = '<i class="bi bi-camera-video-fill me-1"></i>Entrar na Consulta';
-
-                fetch(apiUrl, {
-                    method: 'GET', // A view api_obter_ou_criar_sala_video espera GET
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRFToken': csrftoken // Boa prática, mesmo para GET, dependendo da config do servidor/Django
-                    }
-                })
-                .then(response => {
-                    this.disabled = false;
-                    this.innerHTML = originalButtonText;
-                    
-                    console.log("DEBUG: Resposta da API (obter/criar sala) recebida, Status:", response.status);
-                    if (!response.ok) {
-                        // Tenta pegar a mensagem de erro do corpo JSON da resposta
-                        return response.json().then(errData => {
-                            const errorMessage = errData.message || `Erro ${response.status} do servidor ao obter sala.`;
-                            console.error("DEBUG: Erro da API (response.ok false):", errorMessage, errData);
-                            throw new Error(errorMessage); 
-                        }).catch(jsonParseError => {
-                            // Se o corpo da resposta não for JSON válido, lança um erro com o status HTTP
-                            console.error("DEBUG: Resposta da API não é JSON válido. Status:", response.status, "Texto:", response.statusText);
-                            throw new Error(`Erro ${response.status}: ${response.statusText || 'Não foi possível obter detalhes do erro.'}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("DEBUG: Dados da API (obter/criar sala) sucesso:", data);
-                    if (data.status === 'success' && data.room_url) {
-                        console.log("DEBUG: API retornou URL da sala com token:", data.room_url);
-                        // Não é mais necessário guardar no dataset do botão, pois sempre pedimos um novo token.
-                        // this.dataset.salaUrl = data.room_url; 
-                        
-                        // Abre em nova aba
-                        window.open(data.room_url, '_blank'); 
-                        showAlert("Abrindo sala de vídeo em uma nova aba...", "info", "alertPlaceholderGlobal", true);
-                    } else {
-                        const errorMessage = data.message || 'Não foi possível obter a URL da sala de vídeo após sucesso aparente.';
-                        console.error("DEBUG: API status sucesso mas sem room_url ou status != success:", data);
-                        showAlert(errorMessage, 'danger', 'alertPlaceholderGlobal');
-                    }
-                })
-                .catch(error => {
-                    console.error('DEBUG: Erro no FETCH AJAX ao obter/criar sala:', error);
-                    showAlert('Erro ao tentar iniciar a consulta: ' + error.message, 'danger', 'alertPlaceholderGlobal');
-                    // Garante que o botão seja reabilitado e o texto restaurado também no catch
-                    this.disabled = false; 
-                    this.innerHTML = originalButtonText;
-                });
-            });
-        });
-
-        if (entrarConsultaButtons.length > 0) {
-            console.log("DEBUG: Listeners para '.entrar-consulta-btn' anexados.");
-        }
-    });
-</script>
+<script src="{% static 'js/meus_agendamentos.js' %}"></script>
+{# Carrega o novo script para a lógica de avaliação #}
+<script src="{% static 'js/avaliacoes.js' %}"></script>
 {% endblock %}

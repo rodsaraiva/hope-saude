@@ -10,9 +10,15 @@
     <div class="card shadow-soft mb-5">
         <div class="card-header section-bg-azul-sereno-muito-suave py-3">
             <div class="d-flex align-items-center">
-                <div class="profile-card-image-placeholder me-3" style="width: 80px; height: 80px; background-color: rgba(var(--hope-azul-sereno-rgb), 0.2);">
-                    <i class="bi bi-person-bounding-box icon-placeholder" style="font-size: 2.5rem;"></i>
-                    {# No futuro, substitua por: <img src="{{ perfil.imagem_url|default_if_none:'{% static 'img/placeholder_profissional.png' %}' }}" alt="Foto de {{ perfil.user.get_full_name }}" class="img-fluid rounded-circle" style="width: 80px; height: 80px; object-fit: cover;"> #}
+                {# ALTERADO Bloco de imagem para mostrar foto ou placeholder #}
+                <div class="me-3" style="width: 80px; height: 80px;">
+                    {% if perfil.foto_perfil %}
+                        <img src="{{ perfil.foto_perfil.url }}" alt="Foto de {{ perfil.user.get_full_name }}" class="img-fluid rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid white;">
+                    {% else %}
+                        <div class="profile-card-image-placeholder d-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background-color: rgba(var(--hope-azul-sereno-rgb), 0.2);">
+                            <i class="bi bi-person-bounding-box icon-placeholder" style="font-size: 2.5rem;"></i>
+                        </div>
+                    {% endif %}
                 </div>
                 <div>
                     <h1 class="h2 mb-0" style="color: var(--hope-titulos-principais);">{{ perfil.user.get_full_name|default:perfil.user.username }}</h1>
@@ -21,6 +27,19 @@
                             <span class="text-muted small">- Registro: {{ perfil.numero_registro }}</span>
                         {% endif %}
                     </p>
+                    {# --- BLOCO NOVO ADICIONADO --- #}
+                    {% if perfil.total_avaliacoes > 0 %}
+                    <div class="d-flex align-items-center" style="color: #ffc107;">
+                        <i class="bi bi-star-fill me-1"></i>
+                        <span class="fw-bold me-2">{{ perfil.nota_media }}</span>
+                        <span class="text-muted small">({{ perfil.total_avaliacoes }} avaliações)</span>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted small">Ainda não há avaliações</span>
+                    </div>
+                    {% endif %}
+                    {# --- FIM DO BLOCO NOVO --- #}
                 </div>
             </div>
         </div>
@@ -42,6 +61,14 @@
                     </div>
                 </div>
                 <div class="col-lg-5 border-lg-start ps-lg-4">
+
+                    {% if perfil.valor_consulta > 0 %}
+                    <div class="mb-3">
+                        <h6 class="fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-cash-coin me-2" style="color: var(--hope-verde-salvia);"></i>Valor da Consulta</h6>
+                        <p class="feature-text mb-0 fs-5">R$ {{ perfil.valor_consulta|floatformat:2 }}</p>
+                    </div>
+                    {% endif %}
+                    
                     {% if perfil.anos_experiencia is not None %}
                         <div class="mb-3">
                             <h6 class="fw-semibold" style="color: var(--hope-titulos-principais);"><i class="bi bi-hourglass-split me-2" style="color: var(--hope-verde-salvia);"></i>Experiência</h6>

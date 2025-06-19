@@ -410,3 +410,32 @@ a:hover, .link-hope:hover {
     margin-right: 0.5rem;
     margin-bottom: 0.5rem; /* Para empilhamento em telas pequenas */
 }
+
+
+/* --- ESTILOS PARA O MODAL DE AVALIAÇÃO --- */
+
+.rating-stars {
+    display: inline-block;
+    /* A "mágica" acontece aqui: invertemos a direção dos elementos */
+    direction: rtl; 
+    text-align: left;
+}
+
+.rating-stars input[type="radio"] {
+    display: none; /* Esconde os botões de rádio reais */
+}
+
+.rating-stars label {
+    float: right; /* Faz as estrelas flutuarem para a direita dentro do container invertido */
+    font-size: 2.5rem;
+    color: var(--hope-cinza-claro-bordas); /* Cor padrão da estrela (vazia) */
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+/* Efeito Hover: Quando o mouse passa por cima de uma estrela, ela e as seguintes (que na verdade são as anteriores por causa do RTL) mudam de cor. */
+.rating-stars label:hover,
+.rating-stars label:hover ~ label,
+.rating-stars input[type="radio"]:checked ~ label {
+    color: #ffc107; /* Cor amarela para estrela preenchida/selecionada */
+}

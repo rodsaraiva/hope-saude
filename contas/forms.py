@@ -77,12 +77,16 @@ class CustomAuthenticationForm(AuthenticationForm):
         self.fields['password'].label = "Senha"
 
 
+# Em contas/forms.py
+
 class PerfilProfissionalForm(forms.ModelForm):
     class Meta:
         model = PerfilProfissional
+        # Adicionados 'foto_perfil' e 'valor_consulta' à lista de campos
         fields = [
-            'tipo_profissional', 'numero_registro', 'especialidades',
-            'bio', 'telefone_contato', 'endereco_consultorio', 'anos_experiencia',
+            'foto_perfil', 'tipo_profissional', 'numero_registro', 'especialidades',
+            'bio', 'valor_consulta', 'telefone_contato', 'endereco_consultorio', 
+            'anos_experiencia',
         ]
         widgets = {
             'tipo_profissional': forms.Select(attrs={'class': 'form-select'}),
@@ -92,12 +96,16 @@ class PerfilProfissionalForm(forms.ModelForm):
             'telefone_contato': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(XX) XXXXX-XXXX'}),
             'endereco_consultorio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'anos_experiencia': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            # O Django usa os widgets padrão para ImageField (foto_perfil) e DecimalField (valor_consulta),
+            # que já são renderizados como <input> e recebem a classe 'form-control' pelo nosso template.
         }
         labels = { # Adicionando labels para melhor clareza
+            'foto_perfil': 'Alterar Foto de Perfil',
             'tipo_profissional': 'Tipo de Profissional',
             'numero_registro': 'Número de Registro (CRP/CRM)',
             'especialidades': 'Especialidades Atendidas',
             'bio': 'Sobre Mim / Abordagem Terapêutica',
+            'valor_consulta': 'Valor da Consulta (R$)',
             'telefone_contato': 'Telefone de Contato (Opcional)',
             'endereco_consultorio': 'Endereço do Consultório (Opcional)',
             'anos_experiencia': 'Anos de Experiência Clínica (Opcional)',
@@ -107,8 +115,9 @@ class PerfilProfissionalForm(forms.ModelForm):
 class PerfilPacienteForm(forms.ModelForm):
     class Meta:
         model = PerfilPaciente
+        # Adicione 'foto_perfil' à lista de campos
         fields = [
-            'data_nascimento', 'telefone_contato', 'endereco', 'contato_emergencia',
+            'foto_perfil', 'data_nascimento', 'telefone_contato', 'endereco', 'contato_emergencia',
         ]
         widgets = {
             'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
@@ -116,7 +125,8 @@ class PerfilPacienteForm(forms.ModelForm):
             'endereco': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'contato_emergencia': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome e telefone'}),
         }
-        labels = { # Adicionando labels
+        labels = {
+            'foto_perfil': 'Alterar Foto de Perfil', # Adicionado
             'data_nascimento': 'Data de Nascimento',
             'telefone_contato': 'Telefone de Contato',
             'endereco': 'Endereço (Opcional)',

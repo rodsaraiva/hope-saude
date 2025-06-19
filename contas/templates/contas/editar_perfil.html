@@ -14,10 +14,20 @@
                     </h1>
                 </div>
                 <div class="card-body p-4 p-md-5">
-                    <form method="post" novalidate>
+                    {# IMPORTANTE: Adicionado o atributo enctype para permitir o upload de arquivos #}
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
 
-                        {# Exibe erros não associados a campos (non-field errors) #}
+                        {# Exibe a foto de perfil atual, se existir #}
+                        {% with object.foto_perfil as foto %} {# 'object' é a instância do perfil passada pela UpdateView #}
+                            {% if foto %}
+                                <div class="mb-3 text-center">
+                                    <label class="form-label fw-semibold d-block">Foto de Perfil Atual</label>
+                                    <img src="{{ foto.url }}" alt="Foto de Perfil" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px; object-fit: cover; border: 3px solid var(--hope-azul-sereno);">
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger">
                                 {% for error in form.non_field_errors %}
@@ -26,13 +36,14 @@
                             </div>
                         {% endif %}
 
-                        {# Renderização manual dos campos do formulário para melhor controle #}
-                        {# O Django irá renderizar os campos do PerfilProfissionalForm ou PerfilPacienteForm aqui #}
                         {% for field in form %}
                             <div class="mb-3">
                                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                 
-                                {# Renderização especial para campos CheckboxSelectMultiple (como 'especialidades') #}
+                                {% if field.name == 'foto_perfil' %}
+                                    <p class="small text-muted mb-1">Selecione um novo arquivo apenas se desejar alterar a foto atual.</p>
+                                {% endif %}
+
                                 {% if field.field.widget.input_type == 'checkbox' %}
                                     <div class="p-2 border rounded" style="max-height: 200px; overflow-y: auto;">
                                     {% for choice in field %}
@@ -43,8 +54,7 @@
                                     {% endfor %}
                                     </div>
                                 {% else %}
-                                    {# Renderização padrão para outros campos #}
-                                    {{ field }} {# O form já tem as classes de widget aplicadas #}
+                                    {{ field }}
                                 {% endif %}
 
                                 {% if field.help_text %}
