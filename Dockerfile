@@ -9,8 +9,8 @@ WORKDIR /app
 
 # Define variáveis de ambiente. É útil para configurações específicas do Django.
 # Defina DJANGO_SETTINGS_MODULE para o seu arquivo de settings.
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=meuprojeto.settings
 
 # Instala as dependências do sistema operacional necessárias para o Python e alguns pacotes.
