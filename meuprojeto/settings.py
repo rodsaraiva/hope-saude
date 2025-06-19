@@ -23,18 +23,44 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+import os
+from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
+
+# ... (seus BASE_DIR e outros imports)
+
+# SECRET_KEY
+# Use a variável de ambiente DJANGO_SECRET_KEY.
+# Se não estiver definida (ex: durante collectstatic sem build-arg),
+# use uma chave dummy para permitir a inicialização do settings.
+# **IMPORTANTE:** ESTA CHAVE DUMMY NÃO DEVE SER USADA EM PRODUÇÃO REAL.
+# A EasyPanel continuará a injetar a SECRET_KEY real em runtime.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
-    raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable not set")
+    # Esta chave é apenas para que o collectstatic e outros comandos de build/teste
+    # possam carregar o settings.py sem levantar ImproperlyConfigured.
+    # Em produção, a EasyPanel injetará a SECRET_KEY real que você definiu.
+    SECRET_KEY = 'a-dummy-secret-key-for-build-time-only-do-not-use-in-prod-12345'
+    # Opcional: print para depuração para confirmar que a dummy key está sendo usada
+    # print("WARNING: Using dummy SECRET_KEY for build process.")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-import os
+
+# DEBUG
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
+# ALLOWED_HOSTS
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
+
+# Para o collectstatic e outros comandos de gerência, o Django precisa de ALLOWED_HOSTS
+# mesmo que DEBUG seja False.
+# Podemos usar uma lógica similar para ALLOWED_HOSTS para o build
 if not DEBUG and not ALLOWED_HOSTS:
-    raise ValueError("ALLOWED_HOSTS must not be empty when DEBUG is False.")
+    # Se em DEBUG=False e ALLOWED_HOSTS não definido (durante build, por exemplo),
+    # use um fallback seguro para o build/collectstatic.
+    # Em runtime, o valor da EasyPanel será usado.
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    # print("WARNING: Using dummy ALLOWED_HOSTS for build process.")
+    # Não levante ImproperlyConfigured aqui para evitar quebrar o build.
 
 
 # Application definition
@@ -125,7 +151,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 # Adicione esta configuração: Lista de diretórios onde o Django procurará
 # por arquivos estáticos adicionais, além dos diretórios 'static' dos apps.
