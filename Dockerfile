@@ -3,6 +3,15 @@
 # 'slim-buster' é uma versão menor e mais segura para produção.
 FROM python:3.11-slim-bookworm
 
+ARG DJANGO_SECRET_KEY
+ARG DJANGO_DEBUG
+ARG DJANGO_ALLOWED_HOSTS
+
+# Agora, você precisa que essas ARGs sejam transformadas em ENV para as etapas subsequentes
+ENV DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+ENV DJANGO_DEBUG=${DJANGO_DEBUG}
+ENV DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+
 # Define o diretório de trabalho dentro do container. Todos os comandos subsequentes
 # serão executados a partir deste diretório.
 WORKDIR /app
