@@ -215,3 +215,18 @@ DEFAULT_FROM_EMAIL = 'naoresponda@sua-plataforma.com' # Um email padrão
 # import os
 # from dotenv import load_dotenv
 # load_dotenv() # Carrega .env
+
+# settings.py
+USE_TZ = True # Geralmente True em novos projetos
+TIME_ZONE = 'America/Sao_Paulo' # Ou seu fuso horário
+
+# Se você não quer que o DRF adicione o 'Z' ou espera datas naive
+# REST_FRAMEWORK = {
+#     'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S", # Exemplo para remover milissegundos e Z
+#     'DEFAULT_RENDERER_CLASSES': (
+#         'rest_framework.renderers.JSONRenderer',
+#     ),
+#     'DEFAULT_PARSER_CLASSES': (
+#         'rest_framework.parsers.JSONParser',
+#     )
+# }
