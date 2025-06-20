@@ -24,6 +24,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from dateutil import parser
 
 from .calendar_utils import gerar_eventos_completos_para_calendario_profissional, gerar_blocos_disponiveis_para_paciente
 
@@ -1019,8 +1020,16 @@ def api_criar_disp_avulsa(request):
         if not inicio_str or not fim_str:
             return api_error_response(message='Datas de início e fim são obrigatórias.')
 
-        novo_inicio = datetime.fromisoformat(inicio_str)
-        novo_fim = datetime.fromisoformat(fim_str)
+        # novo_inicio = datetime.fromisoformat(inicio_str)
+        # novo_fim = datetime.fromisoformat(fim_str)
+        novo_inicio = parser.parse(inicio_str)
+        novo_fim = parser.parse(fim_str)
+
+        if novo_inicio.tzinfo is None:
+            novo_inicio = novo_inicio.replace(tzinfo=timezone.utc)
+        if novo_fim.tzinfo is None:
+            novo_fim = novo_fim.replace(tzinfo=timezone.utc)
+
         perfil_profissional = user.perfil_profissional
 
         # --- LÓGICA DE FUSÃO ATUALIZADA ---
