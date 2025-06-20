@@ -227,3 +227,22 @@ DATETIME_INPUT_FORMATS = [
     '%Y-%m-%dT%H:%M:%S',     # ISO 8601 sem milissegundos
     # Adicione outros formatos que você usa, se houver
 ]
+
+# --- CONFIGURAÇÕES DAILY.CO ---
+# Chave da API do Daily.co para videochamadas
+DAILY_CO_API_KEY = os.environ.get('DAILY_CO_API_KEY', '')
+
+# --- CONFIGURAÇÕES STRIPE ---
+# Chaves públicas e secretas do Stripe para pagamentos
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+
+# Validação das chaves obrigatórias (apenas em produção)
+if not DEBUG:
+    if not DAILY_CO_API_KEY:
+        print("WARNING: DAILY_CO_API_KEY não está configurada. Videochamadas podem não funcionar.")
+    if not STRIPE_SECRET_KEY:
+        print("WARNING: STRIPE_SECRET_KEY não está configurada. Pagamentos podem não funcionar.")
+    if not STRIPE_WEBHOOK_SECRET:
+        print("WARNING: STRIPE_WEBHOOK_SECRET não está configurada. Webhooks do Stripe podem não funcionar.")
