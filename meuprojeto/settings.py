@@ -216,17 +216,14 @@ DEFAULT_FROM_EMAIL = 'naoresponda@sua-plataforma.com' # Um email padrão
 # from dotenv import load_dotenv
 # load_dotenv() # Carrega .env
 
-# settings.py
-USE_TZ = True # Geralmente True em novos projetos
-TIME_ZONE = 'America/Sao_Paulo' # Ou seu fuso horário
+USE_TZ = True
+TIME_ZONE = 'America/Sao_Paulo' # Ou o fuso horário da sua aplicação
 
-# Se você não quer que o DRF adicione o 'Z' ou espera datas naive
-REST_FRAMEWORK = {
-    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S", # Exemplo para remover milissegundos e Z
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-    )
-}
+# Adicione este formato para que o Django possa parsear as strings com 'Z' e milissegundos
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%dT%H:%M:%S.%fZ',  # Formato com milissegundos e 'Z'
+    '%Y-%m-%dT%H:%M:%SZ',    # Formato sem milissegundos e 'Z'
+    '%Y-%m-%dT%H:%M:%S.%f',  # ISO 8601 com milissegundos
+    '%Y-%m-%dT%H:%M:%S',     # ISO 8601 sem milissegundos
+    # Adicione outros formatos que você usa, se houver
+]
