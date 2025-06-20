@@ -1,10 +1,10 @@
 # contas/views.py
 
-from datetime import time, timedelta, date, datetime # Importa timedelta e date
+from datetime import time, timedelta, date, datetime, timezone as dt_timezone # Importa timedelta e date
 import requests # Para fazer chamadas HTTP à API do Daily.co
 import stripe
 import json # Importa json
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.shortcuts import render, get_object_or_404, redirect # Importe get_object_or_404
 from django.contrib.auth.decorators import login_required # Importa o decorator de login obrigatório
 from django.views.decorators.http import require_POST # Importa decorator para exigir POST
@@ -25,6 +25,10 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from dateutil import parser
+from typing import TYPE_CHECKING
+import stripe.error
+if TYPE_CHECKING:
+    from .models import PerfilProfissional, PerfilPaciente, Especialidade, Agendamento, RegraDisponibilidade
 
 from .calendar_utils import gerar_eventos_completos_para_calendario_profissional, gerar_blocos_disponiveis_para_paciente
 
@@ -122,7 +126,7 @@ def lista_profissionais(request):
     selected_specialty_ids = request.GET.getlist('especialidade')
 
     # Começa com todos os perfis (ou um queryset vazio se preferir iniciar filtrando)
-    profissionais_queryset = PerfilProfissional.objects.all().order_by('user__first_name') # Adiciona uma ordem padrão
+    profissionais_queryset = PerfilProfissional.objects.all().order_by('user__first_name')  # type: ignore
 
     # Aplica filtro de especialidades selecionadas (se houver)
     valid_specialty_ids = []
@@ -138,7 +142,7 @@ def lista_profissionais(request):
     # Aplica filtro de busca textual (se houver)
     if query:
         profissionais_queryset = profissionais_queryset.filter(
-            Q(user__first_name__icontains=query) |
+            Q(user__first_name__icontains=query) |  # type: ignore
             Q(user__last_name__icontains=query) |
             Q(user__username__icontains=query) |
             Q(especialidades__nome__icontains=query) |
@@ -157,7 +161,7 @@ def lista_profissionais(request):
     page_obj = paginator.get_page(page_number)
     # --- Fim da Paginação ---
 
-    todas_especialidades = Especialidade.objects.all()
+    todas_especialidades = Especialidade.objects.all()  # type: ignore
 
     contexto = {
         # Passa o objeto Page para o template, em vez da lista completa
@@ -179,10 +183,10 @@ def registro(request):
 
             # Cria o perfil apropriado ligado ao usuário recém-criado
             if tipo_conta == 'PACIENTE':
-                PerfilPaciente.objects.create(user=user)
+                PerfilPaciente.objects.create(user=user)  # type: ignore
             elif tipo_conta == 'PROFISSIONAL':
                 # Cria o perfil profissional (campos obrigatórios agora são opcionais no BD)
-                PerfilProfissional.objects.create(user=user)
+                PerfilProfissional.objects.create(user=user)  # type: ignore
 
             messages.success(request, f'Conta criada com sucesso para {user.username}! Você já pode fazer login.') # Mensagem de sucesso (opcional)
             return redirect('login') # Redireciona para a página de login
@@ -225,15 +229,15 @@ def meu_perfil(request):
 
     # Tenta encontrar um perfil associado e adiciona ao contexto
     try:
-        perfil_paciente = user.perfil_paciente # Usando o related_name que definimos
+        perfil_paciente = user.perfil_paciente
         contexto['perfil_paciente'] = perfil_paciente
-    except PerfilPaciente.DoesNotExist:
-        pass # Se não for paciente, não faz nada aqui
+    except ObjectDoesNotExist:
+        pass
 
     try:
-        perfil_profissional = user.perfil_profissional # Usando related_name
+        perfil_profissional = user.perfil_profissional
         contexto['perfil_profissional'] = perfil_profissional
-    except PerfilProfissional.DoesNotExist:
+    except PerfilProfissional.DoesNotExist:  # type: ignore
         pass # Se não for profissional, não faz nada aqui
 
     # Verifica se algum perfil foi encontrado (deve acontecer se o registro funcionou)
@@ -245,46 +249,6 @@ def meu_perfil(request):
 
     # Renderiza um template único para "meu perfil"
     return render(request, 'contas/meu_perfil.html', contexto)
-
-
-# View para editar o perfil
-# @login_required
-# def editar_perfil(request):
-#     user = request.user
-#     perfil = None
-#     form_class = None # Variável para guardar a classe do formulário correto
-
-#     # Verifica qual perfil o usuário tem e define o form apropriado
-#     if hasattr(user, 'perfil_profissional'):
-#         perfil = user.perfil_profissional
-#         form_class = PerfilProfissionalForm
-#     elif hasattr(user, 'perfil_paciente'):
-#         perfil = user.perfil_paciente
-#         form_class = PerfilPacienteForm
-#     else:
-#         # Caso inesperado: usuário sem perfil associado
-#         messages.error(request, "Não foi possível encontrar um perfil para editar.")
-#         return redirect('contas:meu_perfil')
-
-#     if request.method == 'POST':
-#         # Cria a instância do formulário correto (form_class) com os dados POST e a instância do perfil
-#         form = form_class(request.POST, instance=perfil)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Perfil atualizado com sucesso!")
-#             return redirect('contas:meu_perfil')
-#         else:
-#             messages.error(request, "Erro ao atualizar o perfil. Verifique os campos.")
-#     else: # GET request
-#         # Cria a instância do formulário correto (form_class) pré-preenchida com a instância do perfil
-#         form = form_class(instance=perfil)
-
-#     contexto = {
-#         'form': form
-#     }
-#     # Renderiza o MESMO template de edição
-#     return render(request, 'contas/editar_perfil.html', contexto)
-
 
 
 # View para listar os agendamentos do usuário logado
@@ -305,11 +269,11 @@ def meus_agendamentos(request):
         agendamentos_qs = None
         if hasattr(user, 'perfil_paciente'):
             perfil = user.perfil_paciente
-            agendamentos_qs = Agendamento.objects.filter(paciente=perfil)
+            agendamentos_qs = Agendamento.objects.filter(paciente=perfil)  # type: ignore
         elif hasattr(user, 'perfil_profissional'):
             perfil = user.perfil_profissional
             is_profissional = True
-            agendamentos_qs = Agendamento.objects.filter(profissional=perfil)
+            agendamentos_qs = Agendamento.objects.filter(profissional=perfil)  # type: ignore
         
         if agendamentos_qs:
             # Consultas que ainda não começaram
@@ -446,7 +410,7 @@ def criar_agendamento(request, profissional_id, timestamp_str):
         return redirect('contas:perfil_profissional_detail', pk=profissional_id)
 
     # Revalidação de horário vago e no futuro (como antes)
-    if Agendamento.objects.filter(profissional=profissional, data_hora=slot_datetime, status__in=['PENDENTE', 'CONFIRMADO']).exists():
+    if Agendamento.objects.filter(profissional=profissional, data_hora=slot_datetime, status__in=['PENDENTE', 'CONFIRMADO']).exists():  # type: ignore
         messages.error(request, "Desculpe, este horário foi agendado por outra pessoa. Por favor, escolha outro.")
         return redirect('contas:perfil_profissional_detail', pk=profissional_id)
     if slot_datetime <= timezone.now():
@@ -454,7 +418,7 @@ def criar_agendamento(request, profissional_id, timestamp_str):
         return redirect('contas:perfil_profissional_detail', pk=profissional_id)
 
     # Cria o Agendamento com status de pagamento pendente
-    novo_agendamento = Agendamento.objects.create(
+    novo_agendamento = Agendamento.objects.create(  # type: ignore
         paciente=perfil_paciente,
         profissional=profissional,
         data_hora=slot_datetime,
@@ -583,189 +547,6 @@ def marcar_realizado(request, agendamento_id):
 
 
 
-# @login_required
-# def calendario_profissional(request):
-#     user = request.user
-#     if not hasattr(user, 'perfil_profissional'):
-#         messages.error(request, "Apenas profissionais podem acessar esta página.")
-#         return redirect('contas:index')
-
-#     perfil = user.perfil_profissional
-#     tz_padrao = timezone.get_default_timezone()
-#     agora = timezone.now()
-#     hoje = timezone.localdate() # Necessário para o startRecur e lógica de período
-
-#     # Período de visualização para o calendário do profissional
-#     # Buscamos um pouco do passado para contexto de agendamentos e um período razoável no futuro
-#     data_inicio_periodo_geral = agora - timedelta(days=30) 
-#     data_fim_periodo_geral = agora + timedelta(days=90)  
-
-#     # --- Busca de Dados Relevantes ---
-#     # Busca TODAS as regras de disponibilidade (semanais e específicas)
-#     todas_as_regras_disponibilidade = perfil.regras_disponibilidade.all().order_by('data_hora_inicio_especifica', 'hora_inicio_recorrente')
-    
-#     # Agendamentos (todos os status para visualização do profissional)
-#     agendamentos_objs = perfil.agendamentos.filter(
-#         data_hora__gte=data_inicio_periodo_geral, data_hora__lt=data_fim_periodo_geral
-#     )
-    
-#     # --- Processamento para Eventos FullCalendar ---
-#     all_events = [] # Lista Python de dicionários
-#     duracao_consulta_padrao = timedelta(hours=1) # Duração padrão para agendamentos
-    
-#     # Cores alinhadas com a Identidade Visual "Hope Saúde"
-#     cor_disponivel_bloco = '#5cb85c' # Verde "calmo" para disponibilidade (ajuste se tiver um no manual)
-#                                      # O manual sugere Verde Sálvia (#B2C2B3) para detalhes/fundos.
-#                                      # Para blocos de disponibilidade, um verde mais claro mas sólido pode ser bom.
-#                                      # Se usar --hope-verde-salvia (#B2C2B3), o texto precisará ser escuro.
-#     borda_cor_disponivel_bloco = '#4cae4c' # Tom ligeiramente mais escuro para borda
-#     texto_cor_disponivel = '#FFFFFF' # Texto branco para contraste com o verde acima
-
-#     # cor_bloqueio_fundo = '#e9ecef' # Removido - Não há mais BloqueioTempo
-
-#     # 1. & 2. Processar Regras de Disponibilidade (Semanal e Específica)
-#     for regra in todas_as_regras_disponibilidade:
-#         if regra.tipo_regra == 'SEMANAL':
-#             if regra.dia_semana is not None and regra.hora_inicio_recorrente and regra.hora_fim_recorrente:
-#                 fc_day = (regra.dia_semana + 1) % 7 # Converte dia Python (Mon=0) para FullCalendar (Sun=0)
-#                 all_events.append({
-#                     'title': 'Disponível', 
-#                     'groupId': f'regra_disp_semanal_{regra.id}', # Para identificar o grupo de recorrência
-#                     'daysOfWeek': [ fc_day ], 
-#                     'startTime': regra.hora_inicio_recorrente.strftime('%H:%M:%S'),
-#                     'endTime': regra.hora_fim_recorrente.strftime('%H:%M:%S'), 
-#                     'display': 'block', # Para ser um bloco visível e mais proeminente
-#                     'color': cor_disponivel_bloco, 
-#                     'borderColor': borda_cor_disponivel_bloco,
-#                     'textColor': texto_cor_disponivel,
-#                     'extendedProps': {'tipo': 'disponibilidade_semanal', 'id_original': regra.id}
-#                     # 'startRecur': hoje.isoformat(), # Para iniciar a recorrência a partir de hoje
-#                 })
-#         elif regra.tipo_regra == 'ESPECIFICA':
-#             if regra.data_hora_inicio_especifica and regra.data_hora_fim_especifica:
-#                 start_dt = regra.data_hora_inicio_especifica.astimezone(tz_padrao)
-#                 end_dt = regra.data_hora_fim_especifica.astimezone(tz_padrao)
-                
-#                 # Adiciona apenas se o período específico interceptar o período geral de visualização
-#                 if start_dt < data_fim_periodo_geral and end_dt > data_inicio_periodo_geral:
-#                     all_events.append({
-#                         'title': 'Disponível', 
-#                         'start': start_dt.isoformat(),
-#                         'end': end_dt.isoformat(), # Mostra o bloco específico com sua duração total
-#                         'color': cor_disponivel_bloco, 
-#                         'borderColor': borda_cor_disponivel_bloco,
-#                         'textColor': texto_cor_disponivel,
-#                         'id': f'regra_disp_esp_{regra.id}',
-#                         'extendedProps': {'tipo': 'regra_disponibilidade_especifica', 'id_original': regra.id}
-#                     })
-
-#     # Lógica de AGRUPAR Regras de Disponibilidade Específicas Contíguas (VISUALMENTE)
-#     # Esta lógica é para a VIEW do profissional, para que ele veja blocos contínuos.
-#     # A view do PACIENTE (perfil_profissional_detail) quebra em slots agendáveis.
-#     # (Mantida da Resposta #151, com o título ajustado)
-    
-#     # Primeiro, separe os eventos de disponibilidade específica dos outros para o agrupamento
-#     eventos_disp_especifica_para_agrupar = [e for e in all_events if e.get('extendedProps', {}).get('tipo') == 'disponibilidade_especifica']
-#     outros_eventos = [e for e in all_events if e.get('extendedProps', {}).get('tipo') != 'disponibilidade_especifica']
-    
-#     all_events_final_agrupado = list(outros_eventos) # Começa com os que não são para agrupar
-
-#     if eventos_disp_especifica_para_agrupar:
-#         # Ordena por data de início para garantir o agrupamento correto
-#         eventos_disp_especifica_para_agrupar.sort(key=lambda x: x['start'])
-        
-#         merged_specific_slots = []
-#         current_merged_event = None
-
-#         for evento_esp in eventos_disp_especifica_para_agrupar:
-#             start_dt_obj = datetime.fromisoformat(evento_esp['start'])
-#             end_dt_obj = datetime.fromisoformat(evento_esp['end'])
-
-#             if current_merged_event is None:
-#                 current_merged_event = {
-#                     'title': 'Disponível', # Título para o bloco agrupado
-#                     'start_obj': start_dt_obj, # Guardar como objeto datetime para comparação
-#                     'end_obj': end_dt_obj,
-#                     'ids_originais': evento_esp['extendedProps']['id_original'], # Pode ser uma lista se já agrupado, ou um int
-#                     'color': evento_esp['color'], # Mantém a cor
-#                     'borderColor': evento_esp['borderColor'],
-#                     'textColor': evento_esp['textColor']
-#                 }
-#                 # Garante que ids_originais seja sempre uma lista
-#                 if not isinstance(current_merged_event['ids_originais'], list):
-#                     current_merged_event['ids_originais'] = [current_merged_event['ids_originais']]
-
-#             elif start_dt_obj == current_merged_event['end_obj']: # Contíguo
-#                 current_merged_event['end_obj'] = end_dt_obj # Estende o fim
-#                 # Adiciona o ID da regra original se não for uma lista já (caso de evento não agrupado anteriormente)
-#                 if isinstance(evento_esp['extendedProps']['id_original'], list):
-#                     current_merged_event['ids_originais'].extend(evento_esp['extendedProps']['id_original'])
-#                 else:
-#                     current_merged_event['ids_originais'].append(evento_esp['extendedProps']['id_original'])
-#                 # Remove duplicatas de IDs se houver (improvável, mas seguro)
-#                 current_merged_event['ids_originais'] = sorted(list(set(current_merged_event['ids_originais'])))
-#             else: # Quebra de continuidade
-#                 if current_merged_event:
-#                     all_events_final_agrupado.append({
-#                         'title': current_merged_event['title'],
-#                         'start': current_merged_event['start_obj'].isoformat(),
-#                         'end': current_merged_event['end_obj'].isoformat(),
-#                         'color': current_merged_event['color'],
-#                         'borderColor': current_merged_event['borderColor'],
-#                         'textColor': current_merged_event['textColor'],
-#                         'id': f'regra_disp_esp_agrupada_{"_".join(map(str, current_merged_event["ids_originais"]))}',
-#                         'extendedProps': {'tipo': 'disponibilidade_especifica_agrupada', 'ids_originais': current_merged_event['ids_originais']}
-#                     })
-#                 current_merged_event = {
-#                     'title': 'Disponível', 'start_obj': start_dt_obj, 'end_obj': end_dt_obj,
-#                     'ids_originais': [evento_esp['extendedProps']['id_original']] if not isinstance(evento_esp['extendedProps']['id_original'], list) else evento_esp['extendedProps']['id_original'],
-#                     'color': evento_esp['color'], 'borderColor': evento_esp['borderColor'], 'textColor': evento_esp['textColor']
-#                 }
-        
-#         if current_merged_event: # Adiciona o último bloco agrupado
-#             all_events_final_agrupado.append({
-#                 'title': current_merged_event['title'],
-#                 'start': current_merged_event['start_obj'].isoformat(),
-#                 'end': current_merged_event['end_obj'].isoformat(),
-#                 'color': current_merged_event['color'],
-#                 'borderColor': current_merged_event['borderColor'],
-#                 'textColor': current_merged_event['textColor'],
-#                 'id': f'regra_disp_esp_agrupada_{"_".join(map(str, current_merged_event["ids_originais"]))}',
-#                 'extendedProps': {'tipo': 'disponibilidade_especifica_agrupada', 'ids_originais': current_merged_event['ids_originais']}
-#             })
-#     else: # Se não houver eventos específicos para agrupar, apenas usa os outros (semanais)
-#         all_events_final_agrupado = list(all_events) # all_events aqui conteria apenas os semanais
-
-
-#     # Adiciona os Agendamentos (eles sobreporão visualmente as disponibilidades)
-#     for ag in agendamentos_objs:
-#         paciente_full_name = ag.paciente.user.get_full_name()
-#         paciente_display_name = paciente_full_name or ag.paciente.user.username
-        
-#         cor_agendamento = '#0d6efd'; borda_cor_agendamento = '#0a58ca'; texto_cor_agendamento = 'white'
-#         if ag.status == 'PENDENTE': cor_agendamento = '#ffc107'; borda_cor_agendamento = '#cc9a06'; texto_cor_agendamento = '#212529'
-#         elif ag.status == 'REALIZADO': cor_agendamento = '#198754'; borda_cor_agendamento = '#146c43'; texto_cor_agendamento = 'white'
-#         elif ag.status == 'CANCELADO': cor_agendamento = '#dc3545'; borda_cor_agendamento = '#b02a37'; texto_cor_agendamento = 'white'
-
-#         all_events_final_agrupado.append({
-#             'title': f"Consulta: {paciente_display_name} ({ag.get_status_display()})",
-#             'start': ag.data_hora.isoformat(), 
-#             'end': (ag.data_hora + duracao_consulta_padrao).isoformat(),
-#             'color': cor_agendamento, 
-#             'borderColor': borda_cor_agendamento,
-#             'textColor': texto_cor_agendamento,
-#             'id': f'ag_{ag.id}',
-#             'extendedProps': {'tipo': 'agendamento', 'id_original': ag.id, 'status': ag.status}
-#         })
-    
-#     # --- Contexto Final ---
-#     contexto = {
-#         # Passa a LISTA PYTHON FINAL (com específicos agrupados) diretamente.
-#         'calendar_events_data': all_events_final_agrupado,
-#     }
-#     return render(request, 'contas/calendario_profissional.html', contexto)
-
-
 @login_required
 def calendario_profissional(request):
     # O decorator @login_required já garante que request.user existe.
@@ -787,220 +568,6 @@ def calendario_profissional(request):
     }
     return render(request, 'contas/calendario_profissional.html', contexto)
 
-
-# @login_required
-# def gerenciar_regras_disponibilidade(request):
-#     user = request.user
-#     if not hasattr(user, 'perfil_profissional'):
-#         messages.error(request, "Esta página é acessível apenas para profissionais.")
-#         return redirect('contas:index')
-
-#     perfil_profissional = user.perfil_profissional
-#     form_erros = None # Para guardar erros do formulário em caso de POST falho
-
-#     if request.method == 'POST':
-#         form = RegraDisponibilidadeForm(request.POST)
-#         if form.is_valid():
-#             try:
-#                 nova_regra = form.save(commit=False)
-#                 nova_regra.profissional = perfil_profissional
-#                 nova_regra.save()
-#                 messages.success(request, "Nova regra de disponibilidade adicionada com sucesso!")
-#                 return redirect('contas:gerenciar_regras_disponibilidade') # Redireciona para limpar o form
-#             except IntegrityError: # Para o caso de alguma restrição de banco (ex: unique_together se adicionada)
-#                 messages.error(request, "Não foi possível salvar. Verifique se este horário já não existe ou há um conflito.")
-#                 form_erros = form # Passa o formulário com erros para ser exibido
-#             except ValidationError as e: # Captura ValidationError do clean() do modelo, se não pego pelo form.is_valid()
-#                 messages.error(request, "Erro de validação ao salvar a regra.")
-#                 # Adicionar erros do modelo ao formulário para exibição
-#                 # form.add_error(None, e) # Adiciona como non-field error
-#                 # Ou iterar sobre e.message_dict para adicionar a campos específicos se possível
-#                 for field, field_errors in e.message_dict.items():
-#                     for error in field_errors:
-#                         if field == '__all__': # Erro geral do modelo
-#                             form.add_error(None, error)
-#                         else:
-#                             form.add_error(field, error) # Adiciona ao campo específico
-#                 form_erros = form
-#             except Exception as e:
-#                  messages.error(request, f"Ocorreu um erro inesperado: {e}")
-#                  form_erros = form
-#         else:
-#             messages.error(request, "Por favor, corrija os erros no formulário abaixo.")
-#             form_erros = form # Passa o formulário com os erros de validação do form
-
-#     # Se GET, ou se o POST falhou e form_erros foi definido
-#     if form_erros:
-#         form_para_template = form_erros
-#     else:
-#         form_para_template = RegraDisponibilidadeForm() # Formulário vazio para GET
-
-#     # Busca todas as regras existentes do profissional para listar
-#     regras_existentes = perfil_profissional.regras_disponibilidade.all().order_by('tipo_regra', 'dia_semana', 'data_hora_inicio_especifica', 'hora_inicio_recorrente')
-
-#     contexto = {
-#         'form': form_para_template,
-#         'regras_disponibilidade': regras_existentes,
-#     }
-#     return render(request, 'contas/gerenciar_regras_disponibilidade.html', contexto)
-
-
-@login_required
-@require_POST # Exige que a requisição seja POST para segurança
-def excluir_regra_disponibilidade(request, regra_id):
-    user = request.user
-    # Verifica se o usuário é um profissional
-    if not hasattr(user, 'perfil_profissional'):
-        messages.error(request, "Ação não permitida.")
-        # Idealmente, redirecionar para uma página de erro ou a inicial
-        return redirect('contas:index')
-
-    # Busca a regra de disponibilidade específica ou retorna 404
-    regra = get_object_or_404(RegraDisponibilidade, pk=regra_id)
-
-    # Verifica se a regra pertence ao profissional logado
-    if regra.profissional != user.perfil_profissional:
-        messages.error(request, "Você não tem permissão para excluir esta regra de disponibilidade.")
-        return redirect('contas:gerenciar_regras_disponibilidade')
-
-    # Se tudo estiver OK, exclui a regra
-    try:
-        tipo_regra_display = regra.get_tipo_regra_display()
-        detalhes_regra = str(regra) # Pega a representação em string para a mensagem
-        regra.delete()
-        messages.success(request, f"Regra de disponibilidade ({detalhes_regra}) excluída com sucesso.")
-    except Exception as e:
-        messages.error(request, f"Ocorreu um erro ao excluir a regra de disponibilidade: {e}")
-
-    return redirect('contas:gerenciar_regras_disponibilidade')
-
-
-@login_required
-def calendario_profissional(request):
-    user = request.user
-    if not hasattr(user, 'perfil_profissional'):
-        # ... (tratamento de erro como antes) ...
-        messages.error(request, "Apenas profissionais podem acessar esta página.")
-        return redirect('contas:index')
-
-    perfil = user.perfil_profissional
-    tz_padrao = timezone.get_default_timezone()
-    agora = timezone.now()
-    hoje = timezone.localdate() # Usado para lógica de recorrência semanal
-
-    data_inicio_periodo_geral = agora - timedelta(days=30)
-    data_fim_periodo_geral = agora + timedelta(days=90)
-
-    # --- Busca de Dados Relevantes ---
-    todas_as_regras_disponibilidade_qs = perfil.regras_disponibilidade.all().order_by('data_hora_inicio_especifica', 'hora_inicio_recorrente')
-    
-    agendamentos_objs = perfil.agendamentos.filter(
-        data_hora__gte=data_inicio_periodo_geral, data_hora__lt=data_fim_periodo_geral
-    )
-    
-    all_events = []
-    duracao_consulta = timedelta(hours=1)
-    
-    cor_disponivel_bloco = '#5cb85c' 
-    borda_cor_disponivel_bloco = '#4cae4c'
-
-    # 1. Disponibilidade Semanal Recorrente (permanece como eventos recorrentes separados)
-    for regra in todas_as_regras_disponibilidade_qs:
-        if regra.tipo_regra == 'SEMANAL':
-            if regra.dia_semana is not None and regra.hora_inicio_recorrente and regra.hora_fim_recorrente:
-                fc_day = (regra.dia_semana + 1) % 7
-                all_events.append({
-                    'title': 'Disponível', 
-                    'groupId': f'regra_disp_{regra.id}',
-                    'daysOfWeek': [ fc_day ], 
-                    'startTime': regra.hora_inicio_recorrente.strftime('%H:%M:%S'),
-                    'endTime': regra.hora_fim_recorrente.strftime('%H:%M:%S'), 
-                    'display': 'block', 
-                    'color': cor_disponivel_bloco, 
-                    'borderColor': borda_cor_disponivel_bloco,
-                    'extendedProps': {'tipo': 'disponibilidade_semanal', 'id_original': regra.id}
-                })
-
-    # 2. Processar e AGRUPAR Regras de Disponibilidade Específicas Contíguas
-    regras_especificas = todas_as_regras_disponibilidade_qs.filter(tipo_regra='ESPECIFICA').order_by('data_hora_inicio_especifica')
-    
-    merged_specific_slots = []
-    current_merged_event = None
-
-    for regra in regras_especificas:
-        if regra.data_hora_inicio_especifica and regra.data_hora_fim_especifica:
-            start_dt = regra.data_hora_inicio_especifica.astimezone(tz_padrao)
-            end_dt = regra.data_hora_fim_especifica.astimezone(tz_padrao)
-
-            # Considera apenas se o período intercepta a visualização geral
-            if not (start_dt < data_fim_periodo_geral and end_dt > data_inicio_periodo_geral):
-                continue
-
-            if current_merged_event is None: # Primeiro evento do grupo (ou novo grupo)
-                current_merged_event = {
-                    'title': 'Disponível',
-                    'start': start_dt, # Mantém como objeto datetime por enquanto
-                    'end': end_dt,     # Mantém como objeto datetime
-                    'ids_originais': [regra.id] # Lista de IDs das regras originais agrupadas
-                }
-            # Se a regra atual começa exatamente onde o bloco agrupado anterior terminou
-            elif start_dt == current_merged_event['end']:
-                current_merged_event['end'] = end_dt # Estende o fim do bloco agrupado
-                current_merged_event['ids_originais'].append(regra.id)
-            else: # Há um espaço ou sobreposição não contígua, finaliza o bloco anterior e começa um novo
-                if current_merged_event:
-                    merged_specific_slots.append(current_merged_event)
-                current_merged_event = {
-                    'title': 'Disponível',
-                    'start': start_dt, 'end': end_dt,
-                    'ids_originais': [regra.id]
-                }
-    
-    # Adiciona o último bloco agrupado, se existir
-    if current_merged_event:
-        merged_specific_slots.append(current_merged_event)
-
-    # Converte os blocos específicos agrupados para o formato do FullCalendar
-    for slot_agrupado in merged_specific_slots:
-        all_events.append({
-            'title': slot_agrupado['title'],
-            'start': slot_agrupado['start'].isoformat(),
-            'end': slot_agrupado['end'].isoformat(),
-            'color': cor_disponivel_bloco,
-            'borderColor': borda_cor_disponivel_bloco,
-            'id': f'regra_disp_esp_agrupada_{"_".join(map(str, slot_agrupado["ids_originais"]))}',
-            # Guardamos todos os IDs originais caso precisemos para edição/exclusão
-            'extendedProps': {'tipo': 'disponibilidade_especifica_agrupada', 'ids_originais': slot_agrupado['ids_originais']}
-        })
-
-    # 3. Agendamentos (como antes)
-    for ag in agendamentos_objs:
-        # ... (lógica para nome do paciente e cores do agendamento como antes) ...
-        paciente_full_name = ag.paciente.user.get_full_name()
-        paciente_display_name = paciente_full_name or ag.paciente.user.username
-        cor_agendamento = '#0d6efd'; borda_cor_agendamento = '#0a58ca'
-        if ag.status == 'PENDENTE': cor_agendamento = '#ffc107'; borda_cor_agendamento = '#cc9a06'
-        elif ag.status == 'REALIZADO': cor_agendamento = '#198754'; borda_cor_agendamento = '#146c43'
-        elif ag.status == 'CANCELADO': cor_agendamento = '#dc3545'; borda_cor_agendamento = '#b02a37'
-        all_events.append({
-            'title': f"Consulta: {paciente_display_name} ({ag.get_status_display()})",
-            'start': ag.data_hora.isoformat(), 
-            'end': (ag.data_hora + duracao_consulta).isoformat(),
-            'color': cor_agendamento, 
-            'borderColor': borda_cor_agendamento,
-            'id': f'ag_{ag.id}',
-            'extendedProps': {'tipo': 'agendamento', 'id_original': ag.id, 'status': ag.status}
-        })
-    
-    # ... (contexto e render como antes) ...
-    contexto = {
-        'calendar_events_data': all_events,
-    }
-    return render(request, 'contas/calendario_profissional.html', contexto)
-
-
-# Em contas/views.py
-# (outros imports e views permanecem como estão)
 
 @login_required
 @require_POST
@@ -1026,22 +593,22 @@ def api_criar_disp_avulsa(request):
         novo_fim = parser.parse(fim_str)
 
         if novo_inicio.tzinfo is None:
-            novo_inicio = novo_inicio.replace(tzinfo=timezone.utc)
+            novo_inicio = novo_inicio.replace(tzinfo=timezone.get_default_timezone())
         if novo_fim.tzinfo is None:
-            novo_fim = novo_fim.replace(tzinfo=timezone.utc)
+            novo_fim = novo_fim.replace(tzinfo=timezone.get_default_timezone())
 
         perfil_profissional = user.perfil_profissional
 
         # --- LÓGICA DE FUSÃO ATUALIZADA ---
 
         # Busca por regras adjacentes em ambos os lados
-        regra_anterior = RegraDisponibilidade.objects.filter(
+        regra_anterior = RegraDisponibilidade.objects.filter(  # type: ignore
             profissional=perfil_profissional,
             tipo_regra='ESPECIFICA',
             data_hora_fim_especifica=novo_inicio
         ).first()
 
-        regra_posterior = RegraDisponibilidade.objects.filter(
+        regra_posterior = RegraDisponibilidade.objects.filter(  # type: ignore
             profissional=perfil_profissional,
             tipo_regra='ESPECIFICA',
             data_hora_inicio_especifica=novo_fim
@@ -1118,8 +685,8 @@ def api_editar_regra_disponibilidade(request, regra_id):
         return api_error_response(message='Apenas profissionais podem editar disponibilidades.', status_code=403)
 
     try:
-        regra = RegraDisponibilidade.objects.get(pk=regra_id, profissional=user.perfil_profissional)
-    except RegraDisponibilidade.DoesNotExist:
+        regra = RegraDisponibilidade.objects.get(pk=regra_id, profissional=user.perfil_profissional)  # type: ignore
+    except Exception:
         return api_error_response(message='Regra de disponibilidade não encontrada ou você não tem permissão.', status_code=404)
 
     if regra.tipo_regra != 'ESPECIFICA':
@@ -1166,7 +733,7 @@ def api_excluir_regras_disponibilidade_lista(request):
         if not ids_para_excluir or not isinstance(ids_para_excluir, list) or not all(isinstance(id_val, int) for id_val in ids_para_excluir):
             return api_error_response(message='Lista de IDs inválida ou não fornecida.')
 
-        regras_a_excluir = RegraDisponibilidade.objects.filter(
+        regras_a_excluir = RegraDisponibilidade.objects.filter(  # type: ignore
             pk__in=ids_para_excluir,
             profissional=user.perfil_profissional,
             tipo_regra='ESPECIFICA'
@@ -1277,7 +844,7 @@ def stripe_webhook(request):
     except ValueError as e:
         # Payload inválido
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError as e:
+    except Exception:
         # Assinatura inválida
         return HttpResponse(status=400)
 
@@ -1289,7 +856,7 @@ def stripe_webhook(request):
         agendamento_id = payment_intent['metadata'].get('agendamento_id')
         
         try:
-            agendamento = Agendamento.objects.get(id=agendamento_id)
+            agendamento = Agendamento.objects.get(id=agendamento_id)  # type: ignore
             
             # Atualiza o status do pagamento e do agendamento
             agendamento.status_pagamento = 'PAGO'
@@ -1300,7 +867,7 @@ def stripe_webhook(request):
             
             # Aqui você pode adicionar o envio de email de confirmação para paciente e profissional
 
-        except Agendamento.DoesNotExist:
+        except Exception as e:
             print(f"ERRO no webhook: Agendamento com id {agendamento_id} não encontrado.")
             return HttpResponse(status=404)
         
@@ -1359,14 +926,6 @@ def api_submeter_avaliacao(request):
             status_code=201 # 201 Created
         )
 
-    except Agendamento.DoesNotExist:
-        return api_error_response(message="Agendamento não encontrado.", status_code=404)
-    except (json.JSONDecodeError, ValueError, TypeError):
-        return api_error_response(message="Dados inválidos ou em formato incorreto.")
-    except ValidationError as e:
-        # Converte o dicionário de erros de validação em uma mensagem amigável
-        error_message = next(iter(e.message_dict.values()))[0] if e.message_dict else "Erro de validação."
-        return api_error_response(message=error_message)
     except Exception as e:
         print(f"Erro inesperado em api_submeter_avaliacao: {e}")
         return api_error_response(message="Ocorreu um erro interno.", status_code=500)
