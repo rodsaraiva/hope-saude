@@ -28,7 +28,7 @@
                                 <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label fw-semibold">
                                     {{ form.tipo_profissional.label }} *
                                 </label>
-                                {{ form.tipo_profissional|add_class:'form-select' }}
+                                {{ form.tipo_profissional }}
                                 {% if form.tipo_profissional.help_text %}
                                     <div class="form-text">{{ form.tipo_profissional.help_text }}</div>
                                 {% endif %}
@@ -45,7 +45,7 @@
                                 <label for="{{ form.numero_registro.id_for_label }}" class="form-label fw-semibold">
                                     {{ form.numero_registro.label }} *
                                 </label>
-                                {{ form.numero_registro|add_class:'form-control' }}
+                                {{ form.numero_registro }}
                                 {% if form.numero_registro.help_text %}
                                     <div class="form-text">{{ form.numero_registro.help_text }}</div>
                                 {% endif %}
@@ -63,7 +63,7 @@
                             <label for="{{ form.documento_registro.id_for_label }}" class="form-label fw-semibold">
                                 {{ form.documento_registro.label }} *
                             </label>
-                            {{ form.documento_registro|add_class:'form-control' }}
+                            {{ form.documento_registro }}
                             {% if form.documento_registro.help_text %}
                                 <div class="form-text">{{ form.documento_registro.help_text }}</div>
                             {% endif %}
