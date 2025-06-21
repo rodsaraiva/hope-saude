@@ -142,44 +142,63 @@
     .professional-card {
         background: white;
         border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        margin-bottom: 0;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
         border-left: 4px solid var(--hope-azul-sereno);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
     .professional-card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .professional-header {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 1.5rem;
+        text-align: center;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .professional-card-body {
+        flex-grow: 1;
+    }
+    
+    .professional-card-footer {
+        margin-top: 1.5rem;
+        text-align: center;
     }
 
     .professional-avatar {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid var(--hope-azul-sereno);
+        border: 4px solid var(--hope-azul-sereno);
         box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
     }
 
     .professional-info h3 {
         color: var(--hope-cinza-escuro);
-        margin-bottom: 0.5rem;
-        font-size: 1.3rem;
+        margin-bottom: 0.25rem;
+        font-size: 1.25rem;
     }
 
     .professional-specialty {
-        color: var(--hope-azul-sereno);
+        color: var(--hope-cinza-medio);
         font-weight: 600;
-        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .professional-specialty i {
+        color: var(--hope-azul-sereno);
     }
 
     .professional-registration {
@@ -188,13 +207,16 @@
     }
 
     .professional-status {
-        margin-left: auto;
-        padding: 0.5rem 1rem;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        padding: 0.4rem 0.8rem;
         border-radius: 25px;
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.75rem;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        border: 2px solid white;
     }
 
     .status-approved {
@@ -216,9 +238,10 @@
 
     .detail-item {
         background: var(--hope-gradient-soft);
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         border-radius: 8px;
         border-left: 3px solid var(--hope-azul-sereno);
+        margin-bottom: 0.75rem;
     }
 
     .detail-label {
