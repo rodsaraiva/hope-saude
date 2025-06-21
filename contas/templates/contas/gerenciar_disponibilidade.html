@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}Gerenciar Minha Disponibilidade{% endblock %}
+{% block title %}Gerenciar Minha Disponibilidade - Hope Saúde{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Gerenciar Minha Disponibilidade Semanal</h1>
+    <p class="text-muted mb-4">Configure seus horários de atendimento para que os pacientes possam agendar consultas.</p>
 
     {# Formulário para adicionar nova disponibilidade #}
     <div class="card mb-5 shadow-sm">
         <div class="card-header">
-            <h2 class="h4 mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Novo Horário</h2>
+            <h2 class="h4 mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Novo Horário de Atendimento</h2>
         </div>
         <div class="card-body">
             <form method="post" novalidate>
@@ -83,7 +84,7 @@
         </div>
     {% else %}
         <div class="alert alert-info" role="alert">
-             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma disponibilidade semanal.
+             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma disponibilidade semanal para atendimentos.
         </div>
     {% endif %}
 </div>

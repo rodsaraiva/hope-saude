@@ -59,7 +59,7 @@
                                 {% if is_profissional %}
                                     <i class="bi bi-person me-2"></i><strong>Paciente:</strong> {{ ag.paciente.user.get_full_name|default:ag.paciente.user.username }}
                                 {% else %}
-                                    <i class="bi bi-person-workspace me-2"></i><strong>Profissional:</strong> {{ ag.profissional.user.get_full_name|default:ag.profissional.user.username }}
+                                    <i class="bi bi-person-workspace me-2"></i><strong>Profissional de Saúde:</strong> {{ ag.profissional.user.get_full_name|default:ag.profissional.user.username }}
                                     <span class="text-muted small">({{ ag.profissional.get_tipo_profissional_display }})</span>
                                 {% endif %}
                             </p>
@@ -130,7 +130,7 @@
                                 {% if is_profissional %}
                                     <i class="bi bi-person me-1"></i><strong>Paciente:</strong> {{ ag.paciente.user.get_full_name|default:ag.paciente.user.username }}
                                 {% else %}
-                                    <i class="bi bi-person-workspace me-1"></i><strong>Profissional:</strong> {{ ag.profissional.user.get_full_name|default:ag.profissional.user.username }}
+                                    <i class="bi bi-person-workspace me-1"></i><strong>Profissional de Saúde:</strong> {{ ag.profissional.user.get_full_name|default:ag.profissional.user.username }}
                                     <span class="text-muted small">({{ ag.profissional.get_tipo_profissional_display }})</span>
                                 {% endif %}
                             </p>

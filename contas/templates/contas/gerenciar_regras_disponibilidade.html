@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load tz %} {# Para formatar datas e horas com fuso horário, se necessário #}
 
-{% block title %}Gerenciar Minha Disponibilidade{% endblock %}
+{% block title %}Gerenciar Minha Disponibilidade - Hope Saúde{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Gerenciar Minha Disponibilidade</h1>
-    <p class="text-muted mb-4">Adicione ou remova suas regras de disponibilidade. Escolha "Semanal Recorrente" para horários que se repetem toda semana, ou "Data/Hora Específica" para definir um período único de disponibilidade.</p>
+    <p class="text-muted mb-4">Adicione ou remova suas regras de disponibilidade para atendimentos. Escolha "Semanal Recorrente" para horários que se repetem toda semana, ou "Data/Hora Específica" para definir um período único de disponibilidade.</p>
 
     {# Formulário para Adicionar Nova Regra de Disponibilidade #}
     <div class="card mb-5 shadow-sm">
@@ -133,7 +133,7 @@
         </div>
     {% else %}
          <div class="alert alert-info" role="alert">
-             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma regra de disponibilidade.
+             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma regra de disponibilidade para atendimentos.
         </div>
     {% endif %}
 

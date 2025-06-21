@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Encontre Profissionais - Hope Saúde{% endblock %}
+{% block title %}Encontre Profissionais de Saúde - Hope Saúde{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-5">
-    <h1 class="display-5 fw-bold mb-4 text-center" style="color: var(--hope-titulos-principais);">Encontre o Profissional Ideal para Você</h1>
-    <!-- <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principal);">Utilize nossos filtros para encontrar psicólogos e psiquiatras que melhor se adequam às suas necessidades.</p> -->
+    <h1 class="display-5 fw-bold mb-4 text-center" style="color: var(--hope-titulos-principais);">Encontre o Profissional de Saúde Ideal para Você</h1>
+    <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principal);">Utilize nossos filtros para encontrar médicos, psicólogos e psiquiatras que melhor se adequam às suas necessidades de saúde.</p>
 
     {# Formulário de Busca e Filtro (mantido como na Resposta #161) #}
     <form method="get" action="{% url 'contas:lista_profissionais' %}" class="mb-5 p-4 form-filtro-profissionais shadow-soft">
@@ -15,7 +15,7 @@
         <div class="row g-3 align-items-center mb-3">
             <div class="col-lg">
                 <label for="searchQueryInput" class="form-label visually-hidden">Buscar por Palavra-chave:</label>
-                <input type="text" name="q" id="searchQueryInput" class="form-control" placeholder="Nome, abordagem, etc..." value="{{ search_query|default:'' }}">
+                <input type="text" name="q" id="searchQueryInput" class="form-control" placeholder="Nome, especialidade, abordagem, etc..." value="{{ search_query|default:'' }}">
             </div>
             <div class="col-lg-auto align-self-end">
                 <button type="submit" class="btn btn-hope-primary px-4 py-2 w-100"><i class="bi bi-search me-2"></i>Buscar</button>
@@ -48,7 +48,7 @@
     {% if search_query or selected_specialty_ids %}
         <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Resultados da sua busca:</h2>
     {% else %}
-        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Conheça Nossos Profissionais:</h2>
+        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Conheça Nossos Profissionais de Saúde:</h2>
     {% endif %}
 
     {% if page_obj %}
@@ -123,9 +123,9 @@
 
     {% else %}
          {% if search_query or selected_specialty_ids %}
-              <div class="alert alert-warning mt-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i>Nenhum profissional encontrado. Tente refinar sua busca ou filtros.</div>
+              <div class="alert alert-warning mt-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i>Nenhum profissional de saúde encontrado. Tente refinar sua busca ou filtros.</div>
          {% else %}
-              <div class="alert alert-info mt-4" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Nenhum profissional cadastrado no momento.</div>
+              <div class="alert alert-info mt-4" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Nenhum profissional de saúde cadastrado no momento.</div>
          {% endif %}
     {% endif %}
 </div>

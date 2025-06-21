@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="h2 mb-0" style="color: var(--hope-titulos-principais);">{{ perfil.user.get_full_name|default:perfil.user.username }}</h1>
-                    <p class="lead fs-6 mb-0" style="color: var(--hope-texto-principal);">{{ perfil.get_tipo_profissional_display|default:"Tipo não informado" }}
+                    <p class="lead fs-6 mb-0" style="color: var(--hope-texto-principais);">{{ perfil.get_tipo_profissional_display|default:"Tipo não informado" }}
                         {% if perfil.numero_registro %}
                             <span class="text-muted small">- Registro: {{ perfil.numero_registro }}</span>
                         {% endif %}
@@ -140,7 +140,7 @@
     <hr class="my-4">
     <p class="text-center">
         <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-outline-secondary">
-            <i class="bi bi-arrow-left-circle me-1"></i>Voltar para Lista de Profissionais
+            <i class="bi bi-arrow-left-circle me-1"></i>Voltar para Lista de Profissionais de Saúde
         </a>
     </p>
 
