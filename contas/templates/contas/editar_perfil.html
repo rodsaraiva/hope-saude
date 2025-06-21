@@ -131,6 +131,7 @@
         font-size: 0.95rem;
     }
 
+    /* Estilos para campos de formulário Django */
     .form-control-modern {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -155,14 +156,52 @@
         opacity: 0.7;
     }
 
+    /* Estilos específicos para campos Django */
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    input[type="number"], 
+    input[type="tel"], 
+    input[type="url"], 
+    input[type="date"], 
+    input[type="file"],
+    textarea, 
+    select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--hope-cinza-claro);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Open Sans', sans-serif;
+        transition: all 0.3s ease;
+        background-color: white;
+        color: var(--hope-cinza-escuro);
+    }
+
+    input[type="text"]:focus, 
+    input[type="email"]:focus, 
+    input[type="password"]:focus, 
+    input[type="number"]:focus, 
+    input[type="tel"]:focus, 
+    input[type="url"]:focus, 
+    input[type="date"]:focus, 
+    input[type="file"]:focus,
+    textarea:focus, 
+    select:focus {
+        outline: none;
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 3px rgba(160, 210, 219, 0.1);
+        transform: translateY(-1px);
+    }
+
     /* Textarea moderno */
-    .form-control-modern textarea {
+    textarea {
         min-height: 120px;
         resize: vertical;
     }
 
     /* Select moderno */
-    .form-control-modern select {
+    select {
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
         background-position: right 0.5rem center;
         background-repeat: no-repeat;
@@ -364,7 +403,16 @@
             font-size: 0.85rem;
         }
 
-        .form-control-modern {
+        input[type="text"], 
+        input[type="email"], 
+        input[type="password"], 
+        input[type="number"], 
+        input[type="tel"], 
+        input[type="url"], 
+        input[type="date"], 
+        input[type="file"],
+        textarea, 
+        select {
             padding: 0.6rem 0.8rem;
         }
     }
@@ -436,7 +484,7 @@
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                {{ field|add_class:"form-control-modern" }}
+                                {{ field }}
                             {% endif %}
 
                             {% if field.help_text %}
