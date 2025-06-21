@@ -4,6 +4,7 @@
 from .auth import (
     index,
     registro,
+    registro_profissional,
     meu_perfil,
     EditarPerfilView,
 )
@@ -62,6 +63,7 @@ __all__ = [
     # Views de autenticação
     'index',
     'registro',
+    'registro_profissional',
     'meu_perfil',
     'EditarPerfilView',
     

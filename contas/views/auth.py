@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.contrib.auth import login
 
-from ..forms import RegistroUsuarioForm, PerfilProfissionalForm, PerfilPacienteForm
+from ..forms import RegistroUsuarioForm, RegistroProfissionalForm, PerfilProfissionalForm, PerfilPacienteForm
 from ..models import PerfilProfissional, PerfilPaciente
 from .utils import get_user_profile
 
@@ -26,17 +27,46 @@ def registro(request):
             # Cria o perfil apropriado ligado ao usuário recém-criado
             if tipo_conta == 'PACIENTE':
                 PerfilPaciente.objects.create(user=user)  # type: ignore
+                messages.success(request, f'Conta criada com sucesso para {user.username}! Você já pode fazer login.')
+                return redirect('login')
             elif tipo_conta == 'PROFISSIONAL':
+                # Para profissionais, redireciona para página adicional de registro
                 PerfilProfissional.objects.create(user=user)  # type: ignore
-
-            messages.success(request, f'Conta criada com sucesso para {user.username}! Você já pode fazer login.')
-            return redirect('login')
+                # Faz login do usuário para manter a sessão
+                login(request, user)
+                messages.success(request, f'Conta criada com sucesso! Agora complete seu cadastro profissional.')
+                return redirect('contas:registro_profissional')
         else:
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = RegistroUsuarioForm()
 
     return render(request, 'contas/registro.html', {'form': form})
+
+
+def registro_profissional(request):
+    """View para completar o registro de profissionais"""
+    if not request.user.is_authenticated:
+        messages.error(request, 'Você precisa estar logado para acessar esta página.')
+        return redirect('login')
+    
+    # Verifica se o usuário já tem um perfil profissional
+    if not hasattr(request.user, 'perfil_profissional'):
+        messages.error(request, 'Acesso negado. Esta página é apenas para profissionais.')
+        return redirect('contas:meu_perfil')
+    
+    if request.method == 'POST':
+        form = RegistroProfissionalForm(request.POST, request.FILES, instance=request.user.perfil_profissional)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cadastro profissional completado com sucesso!')
+            return redirect('contas:meu_perfil')
+        else:
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
+    else:
+        form = RegistroProfissionalForm(instance=request.user.perfil_profissional)
+
+    return render(request, 'contas/registro_profissional.html', {'form': form})
 
 
 @login_required

@@ -27,6 +27,13 @@ class PerfilProfissional(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil_profissional')
     tipo_profissional = models.CharField(max_length=15, choices=TIPO_PROFISSIONAL_CHOICES, null=True, blank=True)
     numero_registro = models.CharField(max_length=20, unique=True, help_text='Número do CRP ou CRM', null=True, blank=True)
+    documento_registro = models.FileField(
+        upload_to='documentos_registro/',
+        null=True,
+        blank=True,
+        help_text='Foto ou scan do documento de registro (CRP/CRM)',
+        verbose_name='Documento de Registro'
+    )
     especialidades = models.ManyToManyField(Especialidade, blank=True, related_name='profissionais')
     bio = models.TextField(blank=True, help_text='Breve descrição sobre sua abordagem, experiência, etc.')
     telefone_contato = models.CharField(max_length=20, blank=True)

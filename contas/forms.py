@@ -64,6 +64,56 @@ class RegistroUsuarioForm(UserCreationForm):
             self.fields['password2'].widget.attrs.update({'placeholder': 'Confirme sua senha'})
 
 
+class RegistroProfissionalForm(forms.ModelForm):
+    """Formulário específico para registro de profissionais com documento"""
+    class Meta:
+        model = PerfilProfissional
+        fields = ['tipo_profissional', 'numero_registro', 'documento_registro']
+        widgets = {
+            'tipo_profissional': forms.Select(attrs={'class': 'form-select'}),
+            'numero_registro': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: CRP 06/123456 ou CRM 123456'
+            }),
+            'documento_registro': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*,.pdf'
+            }),
+        }
+        labels = {
+            'tipo_profissional': 'Tipo de Profissional',
+            'numero_registro': 'Número de Registro (CRP/CRM)',
+            'documento_registro': 'Documento de Registro',
+        }
+        help_texts = {
+            'numero_registro': 'Digite seu número de registro profissional (CRP para psicólogos, CRM para psiquiatras)',
+            'documento_registro': 'Faça upload de uma foto ou scan do seu documento de registro. Formatos aceitos: JPG, PNG, PDF.',
+        }
+
+    def clean_numero_registro(self):
+        numero_registro = self.cleaned_data.get('numero_registro')
+        if numero_registro:
+            # Verifica se já existe um profissional com este número de registro
+            if PerfilProfissional.objects.filter(numero_registro=numero_registro).exists():  # type: ignore
+                raise forms.ValidationError('Este número de registro já está cadastrado no sistema.')
+        return numero_registro
+
+    def clean_documento_registro(self):
+        documento = self.cleaned_data.get('documento_registro')
+        if documento:
+            # Verifica o tamanho do arquivo (máximo 5MB)
+            if documento.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('O arquivo deve ter no máximo 5MB.')
+            
+            # Verifica a extensão do arquivo
+            allowed_extensions = ['.jpg', '.jpeg', '.png', '.pdf']
+            file_extension = documento.name.lower()
+            if not any(file_extension.endswith(ext) for ext in allowed_extensions):
+                raise forms.ValidationError('Formato de arquivo não suportado. Use JPG, PNG ou PDF.')
+        
+        return documento
+
+
 class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -84,13 +134,17 @@ class PerfilProfissionalForm(forms.ModelForm):
         model = PerfilProfissional
         # Adicionados 'foto_perfil' e 'valor_consulta' à lista de campos
         fields = [
-            'foto_perfil', 'tipo_profissional', 'numero_registro', 'especialidades',
+            'foto_perfil', 'tipo_profissional', 'numero_registro', 'documento_registro', 'especialidades',
             'bio', 'valor_consulta', 'telefone_contato', 'endereco_consultorio', 
             'anos_experiencia',
         ]
         widgets = {
             'tipo_profissional': forms.Select(attrs={'class': 'form-select'}),
             'numero_registro': forms.TextInput(attrs={'class': 'form-control'}),
+            'documento_registro': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*,.pdf'
+            }),
             'especialidades': forms.CheckboxSelectMultiple, # Para ManyToManyField
             'bio': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'telefone_contato': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(XX) XXXXX-XXXX'}),
@@ -103,6 +157,7 @@ class PerfilProfissionalForm(forms.ModelForm):
             'foto_perfil': 'Alterar Foto de Perfil',
             'tipo_profissional': 'Tipo de Profissional',
             'numero_registro': 'Número de Registro (CRP/CRM)',
+            'documento_registro': 'Documento de Registro',
             'especialidades': 'Especialidades Atendidas',
             'bio': 'Sobre Mim / Abordagem Terapêutica',
             'valor_consulta': 'Valor da Consulta (R$)',

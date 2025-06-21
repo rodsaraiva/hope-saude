@@ -10,6 +10,7 @@ urlpatterns = [
     path('profissionais/', views.lista_profissionais, name='lista_profissionais'),
     path('profissionais/<int:pk>/', views.perfil_profissional_detail, name='perfil_profissional_detail'),
     path('registro/', views.registro, name='registro'),
+    path('registro/profissional/', views.registro_profissional, name='registro_profissional'),
 
     path('meu-perfil/', views.meu_perfil, name='meu_perfil'),
     path('meu-perfil/editar/', views.EditarPerfilView.as_view(), name='editar_perfil'),
