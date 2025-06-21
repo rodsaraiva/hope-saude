@@ -191,6 +191,16 @@ MEDIA_URL = '/media/'
 
 # Caminho no sistema de arquivos onde os arquivos de mídia serão armazenados
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Garantir que a pasta media seja criada se não existir
+if not os.path.exists(MEDIA_ROOT):
+    try:
+        os.makedirs(MEDIA_ROOT, exist_ok=True)
+    except PermissionError:
+        # Se não conseguir criar, usar uma pasta temporária
+        import tempfile
+        MEDIA_ROOT = tempfile.mkdtemp()
+        print(f"WARNING: Using temporary directory for media: {MEDIA_ROOT}")
 # --- FIM DAS NOVAS CONFIGURAÇÕES DE MÍDIA ---
 
 # Default primary key field type

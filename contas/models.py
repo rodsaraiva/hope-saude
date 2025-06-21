@@ -28,7 +28,7 @@ class PerfilProfissional(models.Model):
     tipo_profissional = models.CharField(max_length=15, choices=TIPO_PROFISSIONAL_CHOICES, null=True, blank=True)
     numero_registro = models.CharField(max_length=20, unique=True, help_text='Número do CRP ou CRM', null=True, blank=True)
     documento_registro = models.FileField(
-        upload_to='documentos_registro/',
+        upload_to='documentos/',
         null=True,
         blank=True,
         help_text='Foto ou scan do documento de registro (CRP/CRM)',
