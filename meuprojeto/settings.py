@@ -190,17 +190,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 
 # Caminho no sistema de arquivos onde os arquivos de mídia serão armazenados
-# Usar pasta temporária se não conseguir criar a pasta media
-import tempfile
-import os
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Criar pastas de mídia se não existirem
 try:
-    # Tentar usar a pasta media padrão
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    # Tentar criar a pasta se não existir
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
-
-    # Criar pastas de mídia se não existirem
+    # Lista de pastas que precisam existir
     media_directories = [
         MEDIA_ROOT,
         os.path.join(MEDIA_ROOT, 'documentos'),
@@ -213,23 +207,21 @@ try:
         if not os.path.exists(directory):
             os.makedirs(directory, mode=0o755, exist_ok=True)
             print(f"Pasta de mídia criada: {directory}")
+        else:
+            print(f"Pasta já existe: {directory}")
+            
 except Exception as e:
     print(f"Erro ao criar pastas de mídia: {e}")
-    # Fallback para pasta temporária se não conseguir criar
-    import tempfile
-    MEDIA_ROOT = tempfile.mkdtemp()
-    print(f"Usando pasta temporária para mídia: {MEDIA_ROOT}")
-
-# Garantir que a pasta media seja criada se não existir
-if not os.path.exists(MEDIA_ROOT):
+    # Não usar pasta temporária, forçar criação da pasta media
+    print("Tentando criar pasta media com permissões diferentes...")
     try:
-        os.makedirs(MEDIA_ROOT, exist_ok=True)
-    except PermissionError:
-        # Se não conseguir criar, usar uma pasta temporária
-        import tempfile
-        MEDIA_ROOT = tempfile.mkdtemp()
-        print(f"WARNING: Using temporary directory for media: {MEDIA_ROOT}")
-# --- FIM DAS NOVAS CONFIGURAÇÕES DE MÍDIA ---
+        # Tentar criar com permissões mais permissivas
+        for directory in media_directories:
+            os.makedirs(directory, mode=0o777, exist_ok=True)
+            print(f"Pasta criada com permissões especiais: {directory}")
+    except Exception as e2:
+        print(f"Erro crítico ao criar pastas de mídia: {e2}")
+        print("A aplicação pode não funcionar corretamente sem as pastas de mídia.")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

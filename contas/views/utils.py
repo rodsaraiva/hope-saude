@@ -52,7 +52,15 @@ def ensure_media_directories():
         return True
     except Exception as e:
         print(f"Erro ao criar pastas de mídia: {e}")
-        return False
+        # Tentar com permissões mais permissivas
+        try:
+            for directory in directories:
+                os.makedirs(directory, mode=0o777, exist_ok=True)
+                print(f"Pasta criada com permissões especiais: {directory}")
+            return True
+        except Exception as e2:
+            print(f"Erro crítico ao criar pastas de mídia: {e2}")
+            return False
 
 
 def api_success_response(data=None, status_code=200):
