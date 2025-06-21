@@ -141,64 +141,81 @@
     /* Cards de profissionais */
     .professional-card {
         background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 0;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        border-left: 4px solid var(--hope-azul-sereno);
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .professional-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    .professional-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 0 8px
         text-align: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .professional-card-header {
+        background: var(--hope-gradient-soft);
+        padding: 2rem 1.5rem 1.5rem;
         position: relative;
     }
-    
+
     .professional-card-body {
         flex-grow: 1;
+        padding: 0 1.5rem;
     }
     
     .professional-card-footer {
-        margin-top: 1.5rem;
-        text-align: center;
+        padding: 1.5rem;
     }
 
     .professional-avatar {
-        width: 90px;
-        height: 90px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid var(--hope-azul-sereno);
-        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+        border: 4px solid white;
+        margin: 0 auto 1rem;
+        display: block;
+        background-color: white;
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .professional-info {
+        padding-top: 65px;
+        margin-bottom: 1rem;
     }
 
     .professional-info h3 {
         color: var(--hope-cinza-escuro);
         margin-bottom: 0.25rem;
         font-size: 1.25rem;
+        font-weight: 700;
     }
 
     .professional-specialty {
         color: var(--hope-cinza-medio);
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
     }
     
     .professional-specialty i {
         color: var(--hope-azul-sereno);
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--hope-cinza-medio);
+    }
+    
+    .rating-display .stars {
+        color: #ffc107;
+    }
+    
+    .rating-display .reviews-count {
+        font-size: 0.85rem;
     }
 
     .professional-registration {
