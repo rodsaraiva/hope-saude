@@ -3,157 +3,478 @@
 
 {% block title %}Meu Perfil - {{ user.username }} - Hope Saúde{% endblock %}
 
-{% block content %}
-<div class="container mt-4 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-9">
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual da Hope Saúde */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos baseados na identidade visual */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+        --hope-gradient-warm: linear-gradient(135deg, rgba(255, 218, 185, 0.1) 0%, rgba(255, 182, 193, 0.1) 100%);
+    }
 
-            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    /* Reset e base seguindo a identidade visual */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia seguindo o manual de identidade visual */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: var(--hope-cinza-escuro);
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal com gradiente suave */
+    .main-section {
+        padding: 3rem 0;
+        background: var(--hope-gradient-soft);
+        min-height: 100vh;
+    }
+
+    /* Card moderno com sombras suaves */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+        pointer-events: none;
+    }
+
+    .card-header-modern h5 {
+        color: white;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 700;
+    }
+
+    .card-body-modern {
+        padding: 2rem;
+    }
+
+    /* Botões seguindo a identidade visual */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .btn-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-modern:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-azul-sereno);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-cinza-claro);
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--hope-cinza-claro);
+        color: var(--hope-cinza-escuro);
+        transform: translateY(-2px);
+    }
+
+    /* Cabeçalho do perfil */
+    .profile-header {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(160, 210, 219, 0.1);
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--hope-azul-sereno);
+        box-shadow: 0 4px 12px rgba(160, 210, 219, 0.3);
+    }
+
+    .profile-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--hope-gradient-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid var(--hope-azul-sereno);
+        color: var(--hope-azul-sereno);
+        font-size: 2rem;
+    }
+
+    /* Lista de informações */
+    .info-list dt {
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        font-family: 'Nunito Sans', sans-serif;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(160, 210, 219, 0.1);
+    }
+
+    .info-list dd {
+        color: var(--hope-cinza-medio);
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(160, 210, 219, 0.1);
+    }
+
+    /* Badges de especialidade */
+    .badge-modern {
+        background: var(--hope-gradient-soft);
+        color: var(--hope-cinza-escuro);
+        border: 1px solid var(--hope-azul-sereno);
+        border-radius: 15px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'Nunito Sans', sans-serif;
+        margin: 0.25rem;
+        display: inline-block;
+    }
+
+    /* Alertas personalizados */
+    .alert-modern {
+        border-radius: 15px;
+        border: none;
+        font-family: 'Open Sans', sans-serif;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-warning-modern {
+        background: rgba(255, 218, 185, 0.1);
+        color: var(--hope-cinza-escuro);
+        border-left: 4px solid var(--hope-pessego);
+    }
+
+    .alert-secondary-modern {
+        background: rgba(224, 224, 224, 0.1);
+        color: var(--hope-cinza-escuro);
+        border-left: 4px solid var(--hope-cinza-claro);
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .profile-header {
+            padding: 1.5rem;
+        }
+
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+
+        .btn-modern {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="main-section">
+    <div class="container-modern">
+        <!-- Cabeçalho do Perfil -->
+        <div class="profile-header fade-in">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
                 <div class="d-flex align-items-center">
-                    {# BLOCO ALTERADO: Exibe a foto ou um placeholder #}
                     {% with user.perfil_profissional|default:user.perfil_paciente as perfil %}
                         {% if perfil.foto_perfil %}
-                            <img src="{{ perfil.foto_perfil.url }}" alt="Foto de Perfil" class="img-fluid rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--hope-azul-sereno);">
+                            <img src="{{ perfil.foto_perfil.url }}" alt="Foto de Perfil" class="profile-avatar me-3">
                         {% else %}
-                            <i class="bi bi-person-circle me-3" style="font-size: 3.5rem; color: var(--hope-azul-sereno);"></i>
+                            <div class="profile-avatar-placeholder me-3">
+                                <i class="bi bi-person"></i>
+                            </div>
                         {% endif %}
                     {% endwith %}
-                    <h1 class="display-5 fw-bold mb-0" style="color: var(--hope-titulos-principais);">Meu Perfil</h1>
+                    <div>
+                        <h1 class="mb-1">Meu Perfil</h1>
+                        <p class="text-muted mb-0">{{ user.get_full_name|default:user.username }}</p>
+                    </div>
                 </div>
-                <a href="{% url 'contas:editar_perfil' %}" class="btn btn-hope-primary">
-                    <i class="bi bi-pencil-square me-1"></i>Editar Perfil
+                <a href="{% url 'contas:editar_perfil' %}" class="btn-modern btn-primary-modern">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar Perfil
                 </a>
             </div>
-
-            {# Card de Informações da Conta #}
-            <div class="card shadow-soft mb-4">
-                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
-                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
-                        <i class="bi bi-person-vcard-fill me-2" style="color: var(--hope-azul-sereno);"></i>Informações da Conta
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <dl class="row">
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Nome de Usuário:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ user.username }}</dd>
-
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Email:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ user.email|default:"Não informado" }}</dd>
-
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Nome Completo:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ user.get_full_name|default:"Não informado" }}</dd>
-
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Membro Desde:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ user.date_joined|date:"d \d\e F \d\e Y" }}</dd>
-                    </dl>
-                    <div class="mt-3 text-sm-end">
-                         <a href="{% url 'password_change' %}" class="btn btn-hope-outline-secondary btn-sm">
-                            <i class="bi bi-key-fill me-1"></i>Mudar Senha
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {# Card de Detalhes Específicos do Perfil de Profissional #}
-            {% if perfil_profissional %}
-            <div class="card shadow-soft mb-4">
-                <div class="card-header section-bg-verde-salvia-muito-suave py-3">
-                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
-                        <i class="bi bi-briefcase-fill me-2" style="color: var(--hope-verde-salvia);"></i>Meu Perfil de Profissional
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <dl class="row">
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Tipo:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.get_tipo_profissional_display|default:"Não informado" }}</dd>
-
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Registro (CRP/CRM):</dt>
-                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.numero_registro|default:"Não informado" }}</dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Valor da Consulta:</dt>
-                        <dd class="col-sm-8 col-md-9">
-                            {% if perfil_profissional.valor_consulta > 0 %}
-                                R$ {{ perfil_profissional.valor_consulta|floatformat:2 }}
-                            {% else %}
-                                Não informado
-                            {% endif %}
-                        </dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Anos de Experiência:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.anos_experiencia|default:"Não informado" }}</dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Telefone Contato:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.telefone_contato|default:"Não informado" }}</dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Endereço Consultório:</dt>
-                        <dd class="col-sm-8 col-md-9">{{ perfil_profissional.endereco_consultorio|default:"Não informado"|linebreaksbr }}</dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold">Especialidades:</dt>
-                        <dd class="col-sm-8 col-md-9">
-                            {% for esp in perfil_profissional.especialidades.all %}
-                                <span class="badge badge-especialidade-hope me-1 mb-1">{{ esp.nome }}</span>
-                            {% empty %}
-                                Nenhuma especialidade informada.
-                            {% endfor %}
-                        </dd>
-                        
-                        <dt class="col-sm-4 col-md-3 text-sm-end fw-semibold mt-2">Sobre Mim / Abordagem:</dt>
-                        <dd class="col-sm-8 col-md-9 mt-2">{{ perfil_profissional.bio|default:"Nenhuma biografia disponível."|linebreaksbr }}</dd>
-                    </dl>
-                </div>
-            </div>
-            {% elif perfil_paciente %}
-                <div class="card shadow-soft mb-4">
-                    <div class="card-header section-bg-verde-salvia-muito-suave py-3">
-                        <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
-                            <i class="bi bi-person-heart me-2" style="color: var(--hope-verde-salvia);"></i>Meu Perfil de Paciente
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-4 text-sm-end fw-semibold">Data de Nascimento:</dt>
-                            <dd class="col-sm-8">{{ perfil_paciente.data_nascimento|date:"d/m/Y"|default:"Não informado" }}</dd>
-                            <dt class="col-sm-4 text-sm-end fw-semibold">Telefone Contato:</dt>
-                            <dd class="col-sm-8">{{ perfil_paciente.telefone_contato|default:"Não informado" }}</dd>
-                            <dt class="col-sm-4 text-sm-end fw-semibold">Endereço:</dt>
-                            <dd class="col-sm-8">{{ perfil_paciente.endereco|default:"Não informado"|linebreaksbr }}</dd>
-                            <dt class="col-sm-4 text-sm-end fw-semibold">Contato de Emergência:</dt>
-                            <dd class="col-sm-8">{{ perfil_paciente.contato_emergencia|default:"Não informado" }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            {% elif erro_perfil %}
-                <div class="alert alert-warning">{{ erro_perfil }}</div>
-            {% else %}
-                <div class="alert alert-secondary">Informações de perfil adicionais não disponíveis. Complete seu cadastro.</div>
-            {% endif %}
-
-            {# Card de Ações Rápidas #}
-            {% if user.is_authenticated %}
-            <div class="card shadow-soft">
-                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
-                    <h5 class="mb-0 d-flex align-items-center" style="color: var(--hope-titulos-principais);">
-                        <i class="bi bi-lightning-charge-fill me-2" style="color: var(--hope-azul-sereno);"></i>Ações Rápidas
-                    </h5>
-                </div>
-                <div class="card-body text-center p-4">
-                    <a href="{% url 'contas:meus_agendamentos' %}" class="btn btn-hope-primary btn-lg m-1">
-                        <i class="bi bi-calendar-check-fill me-1"></i>Meus Agendamentos
-                    </a>
-                    {% if perfil_profissional %}
-                        <a href="{% url 'contas:meu_calendario' %}" class="btn btn-hope-destaque btn-lg m-1">
-                            <i class="bi bi-calendar-range me-1"></i>Gerenciar Disponibilidade
-                        </a>
-                    {% elif perfil_paciente %}
-                         <a href="{% url 'contas:lista_profissionais' %}" class="btn btn-hope-destaque btn-lg m-1">
-                            <i class="bi bi-search-heart-fill me-1"></i>Encontrar Profissional
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
         </div>
+
+        <!-- Card de Informações da Conta -->
+        <div class="card-modern fade-in fade-in-delay-1">
+            <div class="card-header-modern">
+                <h5>
+                    <i class="bi bi-person-vcard-fill me-2"></i>
+                    Informações da Conta
+                </h5>
+            </div>
+            <div class="card-body-modern">
+                <dl class="row info-list">
+                    <dt class="col-sm-4 col-md-3">Nome de Usuário:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ user.username }}</dd>
+
+                    <dt class="col-sm-4 col-md-3">Email:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ user.email|default:"Não informado" }}</dd>
+
+                    <dt class="col-sm-4 col-md-3">Nome Completo:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ user.get_full_name|default:"Não informado" }}</dd>
+
+                    <dt class="col-sm-4 col-md-3">Membro Desde:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ user.date_joined|date:"d \d\e F \d\e Y" }}</dd>
+                </dl>
+                <div class="mt-3 text-end">
+                    <a href="{% url 'password_change' %}" class="btn-modern btn-outline-modern">
+                        <i class="bi bi-key-fill"></i>
+                        Mudar Senha
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Detalhes Específicos do Perfil -->
+        {% if perfil_profissional %}
+        <div class="card-modern fade-in fade-in-delay-2">
+            <div class="card-header-modern">
+                <h5>
+                    <i class="bi bi-briefcase-fill me-2"></i>
+                    Meu Perfil de Profissional
+                </h5>
+            </div>
+            <div class="card-body-modern">
+                <dl class="row info-list">
+                    <dt class="col-sm-4 col-md-3">Tipo:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.get_tipo_profissional_display|default:"Não informado" }}</dd>
+
+                    <dt class="col-sm-4 col-md-3">Registro (CRP/CRM):</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.numero_registro|default:"Não informado" }}</dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Valor da Consulta:</dt>
+                    <dd class="col-sm-8 col-md-9">
+                        {% if perfil_profissional.valor_consulta > 0 %}
+                            R$ {{ perfil_profissional.valor_consulta|floatformat:2 }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Anos de Experiência:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.anos_experiencia|default:"Não informado" }}</dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Telefone Contato:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.telefone_contato|default:"Não informado" }}</dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Endereço Consultório:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.endereco_consultorio|default:"Não informado"|linebreaksbr }}</dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Especialidades:</dt>
+                    <dd class="col-sm-8 col-md-9">
+                        {% for esp in perfil_profissional.especialidades.all %}
+                            <span class="badge-modern">{{ esp.nome }}</span>
+                        {% empty %}
+                            Nenhuma especialidade informada.
+                        {% endfor %}
+                    </dd>
+                    
+                    <dt class="col-sm-4 col-md-3">Sobre Mim / Abordagem:</dt>
+                    <dd class="col-sm-8 col-md-9">{{ perfil_profissional.bio|default:"Nenhuma biografia disponível."|linebreaksbr }}</dd>
+                </dl>
+            </div>
+        </div>
+        {% elif perfil_paciente %}
+        <div class="card-modern fade-in fade-in-delay-2">
+            <div class="card-header-modern">
+                <h5>
+                    <i class="bi bi-person-heart me-2"></i>
+                    Meu Perfil de Paciente
+                </h5>
+            </div>
+            <div class="card-body-modern">
+                <dl class="row info-list">
+                    <dt class="col-sm-4">Data de Nascimento:</dt>
+                    <dd class="col-sm-8">{{ perfil_paciente.data_nascimento|date:"d/m/Y"|default:"Não informado" }}</dd>
+                    <dt class="col-sm-4">Telefone Contato:</dt>
+                    <dd class="col-sm-8">{{ perfil_paciente.telefone_contato|default:"Não informado" }}</dd>
+                    <dt class="col-sm-4">Endereço:</dt>
+                    <dd class="col-sm-8">{{ perfil_paciente.endereco|default:"Não informado"|linebreaksbr }}</dd>
+                    <dt class="col-sm-4">Contato de Emergência:</dt>
+                    <dd class="col-sm-8">{{ perfil_paciente.contato_emergencia|default:"Não informado" }}</dd>
+                </dl>
+            </div>
+        </div>
+        {% elif erro_perfil %}
+        <div class="alert-modern alert-warning-modern fade-in fade-in-delay-2">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ erro_perfil }}
+        </div>
+        {% else %}
+        <div class="alert-modern alert-secondary-modern fade-in fade-in-delay-2">
+            <i class="bi bi-info-circle me-2"></i>
+            Informações de perfil adicionais não disponíveis. Complete seu cadastro.
+        </div>
+        {% endif %}
+
+        <!-- Card de Ações Rápidas -->
+        {% if user.is_authenticated %}
+        <div class="card-modern fade-in fade-in-delay-3">
+            <div class="card-header-modern">
+                <h5>
+                    <i class="bi bi-lightning-charge-fill me-2"></i>
+                    Ações Rápidas
+                </h5>
+            </div>
+            <div class="card-body-modern text-center">
+                <a href="{% url 'contas:meus_agendamentos' %}" class="btn-modern btn-primary-modern me-2 mb-2">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    Meus Agendamentos
+                </a>
+                {% if perfil_profissional %}
+                    <a href="{% url 'contas:meu_calendario' %}" class="btn-modern btn-secondary-modern me-2 mb-2">
+                        <i class="bi bi-calendar-range"></i>
+                        Gerenciar Disponibilidade
+                    </a>
+                {% elif perfil_paciente %}
+                     <a href="{% url 'contas:lista_profissionais' %}" class="btn-modern btn-secondary-modern me-2 mb-2">
+                        <i class="bi bi-search-heart-fill"></i>
+                        Encontrar Profissional
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
     </div>
-</div>
+</section>
+
 {% endblock %}

@@ -3,77 +3,470 @@
 
 {% block title %}Editar Perfil - Hope Saúde{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual da Hope Saúde */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos baseados na identidade visual */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+        --hope-gradient-warm: linear-gradient(135deg, rgba(255, 218, 185, 0.1) 0%, rgba(255, 182, 193, 0.1) 100%);
+    }
+
+    /* Reset e base seguindo a identidade visual */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia seguindo o manual de identidade visual */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: var(--hope-cinza-escuro);
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal com gradiente suave */
+    .main-section {
+        padding: 3rem 0;
+        background: var(--hope-gradient-soft);
+        min-height: 100vh;
+    }
+
+    /* Card moderno com sombras suaves */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+        pointer-events: none;
+    }
+
+    .card-header-modern h1 {
+        color: white;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 700;
+    }
+
+    .card-body-modern {
+        padding: 2rem;
+    }
+
+    /* Formulário moderno */
+    .form-modern {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-group-modern {
+        margin-bottom: 2rem;
+    }
+
+    .form-label-modern {
+        display: block;
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        font-family: 'Nunito Sans', sans-serif;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control-modern {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--hope-cinza-claro);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Open Sans', sans-serif;
+        transition: all 0.3s ease;
+        background-color: white;
+        color: var(--hope-cinza-escuro);
+    }
+
+    .form-control-modern:focus {
+        outline: none;
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 3px rgba(160, 210, 219, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .form-control-modern::placeholder {
+        color: var(--hope-cinza-medio);
+        opacity: 0.7;
+    }
+
+    /* Textarea moderno */
+    .form-control-modern textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Select moderno */
+    .form-control-modern select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Checkbox moderno */
+    .checkbox-group-modern {
+        background: var(--hope-gradient-soft);
+        border: 1px solid var(--hope-azul-sereno);
+        border-radius: 12px;
+        padding: 1.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .form-check-modern {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-modern:hover {
+        background: rgba(160, 210, 219, 0.1);
+    }
+
+    .form-check-modern:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-check-input-modern {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-right: 0.75rem;
+        border: 2px solid var(--hope-azul-sereno);
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input-modern:checked {
+        background-color: var(--hope-azul-sereno);
+        border-color: var(--hope-azul-sereno);
+    }
+
+    .form-check-label-modern {
+        font-family: 'Open Sans', sans-serif;
+        color: var(--hope-cinza-escuro);
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    /* Foto de perfil atual */
+    .current-photo-modern {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--hope-gradient-soft);
+        border-radius: 15px;
+        border: 2px dashed var(--hope-azul-sereno);
+    }
+
+    .current-photo-modern img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--hope-azul-sereno);
+        box-shadow: 0 4px 12px rgba(160, 210, 219, 0.3);
+    }
+
+    /* Botões seguindo a identidade visual */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .btn-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-modern:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-cinza-claro);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-cinza-claro);
+        color: var(--hope-cinza-escuro);
+        transform: translateY(-2px);
+    }
+
+    /* Alertas personalizados */
+    .alert-modern {
+        border-radius: 15px;
+        border: none;
+        font-family: 'Open Sans', sans-serif;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger-modern {
+        background: rgba(255, 182, 193, 0.1);
+        color: var(--hope-cinza-escuro);
+        border-left: 4px solid var(--hope-coral);
+    }
+
+    /* Mensagens de erro */
+    .error-message-modern {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        font-family: 'Open Sans', sans-serif;
+        display: block;
+    }
+
+    /* Texto de ajuda */
+    .help-text-modern {
+        color: var(--hope-cinza-medio);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        font-family: 'Open Sans', sans-serif;
+        font-style: italic;
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+
+        .btn-modern {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .form-control-modern {
+            padding: 0.6rem 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow-soft">
-                <div class="card-header section-bg-azul-sereno-muito-suave py-3">
-                    <h1 class="h3 mb-0" style="color: var(--hope-titulos-principais);">
-                        <i class="bi bi-pencil-square me-2" style="color: var(--hope-azul-sereno);"></i>Editar Meu Perfil
-                    </h1>
-                </div>
-                <div class="card-body p-4 p-md-5">
-                    {# IMPORTANTE: Adicionado o atributo enctype para permitir o upload de arquivos #}
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
 
-                        {# Exibe a foto de perfil atual, se existir #}
-                        {% with object.foto_perfil as foto %} {# 'object' é a instância do perfil passada pela UpdateView #}
-                            {% if foto %}
-                                <div class="mb-3 text-center">
-                                    <label class="form-label fw-semibold d-block">Foto de Perfil Atual</label>
-                                    <img src="{{ foto.url }}" alt="Foto de Perfil" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px; object-fit: cover; border: 3px solid var(--hope-azul-sereno);">
-                                </div>
-                            {% endif %}
-                        {% endwith %}
+<section class="main-section">
+    <div class="container-modern">
+        <div class="card-modern fade-in">
+            <div class="card-header-modern">
+                <h1>
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar Meu Perfil
+                </h1>
+            </div>
+            <div class="card-body-modern">
+                <form method="post" enctype="multipart/form-data" novalidate class="form-modern">
+                    {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <p class="mb-0">{{ error }}</p>
-                                {% endfor %}
+                    <!-- Exibe a foto de perfil atual, se existir -->
+                    {% with object.foto_perfil as foto %}
+                        {% if foto %}
+                            <div class="current-photo-modern fade-in-delay-1">
+                                <label class="form-label-modern">Foto de Perfil Atual</label>
+                                <img src="{{ foto.url }}" alt="Foto de Perfil" class="mt-2">
                             </div>
                         {% endif %}
+                    {% endwith %}
 
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                
-                                {% if field.name == 'foto_perfil' %}
-                                    <p class="small text-muted mb-1">Selecione um novo arquivo apenas se desejar alterar a foto atual.</p>
-                                {% endif %}
+                    <!-- Erros gerais do formulário -->
+                    {% if form.non_field_errors %}
+                        <div class="alert-modern alert-danger-modern fade-in-delay-1">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-                                {% if field.field.widget.input_type == 'checkbox' %}
-                                    <div class="p-2 border rounded" style="max-height: 200px; overflow-y: auto;">
+                    <!-- Campos do formulário -->
+                    {% for field in form %}
+                        <div class="form-group-modern fade-in-delay-2">
+                            <label for="{{ field.id_for_label }}" class="form-label-modern">
+                                {{ field.label }}
+                            </label>
+                            
+                            {% if field.name == 'foto_perfil' %}
+                                <p class="help-text-modern">
+                                    Selecione um novo arquivo apenas se desejar alterar a foto atual.
+                                </p>
+                            {% endif %}
+
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                <div class="checkbox-group-modern">
                                     {% for choice in field %}
-                                        <div class="form-check">
-                                            {{ choice.tag }}
-                                            <label class="form-check-label" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                                        <div class="form-check-modern">
+                                            <input type="checkbox" 
+                                                   id="{{ choice.id_for_label }}" 
+                                                   name="{{ field.name }}" 
+                                                   value="{{ choice.data.value }}"
+                                                   {% if choice.data.selected %}checked{% endif %}
+                                                   class="form-check-input-modern">
+                                            <label for="{{ choice.id_for_label }}" class="form-check-label-modern">
+                                                {{ choice.choice_label }}
+                                            </label>
                                         </div>
                                     {% endfor %}
-                                    </div>
-                                {% else %}
-                                    {{ field }}
-                                {% endif %}
+                                </div>
+                            {% else %}
+                                {{ field|add_class:"form-control-modern" }}
+                            {% endif %}
 
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted d-block mt-1">{{ field.help_text }}</small>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <button type="submit" class="btn btn-hope-destaque btn-lg"><i class="bi bi-save-fill me-2"></i>Salvar Alterações</button>
-                            <a href="{% url 'contas:meu_perfil' %}" class="btn btn-secondary btn-lg"><i class="bi bi-x-circle me-2"></i>Cancelar</a>
+                            {% if field.help_text %}
+                                <small class="help-text-modern">{{ field.help_text }}</small>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <span class="error-message-modern">
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    {{ error }}
+                                </span>
+                            {% endfor %}
                         </div>
-                    </form>
-                </div>
+                    {% endfor %}
+
+                    <!-- Botões de ação -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn-modern btn-primary-modern">
+                            <i class="bi bi-save-fill"></i>
+                            Salvar Alterações
+                        </button>
+                        <a href="{% url 'contas:meu_perfil' %}" class="btn-modern btn-secondary-modern">
+                            <i class="bi bi-x-circle"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+</section>
+
 {% endblock %}
