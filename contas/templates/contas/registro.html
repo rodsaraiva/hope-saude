@@ -3,112 +3,388 @@
 
 {% block title %}Cadastro - Hope Saúde{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+    }
+
+    /* Reset e base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia moderna */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal */
+    .main-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: var(--hope-gradient-soft);
+        padding: 2rem 0;
+    }
+
+    /* Card moderno */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .card-header-modern h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-header-modern p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    .card-body-modern {
+        padding: 3rem;
+    }
+
+    /* Formulário moderno */
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid var(--hope-cinza-claro);
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    .form-control:focus {
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+        outline: none;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: var(--hope-cinza-medio);
+        margin-top: 0.5rem;
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #dc3545;
+        margin-top: 0.25rem;
+    }
+
+    /* Radio buttons modernos */
+    .form-check {
+        margin-bottom: 1rem;
+    }
+
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.125rem;
+        border: 2px solid var(--hope-cinza-claro);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--hope-azul-sereno);
+        border-color: var(--hope-azul-sereno);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--hope-cinza-escuro);
+        cursor: pointer;
+        padding-left: 0.5rem;
+    }
+
+    /* Botões modernos */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 10px 30px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    /* Alertas modernos */
+    .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-left: 4px solid #dc2626;
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .card-body-modern {
+            padding: 2rem 1.5rem;
+        }
+
+        .card-header-modern {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-7 col-xl-6"> {# Um pouco mais largo para o form de registro #}
-            <div class="card shadow-soft">
-                <div class="card-header text-center section-bg-azul-sereno-muito-suave py-3">
-                    <h1 class="h3 mb-0" style="color: var(--hope-titulos-principais);">
-                        <i class="bi bi-person-plus-fill me-2" style="color: var(--hope-azul-sereno);"></i>Crie sua Conta Hope Saúde
-                    </h1>
-                    <p class="text-muted mb-0 mt-2">Conecte-se com profissionais de saúde qualificados</p>
-                </div>
-                <div class="card-body p-4 p-md-5">
-                    {% if form.errors and not form.non_field_errors %}
-                        <div class="alert alert-danger" role="alert">
-                            Por favor, corrija os erros nos campos abaixo.
-                        </div>
-                    {% endif %}
-                    {% if form.non_field_errors %}
-                        {% for error in form.non_field_errors %}
+
+<section class="main-section">
+    <div class="container-modern">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7 col-xl-6">
+                <div class="card-modern fade-in">
+                    <div class="card-header-modern">
+                        <h1>
+                            <i class="bi bi-person-plus-fill me-2"></i>Crie sua Conta Hope Saúde
+                        </h1>
+                        <p>Conecte-se com profissionais de saúde qualificados</p>
+                    </div>
+                    <div class="card-body-modern">
+                        {% if form.errors and not form.non_field_errors %}
                             <div class="alert alert-danger" role="alert">
-                                {{ error }}
+                                Por favor, corrija os erros nos campos abaixo.
                             </div>
-                        {% endfor %}
-                    {% endif %}
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
 
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {# Renderização manual para melhor controle do layout e erros por campo #}
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">{{ form.username.label }}</label>
-                            {{ form.username }} {# RegistroUsuarioForm já adiciona 'form-control' #}
-                            {% if form.username.help_text %}<small class="form-text text-muted">{{ form.username.help_text }}</small>{% endif %}
-                            {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">{{ form.first_name.label }}</label>
-                                {{ form.first_name }}
-                                {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Username -->
+                            <div class="mb-4">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                                {{ form.username }}
+                                {% if form.username.help_text %}<small class="form-text">{{ form.username.help_text }}</small>{% endif %}
+                                {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">{{ form.last_name.label }}</label>
-                                {{ form.last_name }}
-                                {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">{{ form.email.label }}</label>
-                            {{ form.email }}
-                            {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">{{ form.password1.label }}</label>
-                            {{ form.password1 }}
-                            {% if form.password1.help_text %}<small class="form-text text-muted">{{ form.password1.help_text }}</small>{% endif %}
-                            {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">{{ form.password2.label }}</label>
-                            {{ form.password2 }}
-                            {% if form.password2.help_text %}<small class="form-text text-muted">{{ form.password2.help_text }}</small>{% endif %}
-                            {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold d-block">{{ form.tipo_conta.label }}</label>
+                            <!-- Nome e Sobrenome -->
                             <div class="row">
-                                {% for radio in form.tipo_conta %}
-                                    <div class="col-md-6 mb-2">
-                                        <div class="form-check">
-                                            {{ radio.tag }}
-                                            <label for="{{ radio.id_for_label }}" class="form-check-label">
-                                                {% if radio.choice_label == 'Paciente' %}
-                                                    <i class="bi bi-person-heart me-2"></i>
-                                                {% else %}
-                                                    <i class="bi bi-person-badge me-2"></i>
-                                                {% endif %}
-                                                {{ radio.choice_label }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                {% endfor %}
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                                    {{ form.first_name }}
+                                    {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                                    {{ form.last_name }}
+                                    {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </div>
                             </div>
-                            {% for error in form.tipo_conta.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            <small class="form-text text-muted">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Profissionais incluem médicos registrados
-                            </small>
-                        </div>
+
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <!-- Senha -->
+                            <div class="mb-4">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
+                                {{ form.password1 }}
+                                {% if form.password1.help_text %}<small class="form-text">{{ form.password1.help_text }}</small>{% endif %}
+                                {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <!-- Confirmar Senha -->
+                            <div class="mb-4">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+                                {{ form.password2 }}
+                                {% if form.password2.help_text %}<small class="form-text">{{ form.password2.help_text }}</small>{% endif %}
+                                {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                            
+                            <!-- Tipo de Conta -->
+                            <div class="mb-4">
+                                <label class="form-label d-block">{{ form.tipo_conta.label }}</label>
+                                <div class="row">
+                                    {% for radio in form.tipo_conta %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                {{ radio.tag }}
+                                                <label for="{{ radio.id_for_label }}" class="form-check-label">
+                                                    {% if radio.choice_label == 'Paciente' %}
+                                                        <i class="bi bi-person-heart me-2"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-person-badge me-2"></i>
+                                                    {% endif %}
+                                                    {{ radio.choice_label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% for error in form.tipo_conta.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                <small class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Profissionais incluem médicos registrados
+                                </small>
+                            </div>
+                            
+                            <!-- Botão de Submit -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn-modern btn-primary-modern">
+                                    <i class="bi bi-person-plus"></i>
+                                    Criar Conta
+                                </button>
+                            </div>
+                        </form>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-hope-destaque btn-lg">Criar Conta</button> {# Usando btn-hope-destaque #}
+                        <hr class="my-4">
+                        <div class="text-center">
+                            <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: var(--hope-azul-sereno);">Faça login</a></p>
                         </div>
-                    </form>
-                    <hr class="my-4">
-                    <div class="text-center">
-                        <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}" class="link-hope fw-bold">Faça login</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<script>
+// Animações de entrada ao scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+});
+</script>
+
 {% endblock %}

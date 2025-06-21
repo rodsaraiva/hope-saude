@@ -1,186 +1,626 @@
 {% extends 'base.html' %}
-{% load tz %} {# Para formatar datas e horas com fuso horário, se necessário #}
+{% load static %}
 
-{% block title %}Gerenciar Minha Disponibilidade - Hope Saúde{% endblock %}
+{% block title %}Regras de Disponibilidade - Hope Saúde{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Gerenciar Minha Disponibilidade</h1>
-    <p class="text-muted mb-4">Adicione ou remova suas regras de disponibilidade para atendimentos. Escolha "Semanal Recorrente" para horários que se repetem toda semana, ou "Data/Hora Específica" para definir um período único de disponibilidade.</p>
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+    }
 
-    {# Formulário para Adicionar Nova Regra de Disponibilidade #}
-    <div class="card mb-5 shadow-sm">
-        <div class="card-header">
-            <h2 class="h4 mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Nova Regra de Disponibilidade</h2>
-        </div>
-        <div class="card-body">
-            <form method="post" action="{% url 'contas:gerenciar_regras_disponibilidade' %}" novalidate id="formRegraDisponibilidade">
-                {% csrf_token %}
+    /* Reset e base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-                {# Exibe erros não associados a campos (non-field errors), como o IntegrityError ou do clean() geral #}
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                            <p class="mb-0">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
 
-                {# Campo Tipo de Regra - Controla os outros campos #}
-                <div class="mb-3">
-                    <label class="form-label fw-bold">{{ form.tipo_regra.label_tag }}</label>
-                    {% for radio in form.tipo_regra %}
-                        <div class="form-check">
-                            {{ radio.tag }} {# Renderiza <input type="radio" ...> #}
-                            <label for="{{ radio.id_for_label }}" class="form-check-label">{{ radio.choice_label }}</label>
-                        </div>
-                    {% endfor %}
-                    {% if form.tipo_regra.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.tipo_regra.help_text }}</small>{% endif %}
-                    {% for error in form.tipo_regra.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                </div>
+    /* Tipografia moderna */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
 
-                {# Campos para Disponibilidade Semanal Recorrente #}
-                <div id="campos-semanal" class="conditional-fields" style="display: none;"> {# Começa escondido por padrão #}
-                    <h5 class="text-muted mb-3 border-bottom pb-2">Detalhes para Semanal Recorrente</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.dia_semana.id_for_label }}" class="form-label">{{ form.dia_semana.label }}</label>
-                            {{ form.dia_semana }} {# Widget já tem form-select #}
-                            {% if form.dia_semana.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.dia_semana.help_text }}</small>{% endif %}
-                            {% for error in form.dia_semana.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.hora_inicio_recorrente.id_for_label }}" class="form-label">{{ form.hora_inicio_recorrente.label }}</label>
-                            {{ form.hora_inicio_recorrente }} {# Widget já tem form-control e type="time" #}
-                            {% if form.hora_inicio_recorrente.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.hora_inicio_recorrente.help_text }}</small>{% endif %}
-                            {% for error in form.hora_inicio_recorrente.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.hora_fim_recorrente.id_for_label }}" class="form-label">{{ form.hora_fim_recorrente.label }}</label>
-                            {{ form.hora_fim_recorrente }} {# Widget já tem form-control e type="time" #}
-                            {% if form.hora_fim_recorrente.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.hora_fim_recorrente.help_text }}</small>{% endif %}
-                            {% for error in form.hora_fim_recorrente.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                        </div>
-                    </div>
-                </div>
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
 
-                {# Campos para Disponibilidade de Data/Hora Específica #}
-                <div id="campos-especifica" class="conditional-fields" style="display: none;"> {# Começa escondido por padrão #}
-                    <h5 class="text-muted mb-3 border-bottom pb-2">Detalhes para Data/Hora Específica</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.data_hora_inicio_especifica.id_for_label }}" class="form-label">{{ form.data_hora_inicio_especifica.label }}</label>
-                            {{ form.data_hora_inicio_especifica }} {# Widget já tem form-control e type="datetime-local" #}
-                            {% if form.data_hora_inicio_especifica.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.data_hora_inicio_especifica.help_text }}</small>{% endif %}
-                            {% for error in form.data_hora_inicio_especifica.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.data_hora_fim_especifica.id_for_label }}" class="form-label">{{ form.data_hora_fim_especifica.label }}</label>
-                            {{ form.data_hora_fim_especifica }} {# Widget já tem form-control e type="datetime-local" #}
-                            {% if form.data_hora_fim_especifica.help_text %}<small class="form-text text-muted d-block mt-1">{{ form.data_hora_fim_especifica.help_text }}</small>{% endif %}
-                            {% for error in form.data_hora_fim_especifica.errors %}<div class="invalid-feedback d-block" style="color: #dc3545; font-size: 0.875em;">{{ error }}</div>{% endfor %}
-                        </div>
-                    </div>
-                </div>
+    /* Seção principal */
+    .main-section {
+        padding: 3rem 0;
+        background: var(--hope-gradient-soft);
+        min-height: 100vh;
+    }
 
-                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-plus-circle-fill me-1"></i>Adicionar Regra</button>
-            </form>
-        </div>
-    </div>
+    /* Card moderno */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
 
-    {# Lista de Regras de Disponibilidade Cadastradas #}
-    <h2 class="h4 mb-3 mt-5"><i class="bi bi-list-ul me-2"></i>Minhas Regras de Disponibilidade Cadastradas</h2>
-    {% if regras_disponibilidade %}
-        <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Detalhes</th>
-                        <th>Criado em</th>
-                        <th><i class="bi bi-gear-fill me-1"></i>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for regra in regras_disponibilidade %}
-                    <tr>
-                        <td>{{ regra.get_tipo_regra_display }}</td>
-                        <td>
-                            {% if regra.tipo_regra == 'SEMANAL' %}
-                                {{ regra.get_dia_semana_display }}: {{ regra.hora_inicio_recorrente|time:"H:i" }} - {{ regra.hora_fim_recorrente|time:"H:i" }}
-                            {% elif regra.tipo_regra == 'ESPECIFICA' %}
-                                {{ regra.data_hora_inicio_especifica|date:"d/m/y H:i" }} até {{ regra.data_hora_fim_especifica|date:"d/m/y H:i" }}
-                            {% endif %}
-                        </td>
-                        <td>{{ regra.criado_em|date:"d/m/y H:i" }}</td>
-                        <td>
-                            {# Botão Editar FUNCIONAL #}
-                            <a href="{% url 'contas:editar_regra_disponibilidade' regra_id=regra.id %}" class="btn btn-outline-secondary btn-sm me-1" title="Editar">
-                                <i class="bi bi-pencil-fill"></i> Editar
-                            </a>
-                            {# Formulário para Excluir Funcional #}
-                            <form action="{% url 'contas:excluir_regra_disponibilidade' regra_id=regra.id %}" method="post" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta regra de disponibilidade? Esta ação não pode ser desfeita.');" title="Excluir">
-                                    <i class="bi bi-trash-fill"></i> Excluir
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-         <div class="alert alert-info" role="alert">
-             <i class="bi bi-info-circle me-1"></i>Você ainda não cadastrou nenhuma regra de disponibilidade para atendimentos.
-        </div>
-    {% endif %}
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
 
-</div> {# Fim container #}
-{% endblock %}
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        color: white;
+    }
 
+    .card-header-modern h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tipoRegraRadios = document.querySelectorAll('input[name="tipo_regra"]');
-    const camposSemanal = document.getElementById('campos-semanal');
-    const camposEspecifica = document.getElementById('campos-especifica');
+    .card-body-modern {
+        padding: 2rem;
+    }
 
-    function toggleCampos(tipoSelecionado) {
-        if (camposSemanal && camposEspecifica) { // Garante que os elementos existem
-            if (tipoSelecionado === 'SEMANAL') {
-                camposSemanal.style.display = 'block';
-                camposEspecifica.style.display = 'none';
-            } else if (tipoSelecionado === 'ESPECIFICA') {
-                camposSemanal.style.display = 'none';
-                camposEspecifica.style.display = 'block';
-            } else {
-                camposSemanal.style.display = 'none';
-                camposEspecifica.style.display = 'none';
-            }
+    /* Formulário moderno */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid var(--hope-cinza-claro);
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+        outline: none;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: var(--hope-cinza-medio);
+        margin-top: 0.5rem;
+    }
+
+    /* Checkbox moderno */
+    .form-check {
+        margin-bottom: 1rem;
+    }
+
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.125rem;
+        border: 2px solid var(--hope-cinza-claro);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--hope-azul-sereno);
+        border-color: var(--hope-azul-sereno);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--hope-cinza-escuro);
+        cursor: pointer;
+        padding-left: 0.5rem;
+    }
+
+    /* Botões modernos */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 10px 30px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-azul-sereno);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger-modern {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #fca5a5;
+    }
+
+    .btn-danger-modern:hover {
+        background: #fca5a5;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Lista de regras */
+    .rules-list {
+        margin-top: 2rem;
+    }
+
+    .rule-item {
+        background: var(--hope-gradient-soft);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--hope-azul-sereno);
+        transition: all 0.3s ease;
+    }
+
+    .rule-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .rule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .rule-title {
+        font-weight: 700;
+        color: var(--hope-cinza-escuro);
+        font-size: 1.1rem;
+    }
+
+    .rule-type {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .rule-type-bloqueio {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .rule-type-disponibilidade {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .rule-details {
+        color: var(--hope-cinza-medio);
+        font-size: 0.95rem;
+    }
+
+    .rule-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    /* Alertas modernos */
+    .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid #10b981;
+    }
+
+    .alert-info {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border-left: 4px solid #3b82f6;
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 
-    // Verifica o estado inicial ao carregar a página
-    let tipoInicial = '';
-    tipoRegraRadios.forEach(function(radio) {
-        if (radio.checked) {
-            tipoInicial = radio.value;
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
         }
-    });
-    // Chama a função para configurar a visibilidade inicial dos campos
-    // mesmo se nenhum radio estiver selecionado (esconderá ambos os blocos)
-    toggleCampos(tipoInicial);
 
+        .rule-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
 
-    // Adiciona listener para mudanças nos radios
-    tipoRegraRadios.forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            toggleCampos(this.value);
+        .rule-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="main-section">
+    <div class="container-modern">
+        <!-- Cabeçalho -->
+        <div class="card-modern fade-in">
+            <div class="card-header-modern">
+                <h1>
+                    <i class="bi bi-gear me-2"></i>
+                    Regras de Disponibilidade
+                </h1>
+                <p>Configure regras avançadas para seu calendário</p>
+            </div>
+        </div>
+
+        <!-- Formulário de Nova Regra -->
+        <div class="card-modern fade-in fade-in-delay-1">
+            <div class="card-body-modern">
+                <h3>
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Adicionar Nova Regra
+                </h3>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            <i class="bi bi-info-circle me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.tipo_regra.id_for_label }}" class="form-label">
+                                <i class="bi bi-funnel me-1"></i>
+                                Tipo de Regra *
+                            </label>
+                            {{ form.tipo_regra }}
+                            {% if form.tipo_regra.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tipo_regra.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.dia_semana.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-week me-1"></i>
+                                Dia da Semana *
+                            </label>
+                            {{ form.dia_semana }}
+                            {% if form.dia_semana.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.dia_semana.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.hora_inicio.id_for_label }}" class="form-label">
+                                <i class="bi bi-clock me-1"></i>
+                                Hora de Início *
+                            </label>
+                            {{ form.hora_inicio }}
+                            {% if form.hora_inicio.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.hora_inicio.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.hora_fim.id_for_label }}" class="form-label">
+                                <i class="bi bi-clock-fill me-1"></i>
+                                Hora de Fim *
+                            </label>
+                            {{ form.hora_fim }}
+                            {% if form.hora_fim.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.hora_fim.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.data_inicio.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-date me-1"></i>
+                                Data de Início *
+                            </label>
+                            {{ form.data_inicio }}
+                            {% if form.data_inicio.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.data_inicio.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.data_fim.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-date-fill me-1"></i>
+                                Data de Fim
+                            </label>
+                            {{ form.data_fim }}
+                            {% if form.data_fim.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.data_fim.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Deixe em branco para regra permanente
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            {{ form.ativo }}
+                            <label for="{{ form.ativo.id_for_label }}" class="form-check-label">
+                                Regra ativa
+                            </label>
+                        </div>
+                        {% if form.ativo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.ativo.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="{% url 'contas:gerenciar_disponibilidade' %}" class="btn-modern btn-secondary-modern">
+                            <i class="bi bi-arrow-left"></i>
+                            Voltar
+                        </a>
+                        <button type="submit" class="btn-modern btn-primary-modern">
+                            <i class="bi bi-plus-circle"></i>
+                            Adicionar Regra
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Regras Existentes -->
+        {% if regras %}
+        <div class="card-modern fade-in fade-in-delay-2">
+            <div class="card-body-modern">
+                <h3>
+                    <i class="bi bi-list-check me-2"></i>
+                    Regras Configuradas
+                </h3>
+                
+                <div class="rules-list">
+                    {% for regra in regras %}
+                    <div class="rule-item">
+                        <div class="rule-header">
+                            <div>
+                                <div class="rule-title">
+                                    <i class="bi bi-gear me-1"></i>
+                                    {{ regra.get_tipo_regra_display }} - {{ regra.get_dia_semana_display }}
+                                </div>
+                                <div class="rule-details">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ regra.hora_inicio|time:"H:i" }} - {{ regra.hora_fim|time:"H:i" }}
+                                    <span class="text-muted">|</span>
+                                    <i class="bi bi-calendar me-1"></i>
+                                    {{ regra.data_inicio|date:"d/m/Y" }}
+                                    {% if regra.data_fim %}
+                                        até {{ regra.data_fim|date:"d/m/Y" }}
+                                    {% else %}
+                                        (permanente)
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="rule-type rule-type-{{ regra.tipo_regra }}">
+                                {{ regra.get_tipo_regra_display }}
+                            </div>
+                        </div>
+                        <div class="rule-actions">
+                            <a href="{% url 'contas:editar_regra_disponibilidade' regra.id %}" 
+                               class="btn-modern btn-secondary-modern" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                <i class="bi bi-pencil"></i>
+                                Editar
+                            </a>
+                            <form method="post" action="{% url 'contas:excluir_regra_disponibilidade' regra.id %}" 
+                                  style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta regra?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-modern btn-danger-modern" 
+                                        style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                    <i class="bi bi-trash"></i>
+                                    Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Estado vazio -->
+        <div class="card-modern fade-in fade-in-delay-2">
+            <div class="card-body-modern text-center">
+                <i class="bi bi-gear" style="font-size: 4rem; color: var(--hope-cinza-claro); margin-bottom: 1rem;"></i>
+                <h3>Nenhuma regra configurada</h3>
+                <p class="text-muted">
+                    Configure regras avançadas para controlar sua disponibilidade de forma mais precisa.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Informações Adicionais -->
+        <div class="card-modern fade-in fade-in-delay-3">
+            <div class="card-body-modern">
+                <h3>
+                    <i class="bi bi-info-circle me-2"></i>
+                    Como Funcionam as Regras
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Regras de Disponibilidade
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="bi bi-plus text-success me-2"></i>
+                                Adicionam horários específicos
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-calendar text-success me-2"></i>
+                                Podem ser temporárias ou permanentes
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-clock text-success me-2"></i>
+                                Sobrescrevem a disponibilidade padrão
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-danger">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Regras de Bloqueio
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="bi bi-dash text-danger me-2"></i>
+                                Bloqueiam horários específicos
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-calendar-x text-danger me-2"></i>
+                                Úteis para férias e ausências
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-shield text-danger me-2"></i>
+                                Impedem agendamentos nesses horários
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Animações de entrada ao scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
         });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
     });
 });
 </script>
+
 {% endblock %}

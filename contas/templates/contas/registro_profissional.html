@@ -3,166 +3,392 @@
 
 {% block title %}Completar Cadastro Profissional - Hope Saúde{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-0">
-                        <i class="bi bi-person-badge me-2"></i>
-                        Complete seu Cadastro Profissional
-                    </h2>
-                    <p class="mb-0 mt-2 opacity-75">Médicos Registrados</p>
-                </div>
-                <div class="card-body p-4">
-                    <p class="text-muted mb-4">
-                        Para finalizar seu cadastro como profissional de saúde, 
-                        precisamos de algumas informações adicionais para verificação.
-                    </p>
-
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <!-- Tipo de Profissional -->
-                            <div class="col-12 mb-3">
-                                <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label">
-                                    <i class="bi bi-person-workspace me-1"></i>
-                                    Tipo de Profissional *
-                                </label>
-                                {{ form.tipo_profissional }}
-                                {% if form.tipo_profissional.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.tipo_profissional.errors.0 }}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Número de Registro -->
-                            <div class="col-12 mb-3">
-                                <label for="{{ form.numero_registro.id_for_label }}" class="form-label">
-                                    <i class="bi bi-card-text me-1"></i>
-                                    Número de Registro Profissional *
-                                </label>
-                                {{ form.numero_registro }}
-                                {% if form.numero_registro.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.numero_registro.errors.0 }}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    Ex: CRM 123456 ou número do conselho profissional
-                                </div>
-                            </div>
-
-                            <!-- Documento de Registro -->
-                            <div class="col-12 mb-4">
-                                <label for="{{ form.documento_registro.id_for_label }}" class="form-label">
-                                    <i class="bi bi-file-earmark-arrow-up me-1"></i>
-                                    Documento de Registro *
-                                </label>
-                                {{ form.documento_registro }}
-                                {% if form.documento_registro.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.documento_registro.errors.0 }}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    Faça upload de uma foto ou scan do seu documento de registro profissional. 
-                                    Formatos aceitos: JPG, PNG, PDF (máximo 5MB).
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'contas:meu_perfil' %}" class="btn btn-outline-secondary me-md-2">
-                                <i class="bi bi-arrow-left me-1"></i>
-                                Voltar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-1"></i>
-                                Completar Cadastro
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Informações Adicionais -->
-            <div class="card mt-4 border-0 bg-light">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Informações Importantes
-                    </h5>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="bi bi-shield-check text-success me-2"></i>
-                            Seus dados são protegidos e confidenciais
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-clock text-info me-2"></i>
-                            O processo de verificação pode levar até 48 horas
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check2-circle text-primary me-2"></i>
-                            Aceitamos médicos registrados
-                        </li>
-                        <li class="mb-0">
-                            <i class="bi bi-envelope text-warning me-2"></i>
-                            Você receberá um e-mail quando sua conta for aprovada
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
-    .form-control, .form-select {
-        border-radius: 8px;
-        border: 2px solid #e9ecef;
+    /* Variáveis CSS baseadas no manual de identidade visual */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+    }
+
+    /* Reset e base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia moderna */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal */
+    .main-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: var(--hope-gradient-soft);
+        padding: 2rem 0;
+    }
+
+    /* Card moderno */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
         transition: all 0.3s ease;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .card-header-modern h2 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-header-modern p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    .card-body-modern {
+        padding: 3rem;
+    }
+
+    /* Formulário moderno */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid var(--hope-cinza-claro);
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: var(--bs-primary);
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+        outline: none;
     }
 
-    .card {
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #A0D2DB 0%, #B2C2B3 100%) !important;
-        border: none;
-    }
-
-    .btn {
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
+    .form-label {
         font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 0.5rem;
     }
 
     .form-text {
         font-size: 0.875rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
+        color: var(--hope-cinza-medio);
+        margin-top: 0.5rem;
     }
 
     .invalid-feedback {
         font-size: 0.875rem;
+        color: #dc3545;
         margin-top: 0.25rem;
     }
+
+    /* Botões modernos */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 10px 30px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-azul-sereno);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Card de informações */
+    .info-card {
+        background: var(--hope-gradient-soft);
+        border-radius: 15px;
+        border: none;
+        margin-top: 2rem;
+    }
+
+    .info-card .card-body {
+        padding: 2rem;
+    }
+
+    .info-card .card-title {
+        color: var(--hope-azul-sereno);
+        font-weight: 700;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(160, 210, 219, 0.2);
+    }
+
+    .info-list li:last-child {
+        border-bottom: none;
+    }
+
+    .info-list i {
+        width: 20px;
+        margin-right: 0.75rem;
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .card-body-modern {
+            padding: 2rem 1.5rem;
+        }
+
+        .card-header-modern {
+            padding: 1.5rem;
+        }
+    }
 </style>
+{% endblock %}
+
+{% block content %}
+
+<section class="main-section">
+    <div class="container-modern">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <!-- Card Principal -->
+                <div class="card-modern fade-in">
+                    <div class="card-header-modern">
+                        <h2>
+                            <i class="bi bi-person-badge me-2"></i>
+                            Complete seu Cadastro Profissional
+                        </h2>
+                        <p>Médicos Registrados</p>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-4">
+                            Para finalizar seu cadastro como profissional de saúde, 
+                            precisamos de algumas informações adicionais para verificação.
+                        </p>
+
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <!-- Tipo de Profissional -->
+                                <div class="col-12 mb-4">
+                                    <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person-workspace me-1"></i>
+                                        Tipo de Profissional *
+                                    </label>
+                                    {{ form.tipo_profissional }}
+                                    {% if form.tipo_profissional.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.tipo_profissional.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Número de Registro -->
+                                <div class="col-12 mb-4">
+                                    <label for="{{ form.numero_registro.id_for_label }}" class="form-label">
+                                        <i class="bi bi-card-text me-1"></i>
+                                        Número de Registro Profissional *
+                                    </label>
+                                    {{ form.numero_registro }}
+                                    {% if form.numero_registro.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.numero_registro.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Ex: CRM 123456 ou número do conselho profissional
+                                    </div>
+                                </div>
+
+                                <!-- Documento de Registro -->
+                                <div class="col-12 mb-4">
+                                    <label for="{{ form.documento_registro.id_for_label }}" class="form-label">
+                                        <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                                        Documento de Registro *
+                                    </label>
+                                    {{ form.documento_registro }}
+                                    {% if form.documento_registro.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.documento_registro.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Faça upload de uma foto ou scan do seu documento de registro profissional. 
+                                        Formatos aceitos: JPG, PNG, PDF (máximo 5MB).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botões -->
+                            <div class="d-flex gap-3 justify-content-end mt-4">
+                                <a href="{% url 'contas:meu_perfil' %}" class="btn-modern btn-secondary-modern">
+                                    <i class="bi bi-arrow-left"></i>
+                                    Voltar
+                                </a>
+                                <button type="submit" class="btn-modern btn-primary-modern">
+                                    <i class="bi bi-check-circle"></i>
+                                    Completar Cadastro
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Card de Informações -->
+                <div class="card info-card fade-in fade-in-delay-1">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Informações Importantes
+                        </h5>
+                        <ul class="info-list mb-0">
+                            <li>
+                                <i class="bi bi-shield-check text-success"></i>
+                                Seus dados são protegidos e confidenciais
+                            </li>
+                            <li>
+                                <i class="bi bi-clock text-info"></i>
+                                O processo de verificação pode levar até 48 horas
+                            </li>
+                            <li>
+                                <i class="bi bi-check2-circle text-primary"></i>
+                                Aceitamos médicos registrados
+                            </li>
+                            <li>
+                                <i class="bi bi-envelope text-warning"></i>
+                                Você receberá um e-mail quando sua conta for aprovada
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Animações de entrada ao scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+});
+</script>
+
 {% endblock %} 

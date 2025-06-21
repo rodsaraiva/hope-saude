@@ -1,74 +1,604 @@
 {% extends 'base.html' %}
 {% load tz static %} {# Adicionado load static #}
 
-{% block title %}Meu Calendário de Gestão - Hope Saúde{% endblock %}
+{% block title %}Calendário Profissional - Hope Saúde{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+    }
+
+    /* Reset e base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia moderna */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal */
+    .main-section {
+        padding: 3rem 0;
+        background: var(--hope-gradient-soft);
+        min-height: 100vh;
+    }
+
+    /* Card moderno */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        color: white;
+    }
+
+    .card-header-modern h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body-modern {
+        padding: 2rem;
+    }
+
+    /* Controles do calendário */
+    .calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-azul-sereno);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-cinza-claro);
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--hope-cinza-claro);
+        color: var(--hope-cinza-escuro);
+        transform: translateY(-2px);
+    }
+
+    /* Calendário */
+    .calendar-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        margin-bottom: 1px;
+    }
+
+    .calendar-day-header {
+        background: var(--hope-gradient-soft);
+        padding: 1rem 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        font-size: 0.9rem;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: var(--hope-cinza-claro);
+        border-radius: 0 0 15px 15px;
+        overflow: hidden;
+    }
+
+    .calendar-day {
+        background: white;
+        min-height: 120px;
+        padding: 0.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .calendar-day:hover {
+        background: var(--hope-gradient-soft);
+    }
+
+    .calendar-day.other-month {
+        background: #f8f9fa;
+        color: var(--hope-cinza-claro);
+    }
+
+    .calendar-day.today {
+        background: var(--hope-gradient-soft);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .day-number {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: var(--hope-cinza-escuro);
+    }
+
+    .appointment-item {
+        background: var(--hope-azul-sereno);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .appointment-item:hover {
+        background: var(--hope-verde-salvia);
+        transform: scale(1.02);
+    }
+
+    .appointment-item.confirmado {
+        background: #10b981;
+    }
+
+    .appointment-item.pendente {
+        background: #f59e0b;
+    }
+
+    .appointment-item.cancelado {
+        background: #ef4444;
+    }
+
+    .appointment-item.concluido {
+        background: #3b82f6;
+    }
+
+    /* Modal de detalhes */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background: var(--hope-gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-title {
+        color: white;
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .calendar-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .calendar-nav {
+            justify-content: center;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            padding: 0.25rem;
+        }
+
+        .appointment-item {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-2"><i class="bi bi-calendar3-week me-2"></i>Meu Calendário de Gestão</h1>
-    <p class="text-muted mb-3">Visualize sua agenda de atendimentos. Clique e arraste no calendário para selecionar um período e adicioná-lo como uma disponibilidade específica. Clique ou arraste um evento de disponibilidade específica existente para gerenciá-lo.</p>
 
-    <div id="alertPlaceholderGlobal" class="mb-3"></div>
-
-    {# Legenda de Cores ... (como na Resposta #151) ... #}
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <span class="badge fs-6 fw-normal" style="background-color: #5cb85c; color: white;"> <i class="bi bi-check-circle-fill me-1"></i> Disponível</span>
-        <span class="badge fs-6 fw-normal" style="background-color: #e9ecef; color: #495057; border: 1px solid #ced4da;"> <i class="bi bi-slash-circle-fill me-1"></i> Bloqueio (Fundo)</span>
-        <span class="badge fs-6 fw-normal" style="background-color: #0d6efd; color: white;"> <i class="bi bi-calendar-check-fill me-1"></i> Ag. Confirmado</span>
-        <span class="badge fs-6 fw-normal" style="background-color: #ffc107; color: black;"> <i class="bi bi-calendar-plus-fill me-1"></i> Ag. Pendente</span>
-        <span class="badge fs-6 fw-normal" style="background-color: #198754; color: white;"><i class="bi bi-calendar2-check me-1"></i> Ag. Realizado</span>
-        <span class="badge fs-6 fw-normal" style="background-color: #dc3545; color: white;"><i class="bi bi-calendar-x me-1"></i> Ag. Cancelado</span>
-    </div>
-
-    {# Div onde o calendário será renderizado, COM ATRIBUTOS DATA-* PARA AS URLs #}
-    <div id='calendar' 
-        class="bg-light p-3 rounded border shadow-sm" 
-        style="min-height: 650px;"
-        data-url-api-criar-disp-avulsa="{% url 'contas:api_criar_disp_avulsa' %}"
-        data-url-api-editar-regra-base="{% url 'contas:api_editar_regra_disponibilidade' 0 %}"
-        data-url-api-excluir-regras-lista="{% url 'contas:api_excluir_regras_disponibilidade_lista' %}"
-    ></div>
-
-    {{ calendar_events_data|json_script:"calendar-events-data" }}
-
-    {# --- MODAIS (HTML como na Resposta #151) --- #}
-    <div class="modal fade" id="dispAvulsaModal" tabindex="-1" aria-labelledby="dispAvulsaModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title" id="dispAvulsaModalLabel"><i class="bi bi-calendar-plus-fill me-2"></i>Adicionar Disponibilidade Específica</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-          <div class="modal-body">
-            <form id="formCriarDispAvulsa" onsubmit="return false;">
-                <p>Tornar o período abaixo disponível para consultas?</p>
-                <p><strong>Início:</strong> <span id="dispAvulsaModalInfoInicio" class="fw-bold"></span></p>
-                <p class="mb-3"><strong>Fim:</strong> <span id="dispAvulsaModalInfoFim" class="fw-bold"></span></p>
-                <input type="hidden" id="dispAvulsaModalStartTimeISO"><input type="hidden" id="dispAvulsaModalEndTimeISO">
-            </form><div id="dispAvulsaModalAlertPlaceholder" class="mt-3"></div>
-          </div>
-          <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-success" id="salvarDispAvulsaBtn">Adicionar</button></div>
+<section class="main-section">
+    <div class="container-modern">
+        <!-- Cabeçalho -->
+        <div class="card-modern fade-in">
+            <div class="card-header-modern">
+                <h1>
+                    <i class="bi bi-calendar3 me-2"></i>
+                    Calendário Profissional
+                </h1>
+                <p>Gerencie suas consultas e visualize sua agenda</p>
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="modal fade" id="editarDispEspecificaModal" tabindex="-1" aria-labelledby="editarDispEspecificaModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title" id="editarDispEspecificaModalLabel"><i class="bi bi-pencil-square me-2"></i>Gerenciar Disponibilidade Específica</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-          <div class="modal-body">
-            <form id="formEditarDispEspecifica" onsubmit="return false;">
-                <div class="row">
-                    <div class="col-md-6 mb-3"><label for="editarDispEspecificaStartTime" class="form-label fw-bold">Início:</label><input type="datetime-local" class="form-control form-control-sm" id="editarDispEspecificaStartTime"></div>
-                    <div class="col-md-6 mb-3"><label for="editarDispEspecificaEndTime" class="form-label fw-bold">Fim:</label><input type="datetime-local" class="form-control form-control-sm" id="editarDispEspecificaEndTime"></div>
-                </div><input type="hidden" id="editarDispEspecificaId"><input type="hidden" id="editarDispEspecificaAgrupadaIds">
-            </form><div id="editarDispEspecificaModalAlertPlaceholder" class="mt-3"></div>
-          </div>
-          <div class="modal-footer justify-content-between">
-            <div><button type="button" class="btn btn-outline-danger" id="excluirDispEspecificaDoModalBtn">Excluir</button></div>
-            <div><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" id="salvarEdicaoDispEspecificaBtn">Salvar</button></div>
-          </div>
+
+        <!-- Controles do Calendário -->
+        <div class="calendar-controls fade-in fade-in-delay-1">
+            <div class="calendar-nav">
+                <button class="btn-modern btn-outline-modern" onclick="previousMonth()">
+                    <i class="bi bi-chevron-left"></i>
+                    Mês Anterior
+                </button>
+                <h3 id="currentMonth" class="mb-0 mx-3"></h3>
+                <button class="btn-modern btn-outline-modern" onclick="nextMonth()">
+                    Próximo Mês
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-modern btn-secondary-modern" onclick="goToToday()">
+                    <i class="bi bi-calendar-check"></i>
+                    Hoje
+                </button>
+                <a href="{% url 'contas:gerenciar_disponibilidade' %}" class="btn-modern btn-primary-modern">
+                    <i class="bi bi-gear"></i>
+                    Gerenciar Disponibilidade
+                </a>
+            </div>
         </div>
-      </div>
+
+        <!-- Calendário -->
+        <div class="calendar-container fade-in fade-in-delay-2">
+            <div class="calendar-header">
+                <div class="calendar-day-header">Dom</div>
+                <div class="calendar-day-header">Seg</div>
+                <div class="calendar-day-header">Ter</div>
+                <div class="calendar-day-header">Qua</div>
+                <div class="calendar-day-header">Qui</div>
+                <div class="calendar-day-header">Sex</div>
+                <div class="calendar-day-header">Sáb</div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- O calendário será gerado via JavaScript -->
+            </div>
+        </div>
     </div>
-    {# --- FIM DOS MODAIS --- #}
+</section>
+
+<!-- Modal de Detalhes da Consulta -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    Detalhes da Consulta
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Detalhes serão carregados via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="enterConsultation" style="display: none;">
+                    <i class="bi bi-camera-video"></i>
+                    Entrar na Consulta
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+// Variáveis globais
+let currentDate = new Date();
+let appointments = {{ agendamentos_json|safe }};
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    renderCalendar();
+    
+    // Animações de entrada
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+});
+
+// Funções de navegação
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+}
+
+function goToToday() {
+    currentDate = new Date();
+    renderCalendar();
+}
+
+// Renderizar calendário
+function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // Atualizar título
+    const monthNames = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+    
+    // Calcular primeiro dia do mês e último dia
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+    
+    // Gerar dias
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        // Verificar se é do mês atual
+        if (date.getMonth() !== month) {
+            dayElement.classList.add('other-month');
+        }
+        
+        // Verificar se é hoje
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            dayElement.classList.add('today');
+        }
+        
+        // Número do dia
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        dayElement.appendChild(dayNumber);
+        
+        // Consultas do dia
+        const dayAppointments = getAppointmentsForDate(date);
+        dayAppointments.forEach(appointment => {
+            const appointmentElement = document.createElement('div');
+            appointmentElement.className = `appointment-item ${appointment.status}`;
+            appointmentElement.textContent = `${appointment.time} - ${appointment.patient_name}`;
+            appointmentElement.onclick = () => showAppointmentDetails(appointment);
+            dayElement.appendChild(appointmentElement);
+        });
+        
+        grid.appendChild(dayElement);
+    }
+}
+
+// Obter consultas para uma data específica
+function getAppointmentsForDate(date) {
+    const dateString = date.toISOString().split('T')[0];
+    return appointments.filter(appointment => {
+        const appointmentDate = new Date(appointment.data_hora);
+        return appointmentDate.toISOString().split('T')[0] === dateString;
+    }).map(appointment => ({
+        id: appointment.id,
+        time: new Date(appointment.data_hora).toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }),
+        patient_name: appointment.paciente_nome,
+        status: appointment.status,
+        data_hora: appointment.data_hora,
+        url_videochamada: appointment.url_videochamada
+    }));
+}
+
+// Mostrar detalhes da consulta
+function showAppointmentDetails(appointment) {
+    const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+    const detailsDiv = document.getElementById('appointmentDetails');
+    const enterButton = document.getElementById('enterConsultation');
+    
+    const appointmentDate = new Date(appointment.data_hora);
+    
+    detailsDiv.innerHTML = `
+        <div class="mb-3">
+            <strong>Data e Hora:</strong><br>
+            ${appointmentDate.toLocaleDateString('pt-BR')} às ${appointment.time}
+        </div>
+        <div class="mb-3">
+            <strong>Paciente:</strong><br>
+            ${appointment.patient_name}
+        </div>
+        <div class="mb-3">
+            <strong>Status:</strong><br>
+            <span class="badge bg-${getStatusColor(appointment.status)}">${getStatusText(appointment.status)}</span>
+        </div>
+    `;
+    
+    // Mostrar botão de entrar na consulta se estiver confirmada e tiver URL
+    if (appointment.status === 'confirmado' && appointment.url_videochamada) {
+        enterButton.style.display = 'inline-block';
+        enterButton.onclick = () => {
+            window.open(appointment.url_videochamada, '_blank');
+            modal.hide();
+        };
+    } else {
+        enterButton.style.display = 'none';
+    }
+    
+    modal.show();
+}
+
+// Funções auxiliares
+function getStatusColor(status) {
+    const colors = {
+        'confirmado': 'success',
+        'pendente': 'warning',
+        'cancelado': 'danger',
+        'concluido': 'primary'
+    };
+    return colors[status] || 'secondary';
+}
+
+function getStatusText(status) {
+    const texts = {
+        'confirmado': 'Confirmado',
+        'pendente': 'Pendente',
+        'cancelado': 'Cancelado',
+        'concluido': 'Concluído'
+    };
+    return texts[status] || status;
+}
+</script>
+
 {% endblock %}
 
 
