@@ -424,9 +424,9 @@
         </div>
 
         <!-- Lista de Profissionais -->
-        {% if profissionais %}
+        {% if page_obj.object_list %}
             <div class="professionals-list">
-                {% for profissional in profissionais %}
+                {% for profissional in page_obj.object_list %}
                 <div class="professional-card fade-in fade-in-delay-2">
                     <div class="professional-header">
                         {% if profissional.foto_perfil %}
@@ -509,7 +509,7 @@
             </div>
 
             <!-- Paginação -->
-            {% if is_paginated %}
+            {% if page_obj.paginator.num_pages > 1 %}
             <nav aria-label="Navegação de páginas" class="fade-in fade-in-delay-3">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
