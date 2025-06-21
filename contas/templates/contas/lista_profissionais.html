@@ -134,187 +134,81 @@
     /* Lista de profissionais em grid */
     .professionals-list {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 2rem;
     }
 
     /* Cards de profissionais */
     .professional-card {
         background: white;
-        border-radius: 20px;
-        padding: 0;
-        box-shadow: 0 8px
-        text-align: center;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
     }
 
-    .professional-card-header {
-        background: var(--hope-gradient-soft);
-        padding: 2rem 1.5rem 1.5rem;
+    .professional-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12); }
+
+    .card-image-header {
+        height: 250px;
+        background-size: cover;
+        background-position: center;
         position: relative;
-    }
-
-    .professional-card-body {
-        flex-grow: 1;
-        padding: 0 1.5rem;
-    }
-    
-    .professional-card-footer {
-        padding: 1.5rem;
-    }
-
-    .professional-avatar {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid white;
-        margin: 0 auto 1rem;
-        display: block;
-        background-color: white;
-        position: absolute;
-        bottom: -50px;
-        left: 50%;
-        transform: translateX(-50%);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .professional-info {
-        padding-top: 65px;
-        margin-bottom: 1rem;
-    }
-
-    .professional-info h3 {
-        color: var(--hope-cinza-escuro);
-        margin-bottom: 0.25rem;
-        font-size: 1.25rem;
-        font-weight: 700;
-    }
-
-    .professional-specialty {
-        color: var(--hope-cinza-medio);
-        font-weight: 600;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-    }
-    
-    .professional-specialty i {
-        color: var(--hope-azul-sereno);
-    }
-
-    .rating-display {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        color: var(--hope-cinza-medio);
-    }
-    
-    .rating-display .stars {
-        color: #ffc107;
-    }
-    
-    .rating-display .reviews-count {
-        font-size: 0.85rem;
+        align-items: flex-end;
+        padding: 1rem;
+        color: white;
     }
 
-    .professional-registration {
-        color: var(--hope-cinza-medio);
-        font-size: 0.9rem;
-    }
-
-    .professional-status {
+    .card-image-header::after {
+        content: '';
         position: absolute;
-        top: -10px;
-        right: -10px;
-        padding: 0.4rem 0.8rem;
-        border-radius: 25px;
-        font-size: 0.75rem;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
+    }
+
+    .header-content {
+        z-index: 1;
+        width: 100%;
+    }
+    
+    .header-content h3 {
+        margin: 0;
+        font-size: 1.4rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border: 2px solid white;
+        line-height: 1.2;
     }
 
-    .status-approved {
-        background-color: #d1fae5;
-        color: #065f46;
+    .header-content p {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
     }
 
-    .status-pending {
-        background-color: #fef3c7;
-        color: #92400e;
+    .card-body {
+        padding: 1.5rem;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
-
-    .professional-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+    
+    .rating-display {
         margin-bottom: 1.5rem;
     }
 
-    .detail-item {
-        background: var(--hope-gradient-soft);
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        border-left: 3px solid var(--hope-azul-sereno);
-        margin-bottom: 0.75rem;
-    }
+    .rating-display .stars { color: #ffc107; font-size: 1.2rem; }
+    .rating-display .reviews-count { font-size: 0.9rem; color: var(--hope-cinza-medio); margin-top: 0.25rem; }
 
-    .detail-label {
-        font-weight: 600;
-        color: var(--hope-cinza-escuro);
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.25rem;
-    }
-
-    .detail-value {
-        color: var(--hope-cinza-medio);
-        font-size: 0.95rem;
-    }
-
-    /* Botões modernos */
-    .btn-modern {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-primary-modern {
-        background: var(--hope-gradient-primary);
-        color: white;
-        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
-    }
-
-    .btn-primary-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(160, 210, 219, 0.4);
-        color: white;
-    }
-
-    .btn-secondary-modern {
-        background: transparent;
-        color: var(--hope-cinza-escuro);
-        border: 2px solid var(--hope-azul-sereno);
-    }
-
-    .btn-secondary-modern:hover {
-        background: var(--hope-azul-sereno);
-        color: white;
-        transform: translateY(-2px);
-    }
+    .btn-modern { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; border: none; cursor: pointer; width: 100%; }
+    .btn-primary-modern { background: var(--hope-gradient-primary); color: white; }
+    .btn-primary-modern:hover { background: var(--hope-verde-salvia); color: white; }
 
     /* Estado vazio */
     .empty-state {
@@ -377,49 +271,10 @@
     .fade-in-delay-2 { animation-delay: 0.4s; }
     .fade-in-delay-3 { animation-delay: 0.6s; }
 
-    /* Responsividade */
-    @media (max-width: 992px) {
-        .professionals-list {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .professionals-list {
-            grid-template-columns: 1fr;
-        }
-        
-        .container-modern {
-            padding: 0 1rem;
-        }
-
-        .professional-header {
-            flex-direction: column;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .professional-status {
-            margin-left: 0;
-        }
-
-        .filter-group {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .form-control, .form-select {
-            min-width: auto;
-        }
-
-        .professional-details {
-            grid-template-columns: 1fr;
-        }
-
-        .card-body-modern {
-            padding: 1.5rem;
-        }
-    }
+    /* Responsividade e Outros */
+    @media (max-width: 768px) { .container-modern { padding: 0 1rem; } }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--hope-cinza-medio); }
+    .pagination { justify-content: center; margin-top: 2rem; }
 </style>
 {% endblock %}
 
@@ -484,82 +339,29 @@
         {% if page_obj.object_list %}
             <div class="professionals-list">
                 {% for profissional in page_obj.object_list %}
-                <div class="professional-card fade-in fade-in-delay-2">
-                    <div class="professional-header">
-                        {% if profissional.foto_perfil %}
-                            <img src="{{ profissional.foto_perfil.url }}" alt="{{ profissional.user.get_full_name }}" class="professional-avatar">
-                        {% else %}
-                            <div class="professional-avatar" style="background: var(--hope-gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-                                <i class="bi bi-person"></i>
-                            </div>
-                        {% endif %}
-                        <div class="professional-info">
-                            <h3>{{ profissional.user.get_full_name }}</h3>
-                            <div class="professional-specialty">
-                                <i class="bi bi-stethoscope me-1"></i>
-                                {{ profissional.get_tipo_profissional_display }}
-                                {% if profissional.especialidade %}
-                                    - {{ profissional.especialidade }}
-                                {% endif %}
-                            </div>
-                            <div class="professional-registration">
-                                <i class="bi bi-card-text me-1"></i>
-                                Registro: {{ profissional.numero_registro }}
-                            </div>
-                        </div>
-                        <div class="professional-status status-{% if profissional.is_approved %}approved{% else %}pending{% endif %}">
-                            {% if profissional.is_approved %}
-                                <i class="bi bi-check-circle me-1"></i>
-                                Aprovado
-                            {% else %}
-                                <i class="bi bi-clock me-1"></i>
-                                Em Análise
-                            {% endif %}
+                <div class="professional-card">
+                    <div class="card-image-header" style="background-image: {% if profissional.foto_perfil %}url('{{ profissional.foto_perfil.url }}'){% else %}var(--hope-gradient-soft){% endif %};">
+                        <div class="header-content">
+                            <h3>{{ profissional.user.get_full_name|default:profissional.user.username }}</h3>
+                            <p>{{ profissional.get_tipo_profissional_display|default:"Profissional de Saúde" }}</p>
                         </div>
                     </div>
-
-                    <div class="professional-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Especialidade</div>
-                            <div class="detail-value">
-                                {% if profissional.especialidade %}
-                                    {{ profissional.especialidade }}
-                                {% else %}
-                                    <em>Não informada</em>
-                                {% endif %}
+                    <div class="card-body">
+                        <div class="rating-display">
+                            <div class="stars">
+                                {% with nota_arredondada=profissional.nota_media|floatformat:0|default:0 %}
+                                {% for i in "12345" %}
+                                    <i class="bi {% if forloop.counter <= nota_arredondada|add:0 %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                                {% endfor %}
+                                {% endwith %}
+                            </div>
+                            <div class="reviews-count">
+                                {{ profissional.nota_media|default:'N/A' }} ({{ profissional.total_avaliacoes }} avaliações)
                             </div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Tipo de Profissional</div>
-                            <div class="detail-value">{{ profissional.get_tipo_profissional_display }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Registro</div>
-                            <div class="detail-value">{{ profissional.numero_registro }}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Status</div>
-                            <div class="detail-value">
-                                {% if profissional.is_approved %}
-                                    <span class="text-success">✓ Aprovado</span>
-                                {% else %}
-                                    <span class="text-warning">⏳ Em Análise</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 justify-content-end">
-                        <a href="{% url 'contas:perfil_profissional_detail' profissional.id %}" class="btn-modern btn-secondary-modern">
-                            <i class="bi bi-person"></i>
+                        <a href="{% url 'contas:perfil_profissional_detail' profissional.id %}" class="btn-modern btn-primary-modern">
                             Ver Perfil
                         </a>
-                        {% if profissional.is_approved %}
-                            <a href="{% url 'contas:agendar_consulta' profissional.id %}" class="btn-modern btn-primary-modern">
-                                <i class="bi bi-calendar-plus"></i>
-                                Agendar Consulta
-                            </a>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
