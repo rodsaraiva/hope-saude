@@ -6,30 +6,29 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-md me-2"></i>
+            <div class="card shadow-sm border-0" style="border-radius: 1rem;">
+                <div class="card-header bg-light text-dark" style="border-radius: 1rem 1rem 0 0; border-bottom: 1px solid #e5e5e5;">
+                    <h3 class="mb-0" style="font-weight: 600; letter-spacing: 0.5px;">
+                        <i class="fas fa-user-md me-2 text-secondary"></i>
                         Completar Cadastro Profissional
                     </h3>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
+                <div class="card-body" style="background: #fafbfc; border-radius: 0 0 1rem 1rem;">
+                    <div class="alert alert-secondary" style="background: #f6f6f6; color: #444; border: 1px solid #e0e0e0;">
+                        <i class="fas fa-info-circle me-2 text-secondary"></i>
                         <strong>Olá {{ user.first_name|default:user.username }}!</strong><br>
                         Para completar seu cadastro como profissional, precisamos de algumas informações adicionais para verificar sua qualificação.
                     </div>
 
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" autocomplete="off">
                         {% csrf_token %}
-                        
                         <div class="row">
                             <!-- Tipo de Profissional -->
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label">
+                                <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label fw-semibold">
                                     {{ form.tipo_profissional.label }} *
                                 </label>
-                                {{ form.tipo_profissional }}
+                                {{ form.tipo_profissional|add_class:'form-select' }}
                                 {% if form.tipo_profissional.help_text %}
                                     <div class="form-text">{{ form.tipo_profissional.help_text }}</div>
                                 {% endif %}
@@ -41,13 +40,12 @@
                                     </div>
                                 {% endif %}
                             </div>
-
                             <!-- Número de Registro -->
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.numero_registro.id_for_label }}" class="form-label">
+                                <label for="{{ form.numero_registro.id_for_label }}" class="form-label fw-semibold">
                                     {{ form.numero_registro.label }} *
                                 </label>
-                                {{ form.numero_registro }}
+                                {{ form.numero_registro|add_class:'form-control' }}
                                 {% if form.numero_registro.help_text %}
                                     <div class="form-text">{{ form.numero_registro.help_text }}</div>
                                 {% endif %}
@@ -60,13 +58,12 @@
                                 {% endif %}
                             </div>
                         </div>
-
                         <!-- Documento de Registro -->
                         <div class="mb-4">
-                            <label for="{{ form.documento_registro.id_for_label }}" class="form-label">
+                            <label for="{{ form.documento_registro.id_for_label }}" class="form-label fw-semibold">
                                 {{ form.documento_registro.label }} *
                             </label>
-                            {{ form.documento_registro }}
+                            {{ form.documento_registro|add_class:'form-control' }}
                             {% if form.documento_registro.help_text %}
                                 <div class="form-text">{{ form.documento_registro.help_text }}</div>
                             {% endif %}
@@ -77,10 +74,8 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                            
-                            <!-- Informações sobre o documento -->
-                            <div class="alert alert-warning mt-2">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
+                            <div class="alert alert-light mt-2 border" style="color: #666; border-color: #e0e0e0;">
+                                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
                                 <strong>Importante:</strong>
                                 <ul class="mb-0 mt-2">
                                     <li>Faça upload de uma foto ou scan do seu documento de registro profissional</li>
@@ -90,14 +85,13 @@
                                 </ul>
                             </div>
                         </div>
-
                         <!-- Botões -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'contas:meu_perfil' %}" class="btn btn-secondary">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'contas:meu_perfil' %}" class="btn btn-outline-secondary px-4">
                                 <i class="fas fa-arrow-left me-2"></i>
                                 Voltar
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-success px-4" style="background: #4CAF50; border: none;">
                                 <i class="fas fa-check me-2"></i>
                                 Completar Cadastro
                             </button>
@@ -111,25 +105,43 @@
 
 <style>
     .form-control, .form-select {
-        border-radius: 0.375rem;
+        border-radius: 0.5rem;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        font-size: 1rem;
     }
-    
-    .card {
+    .form-label {
+        color: #444;
+        font-size: 1rem;
+    }
+    .btn-success {
+        background: #4CAF50 !important;
         border: none;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: background 0.2s;
+    }
+    .btn-success:hover {
+        background: #43a047 !important;
+    }
+    .btn-outline-secondary {
         border-radius: 0.5rem;
     }
-    
+    .card {
+        border-radius: 1rem;
+    }
     .card-header {
-        border-radius: 0.5rem 0.5rem 0 0 !important;
+        border-radius: 1rem 1rem 0 0 !important;
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        border-bottom: 1px solid #e5e5e5;
     }
-    
-    .btn {
-        border-radius: 0.375rem;
-        padding: 0.5rem 1.5rem;
+    .alert-light {
+        background: #f8f9fa;
     }
-    
-    .alert {
-        border-radius: 0.375rem;
+    .invalid-feedback {
+        font-size: 0.95em;
     }
 </style>
 {% endblock %} 
