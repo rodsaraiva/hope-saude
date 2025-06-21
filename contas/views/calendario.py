@@ -37,7 +37,7 @@ def calendario_profissional(request):
     )
     
     contexto = {
-        'calendar_events_data': calendar_events,
+        'calendar_events_data': json.dumps(calendar_events, cls=DjangoJSONEncoder),
         'agendamentos_json': json.dumps(agendamentos_data, cls=DjangoJSONEncoder),
     }
     return render(request, 'contas/calendario_profissional.html', contexto) 
