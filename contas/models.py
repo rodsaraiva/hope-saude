@@ -7,6 +7,23 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.db.models import Avg
 from datetime import timedelta
+import os
+
+def documentos_upload_path(instance, filename):
+    """Função para determinar o caminho de upload dos documentos"""
+    # Tenta criar a pasta se não existir
+    try:
+        from django.conf import settings
+        media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
+        documentos_dir = os.path.join(media_root, 'documentos')
+        os.makedirs(documentos_dir, exist_ok=True)
+    except Exception:
+        # Se não conseguir criar, usa uma pasta temporária
+        import tempfile
+        temp_dir = tempfile.mkdtemp()
+        return os.path.join('temp_docs', filename)
+    
+    return os.path.join('documentos', filename)
 
 class Especialidade(models.Model):
     nome = models.CharField(max_length=100, unique=True)

@@ -5,6 +5,8 @@ from django.views.generic.edit import UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth import login
+import os
+from django.conf import settings
 
 from ..forms import RegistroUsuarioForm, RegistroProfissionalForm, PerfilProfissionalForm, PerfilPacienteForm
 from ..models import PerfilProfissional, PerfilPaciente
@@ -55,12 +57,28 @@ def registro_profissional(request):
         messages.error(request, 'Acesso negado. Esta página é apenas para profissionais.')
         return redirect('contas:meu_perfil')
     
+    # Criar pasta media se não existir
+    try:
+        media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
+        documentos_dir = os.path.join(media_root, 'documentos')
+        os.makedirs(documentos_dir, exist_ok=True)
+    except Exception as e:
+        print(f"Erro ao criar pasta media: {e}")
+        # Se não conseguir criar, usar pasta temporária
+        import tempfile
+        temp_dir = tempfile.mkdtemp()
+        os.environ['DJANGO_MEDIA_ROOT'] = temp_dir
+        print(f"Usando pasta temporária: {temp_dir}")
+    
     if request.method == 'POST':
         form = RegistroProfissionalForm(request.POST, request.FILES, instance=request.user.perfil_profissional)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Cadastro profissional completado com sucesso!')
-            return redirect('contas:meu_perfil')
+            try:
+                form.save()
+                messages.success(request, 'Cadastro profissional completado com sucesso!')
+                return redirect('contas:meu_perfil')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar o cadastro: {str(e)}')
         else:
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:

@@ -190,7 +190,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 
 # Caminho no sistema de arquivos onde os arquivos de mídia serão armazenados
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Usar pasta temporária se não conseguir criar a pasta media
+import tempfile
+import os
+
+try:
+    # Tentar usar a pasta media padrão
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    # Tentar criar a pasta se não existir
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+except Exception:
+    # Se não conseguir, usar pasta temporária
+    MEDIA_ROOT = tempfile.mkdtemp()
+    print(f"WARNING: Using temporary directory for media: {MEDIA_ROOT}")
 
 # Garantir que a pasta media seja criada se não existir
 if not os.path.exists(MEDIA_ROOT):
