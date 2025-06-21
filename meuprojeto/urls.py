@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from contas.forms import CustomAuthenticationForm
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -21,7 +22,15 @@ urlpatterns = [
     path('', include('contas.urls')),
 ]
 
-# --- LINHAS ADICIONADAS ---
-# Adiciona as URLs de mídia apenas em modo de desenvolvimento
+# --- CONFIGURAÇÃO DE MÍDIA ---
+# Em desenvolvimento, usa o servidor de desenvolvimento do Django
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Em produção, adiciona uma rota para servir arquivos de mídia
+    # Esta é uma solução temporária - em produção real, considere usar um CDN ou servidor web
+    urlpatterns += [
+        path('media/<path:path>', serve, {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+    ]

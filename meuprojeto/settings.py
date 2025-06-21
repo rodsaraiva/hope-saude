@@ -190,7 +190,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 
 # Caminho no sistema de arquivos onde os arquivos de mídia serão armazenados
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if DEBUG:
+    # Em desenvolvimento, usa o diretório local
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    # Em produção, usa um diretório temporário que sabemos que funciona
+    import tempfile
+    MEDIA_ROOT = os.path.join(tempfile.gettempdir(), 'hope_saude_media')
+    # Garante que o diretório existe
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+# Configuração de storage para arquivos de mídia
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 # --- FIM DAS NOVAS CONFIGURAÇÕES DE MÍDIA ---
 
 # Default primary key field type
@@ -246,3 +258,41 @@ if not DEBUG:
         print("WARNING: STRIPE_SECRET_KEY não está configurada. Pagamentos podem não funcionar.")
     if not STRIPE_WEBHOOK_SECRET:
         print("WARNING: STRIPE_WEBHOOK_SECRET não está configurada. Webhooks do Stripe podem não funcionar.")
+
+# Configuração de Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'contas.storage': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
