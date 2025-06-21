@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Completar Cadastro Profissional - Hope Saúde{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-person-badge me-2"></i>
+                        Complete seu Cadastro Profissional
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Para finalizar seu cadastro como profissional de saúde mental, 
+                        precisamos de algumas informações adicionais.
+                    </p>
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Tipo de Profissional -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.tipo_profissional.id_for_label }}" class="form-label">
+                                    <i class="bi bi-person-workspace me-1"></i>
+                                    Tipo de Profissional *
+                                </label>
+                                {{ form.tipo_profissional }}
+                                {% if form.tipo_profissional.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.tipo_profissional.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Número de Registro -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.numero_registro.id_for_label }}" class="form-label">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    Número de Registro (CRP/CRM) *
+                                </label>
+                                {{ form.numero_registro }}
+                                {% if form.numero_registro.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.numero_registro.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Ex: CRP 06/123456 ou CRM 123456
+                                </div>
+                            </div>
+
+                            <!-- Documento de Registro -->
+                            <div class="col-12 mb-4">
+                                <label for="{{ form.documento_registro.id_for_label }}" class="form-label">
+                                    <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                                    Documento de Registro *
+                                </label>
+                                {{ form.documento_registro }}
+                                {% if form.documento_registro.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.documento_registro.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Faça upload de uma foto ou scan do seu documento de registro. 
+                                    Formatos aceitos: JPG, PNG, PDF (máximo 5MB).
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'contas:meu_perfil' %}" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Completar Cadastro
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="card mt-4 border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Informações Importantes
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-shield-check text-success me-2"></i>
+                            Seus dados são protegidos e confidenciais
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-clock text-info me-2"></i>
+                            O processo de verificação pode levar até 48 horas
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-envelope text-warning me-2"></i>
+                            Você receberá um e-mail quando sua conta for aprovada
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #A0D2DB 0%, #B2C2B3 100%) !important;
+        border: none;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %} 
