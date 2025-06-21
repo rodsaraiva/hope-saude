@@ -43,7 +43,7 @@
               <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'meus_agendamentos' %}active{% endif %}" href="{% url 'contas:meus_agendamentos' %}"><i class="bi bi-calendar-check me-1"></i>Meus Agendamentos</a></li>
               {% with user.perfil_profissional as perfil_prof %}
                 {% if perfil_prof %}
-                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'calendario_profissional' %}active{% endif %}" href="{% url 'contas:meu_calendario' %}"><i class="bi bi-calendar3 me-1"></i>Meu Calendário</a></li>
+                  <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'meu_calendario' %}active{% endif %}" href="{% url 'contas:meu_calendario' %}"><i class="bi bi-calendar3 me-1"></i>Meu Calendário</a></li>
                 {% endif %}
               {% endwith %}
             {% endif %}

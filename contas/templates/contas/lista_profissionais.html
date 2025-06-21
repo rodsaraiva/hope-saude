@@ -1,132 +1,595 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Encontre Profissionais de Saúde - Hope Saúde{% endblock %}
+{% block title %}Profissionais de Saúde - Hope Saúde{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variáveis CSS baseadas no manual de identidade visual */
+    :root {
+        --hope-azul-sereno: #A0D2DB;
+        --hope-azul-sereno-rgb: 160, 210, 219;
+        --hope-verde-salvia: #B2C2B3;
+        --hope-verde-salvia-rgb: 178, 194, 179;
+        --hope-pessego: #FFDAB9;
+        --hope-pessego-rgb: 255, 218, 185;
+        --hope-coral: #FFB6C1;
+        --hope-coral-rgb: 255, 182, 193;
+        --hope-branco-gelo: #F8F8FF;
+        --hope-cinza-claro: #E0E0E0;
+        --hope-cinza-medio: #606060;
+        --hope-cinza-escuro: #333333;
+        
+        /* Gradientes modernos */
+        --hope-gradient-primary: linear-gradient(135deg, var(--hope-azul-sereno) 0%, var(--hope-verde-salvia) 100%);
+        --hope-gradient-soft: linear-gradient(135deg, rgba(160, 210, 219, 0.1) 0%, rgba(178, 194, 179, 0.1) 100%);
+    }
+
+    /* Reset e base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: var(--hope-cinza-escuro);
+        background-color: var(--hope-branco-gelo);
+    }
+
+    /* Tipografia moderna */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    /* Container moderno */
+    .container-modern {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Seção principal */
+    .main-section {
+        padding: 3rem 0;
+        background: var(--hope-gradient-soft);
+        min-height: 100vh;
+    }
+
+    /* Card moderno */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-modern {
+        background: var(--hope-gradient-primary);
+        border: none;
+        padding: 2rem;
+        color: white;
+    }
+
+    .card-header-modern h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body-modern {
+        padding: 2rem;
+    }
+
+    /* Filtros modernos */
+    .filters-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 0;
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid var(--hope-cinza-claro);
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background-color: white;
+        min-width: 150px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--hope-azul-sereno);
+        box-shadow: 0 0 0 0.2rem rgba(160, 210, 219, 0.25);
+        outline: none;
+    }
+
+    /* Cards de profissionais */
+    .professional-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--hope-azul-sereno);
+    }
+
+    .professional-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .professional-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .professional-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--hope-azul-sereno);
+        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+    }
+
+    .professional-info h3 {
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .professional-specialty {
+        color: var(--hope-azul-sereno);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .professional-registration {
+        color: var(--hope-cinza-medio);
+        font-size: 0.9rem;
+    }
+
+    .professional-status {
+        margin-left: auto;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .professional-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+        background: var(--hope-gradient-soft);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid var(--hope-azul-sereno);
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--hope-cinza-escuro);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        color: var(--hope-cinza-medio);
+        font-size: 0.95rem;
+    }
+
+    /* Botões modernos */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-modern {
+        background: var(--hope-gradient-primary);
+        color: white;
+        box-shadow: 0 5px 15px rgba(160, 210, 219, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(160, 210, 219, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: transparent;
+        color: var(--hope-cinza-escuro);
+        border: 2px solid var(--hope-azul-sereno);
+    }
+
+    .btn-secondary-modern:hover {
+        background: var(--hope-azul-sereno);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Estado vazio */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--hope-cinza-medio);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--hope-cinza-claro);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: var(--hope-cinza-escuro);
+        margin-bottom: 1rem;
+    }
+
+    /* Paginação moderna */
+    .pagination {
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .page-link {
+        border-radius: 8px;
+        margin: 0 0.25rem;
+        border: 2px solid var(--hope-cinza-claro);
+        color: var(--hope-cinza-escuro);
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background-color: var(--hope-azul-sereno);
+        border-color: var(--hope-azul-sereno);
+        color: white;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--hope-azul-sereno);
+        border-color: var(--hope-azul-sereno);
+    }
+
+    /* Animações de entrada */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .container-modern {
+            padding: 0 1rem;
+        }
+
+        .professional-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .professional-status {
+            margin-left: 0;
+        }
+
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-control, .form-select {
+            min-width: auto;
+        }
+
+        .professional-details {
+            grid-template-columns: 1fr;
+        }
+
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    <h1 class="display-5 fw-bold mb-4 text-center" style="color: var(--hope-titulos-principais);">Encontre o Profissional de Saúde Ideal para Você</h1>
-    <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principais);">Utilize nossos filtros para encontrar médicos que melhor se adequam às suas necessidades de saúde.</p>
 
-    {# Formulário de Busca e Filtro (mantido como na Resposta #161) #}
-    <form method="get" action="{% url 'contas:lista_profissionais' %}" class="mb-5 p-4 form-filtro-profissionais shadow-soft">
-        {# ... (conteúdo do formulário como antes: input de busca, fieldset de especialidades, botão de busca) ... #}
-        {# Certifique-se que o botão de busca usa a classe .btn-hope-primary #}
-        <div class="row g-3 align-items-center mb-3">
-            <div class="col-lg">
-                <label for="searchQueryInput" class="form-label visually-hidden">Buscar por Palavra-chave:</label>
-                <input type="text" name="q" id="searchQueryInput" class="form-control" placeholder="Nome, especialidade, abordagem, etc..." value="{{ search_query|default:'' }}">
-            </div>
-            <div class="col-lg-auto align-self-end">
-                <button type="submit" class="btn btn-hope-primary px-4 py-2 w-100"><i class="bi bi-search me-2"></i>Buscar</button>
+<section class="main-section">
+    <div class="container-modern">
+        <!-- Cabeçalho -->
+        <div class="card-modern fade-in">
+            <div class="card-header-modern">
+                <h1>
+                    <i class="bi bi-search me-2"></i>
+                    Encontre seu Profissional de Saúde
+                </h1>
+                <p>Conecte-se com médicos qualificados e experientes</p>
             </div>
         </div>
-        <div class="row mt-3">
-            <div class="col-12">
-                 <fieldset class="border p-3 rounded bg-white">
-                     <legend class="float-none w-auto px-2 h6" style="font-size: 1rem; color: var(--hope-titulos-principais);">Filtrar por Especialidade:</legend>
-                     <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                     {% for esp in todas_especialidades %}
-                        <div class="col">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="especialidade" value="{{ esp.id }}" id="esp_{{ esp.id }}"
-                                    {% if esp.id in selected_specialty_ids %}checked{% endif %}>
-                                <label class="form-check-label" for="esp_{{ esp.id }}">
-                                    {{ esp.nome }}
-                                </label>
-                            </div>
-                         </div>
-                     {% empty %}
-                         <div class="col-12"><p class="text-muted mb-0">Nenhuma especialidade para filtro.</p></div>
-                     {% endfor %}
-                    </div>
-                 </fieldset>
-             </div>
+
+        <!-- Filtros -->
+        <div class="filters-section fade-in fade-in-delay-1">
+            <form method="get" class="filter-group">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="especialidade" class="filter-label">Especialidade:</label>
+                    <select name="especialidade" id="especialidade" class="form-select">
+                        <option value="">Todas as especialidades</option>
+                        {% for esp in especialidades %}
+                            <option value="{{ esp.id }}" {% if request.GET.especialidade == esp.id|stringformat:"s" %}selected{% endif %}>
+                                {{ esp.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="tipo_profissional" class="filter-label">Tipo:</label>
+                    <select name="tipo_profissional" id="tipo_profissional" class="form-select">
+                        <option value="">Todos os tipos</option>
+                        <option value="medico" {% if request.GET.tipo_profissional == 'medico' %}selected{% endif %}>Médico</option>
+                        <option value="psicologo" {% if request.GET.tipo_profissional == 'psicologo' %}selected{% endif %}>Psicólogo</option>
+                        <option value="psiquiatra" {% if request.GET.tipo_profissional == 'psiquiatra' %}selected{% endif %}>Psiquiatra</option>
+                    </select>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="search" class="filter-label">Buscar:</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           placeholder="Nome do profissional..." 
+                           value="{{ request.GET.search }}">
+                </div>
+                <button type="submit" class="btn-modern btn-primary-modern">
+                    <i class="bi bi-funnel"></i>
+                    Filtrar
+                </button>
+                {% if request.GET %}
+                    <a href="{% url 'contas:lista_profissionais' %}" class="btn-modern btn-secondary-modern">
+                        <i class="bi bi-x-circle"></i>
+                        Limpar
+                    </a>
+                {% endif %}
+            </form>
         </div>
-    </form>
 
-    {% if search_query or selected_specialty_ids %}
-        <h2 class="h4 mb-4" style="color: var(--hope-texto-principais);">Resultados da sua busca:</h2>
-    {% else %}
-        <h2 class="h4 mb-4" style="color: var(--hope-texto-principais);">Conheça Nossos Profissionais de Saúde:</h2>
-    {% endif %}
-
-    {% if page_obj %}
-       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 professional-list-row"> {# Classe para garantir flex #}
-           {% for perfil in page_obj %}
-                <div class="col"> {# .col já é flex item da .row. CSS .professional-list-row .col o torna flex container #}
-                    <div class="card card-profissional shadow-soft"> {# card-profissional aplica flex e flex-grow #}
-                        {# ALTERADO Bloco de imagem para mostrar foto ou placeholder #}
-                        {% if perfil.foto_perfil %}
-                            <img src="{{ perfil.foto_perfil.url }}" alt="Foto de {{ perfil.user.get_full_name }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+        <!-- Lista de Profissionais -->
+        {% if profissionais %}
+            <div class="professionals-list">
+                {% for profissional in profissionais %}
+                <div class="professional-card fade-in fade-in-delay-2">
+                    <div class="professional-header">
+                        {% if profissional.foto_perfil %}
+                            <img src="{{ profissional.foto_perfil.url }}" alt="{{ profissional.user.get_full_name }}" class="professional-avatar">
                         {% else %}
-                            <div class="profile-card-image-placeholder" style="height: 180px;">
-                                <i class="bi bi-person-bounding-box icon-placeholder"></i>
+                            <div class="professional-avatar" style="background: var(--hope-gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                                <i class="bi bi-person"></i>
                             </div>
                         {% endif %}
-                        <div class="card-body"> {# card-body também é flex column com flex-grow #}
-                            <h5 class="card-title mb-1">
-                                <a href="{% url 'contas:perfil_profissional_detail' pk=perfil.pk %}" class="link-hope stretched-link">
-                                    {{ perfil.user.get_full_name|default:perfil.user.username }}
-                                </a>
-                            </h5>
-                            <h6 class="card-subtitle mb-2 text-muted fw-normal">{{ perfil.get_tipo_profissional_display|default:"Não informado" }}</h6>
-                            
-                            {# --- BLOCO NOVO ADICIONADO --- #}
-                            {% if perfil.total_avaliacoes > 0 %}
-                            <div class="mb-2 d-flex align-items-center" style="color: #ffc107;">
-                                <i class="bi bi-star-fill me-1"></i>
-                                <span class="fw-bold me-2">{{ perfil.nota_media }}</span>
-                                <span class="text-muted small">({{ perfil.total_avaliacoes }} avaliações)</span>
+                        <div class="professional-info">
+                            <h3>{{ profissional.user.get_full_name }}</h3>
+                            <div class="professional-specialty">
+                                <i class="bi bi-stethoscope me-1"></i>
+                                {{ profissional.get_tipo_profissional_display }}
+                                {% if profissional.especialidade %}
+                                    - {{ profissional.especialidade }}
+                                {% endif %}
                             </div>
+                            <div class="professional-registration">
+                                <i class="bi bi-card-text me-1"></i>
+                                Registro: {{ profissional.numero_registro }}
+                            </div>
+                        </div>
+                        <div class="professional-status status-{% if profissional.is_approved %}approved{% else %}pending{% endif %}">
+                            {% if profissional.is_approved %}
+                                <i class="bi bi-check-circle me-1"></i>
+                                Aprovado
                             {% else %}
-                            <div class="mb-2 d-flex align-items-center">
-                                <span class="text-muted small">Ainda não há avaliações</span>
-                            </div>
+                                <i class="bi bi-clock me-1"></i>
+                                Em Análise
                             {% endif %}
-                            {# --- FIM DO BLOCO NOVO --- #}
-
-                            <div class="mb-2 py-1 d-flex flex-wrap gap-1">
-                                {% for esp in perfil.especialidades.all|slice:":2" %}
-                                    <span class="badge badge-especialidade-hope">{{ esp.nome }}</span>
-                                    {% if forloop.counter == 2 and perfil.especialidades.all|length > 2 %}
-                                        <span class="badge bg-light text-dark fw-normal">...</span>
-                                    {% endif %}
-                                {% empty %}
-                                    <small class="text-muted d-block" style="font-size: 0.85em;">Nenhuma especialidade.</small>
-                                {% endfor %}
-                            </div>
-                            <p class="card-text bio-summary"> {# .flex-grow-1 removido daqui, pois .card-body já é flex e este é o último elemento flexível antes do botão #}
-                                {{ perfil.bio|truncatewords_html:12|default:"(Sem biografia)" }}
-                            </p>
-                            {# O botão Ver Perfil é desnecessário se o card inteiro é clicável com stretched-link no título #}
-                            {# Se quiser manter o botão, remova stretched-link do título e estilize o botão com .btn-hope-outline-secondary #}
-                            {# <a href="{% url 'contas:perfil_profissional_detail' pk=perfil.pk %}" class="btn btn-hope-outline-secondary btn-sm"> #}
-                            {#    <i class="bi bi-eye-fill me-1"></i> Ver Perfil Completo #}
-                            {# </a> #}
                         </div>
                     </div>
+
+                    <div class="professional-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Especialidade</div>
+                            <div class="detail-value">
+                                {% if profissional.especialidade %}
+                                    {{ profissional.especialidade }}
+                                {% else %}
+                                    <em>Não informada</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tipo de Profissional</div>
+                            <div class="detail-value">{{ profissional.get_tipo_profissional_display }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Registro</div>
+                            <div class="detail-value">{{ profissional.numero_registro }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                {% if profissional.is_approved %}
+                                    <span class="text-success">✓ Aprovado</span>
+                                {% else %}
+                                    <span class="text-warning">⏳ Em Análise</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{% url 'contas:perfil_profissional_detail' profissional.id %}" class="btn-modern btn-secondary-modern">
+                            <i class="bi bi-person"></i>
+                            Ver Perfil
+                        </a>
+                        {% if profissional.is_approved %}
+                            <a href="{% url 'contas:agendar_consulta' profissional.id %}" class="btn-modern btn-primary-modern">
+                                <i class="bi bi-calendar-plus"></i>
+                                Agendar Consulta
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
-           {% endfor %}
-       </div>
+                {% endfor %}
+            </div>
 
-       {# --- Controles de Paginação (como na Resposta #161) --- #}
-       <nav aria-label="Navegação de página" class="mt-5 d-flex justify-content-center">
-           {% if page_obj.has_other_pages %}
-           <ul class="pagination shadow-sm">
-                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page=1{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Primeira"><span aria-hidden="true">&laquo;&laquo;</span></a></li><li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Anterior"><span aria-hidden="true">&laquo;</span> Anterior</a></li>{% else %}<li class="page-item disabled"><span class="page-link" aria-hidden="true">&laquo;&laquo;</span></li><li class="page-item disabled"><span class="page-link">Anterior</span></li>{% endif %}
-                <li class="page-item active" aria-current="page"><span class="page-link" style="background-color: var(--hope-azul-sereno); border-color: var(--hope-azul-sereno);">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li> {# Cor na paginação ativa #}
-                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Próxima">Próxima <span aria-hidden="true">&raquo;</span></a></li><li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value_list in request.GET.lists %}{% if key != 'page' %}{% for value in value_list %}&{{ key }}={{ value }}{% endfor %}{% endif %}{% endfor %}" aria-label="Última"><span aria-hidden="true">&raquo;&raquo;</span></a></li>{% else %}<li class="page-item disabled"><span class="page-link">Próxima</span></li><li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>{% endif %}
-           </ul>
-           {% endif %}
-       </nav>
+            <!-- Paginação -->
+            {% if is_paginated %}
+            <nav aria-label="Navegação de páginas" class="fade-in fade-in-delay-3">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}{% if request.GET.tipo_profissional %}&tipo_profissional={{ request.GET.tipo_profissional }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}{% if request.GET.tipo_profissional %}&tipo_profissional={{ request.GET.tipo_profissional }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
 
-    {% else %}
-         {% if search_query or selected_specialty_ids %}
-              <div class="alert alert-warning mt-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i>Nenhum profissional de saúde encontrado. Tente refinar sua busca ou filtros.</div>
-         {% else %}
-              <div class="alert alert-info mt-4" role="alert"><i class="bi bi-info-circle-fill me-2"></i>Nenhum profissional de saúde cadastrado no momento.</div>
-         {% endif %}
-    {% endif %}
-</div>
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}{% if request.GET.tipo_profissional %}&tipo_profissional={{ request.GET.tipo_profissional }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}{% if request.GET.tipo_profissional %}&tipo_profissional={{ request.GET.tipo_profissional }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <!-- Estado vazio -->
+            <div class="empty-state fade-in fade-in-delay-2">
+                <i class="bi bi-search"></i>
+                <h3>Nenhum profissional encontrado</h3>
+                <p>
+                    {% if request.GET %}
+                        Não encontramos profissionais com os filtros selecionados.
+                    {% else %}
+                        Ainda não temos profissionais cadastrados na plataforma.
+                    {% endif %}
+                </p>
+                {% if request.GET %}
+                    <a href="{% url 'contas:lista_profissionais' %}" class="btn-modern btn-primary-modern">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Ver Todos os Profissionais
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+// Animações de entrada ao scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+});
+</script>
+
 {% endblock %}
