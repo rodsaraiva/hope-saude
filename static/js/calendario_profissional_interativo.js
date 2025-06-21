@@ -99,11 +99,40 @@ document.addEventListener('DOMContentLoaded', function() {
             nowIndicator: true, expandRows: true, handleWindowResize: true, height: 'auto',
             navLinks: true, editable: true, selectable: true, selectMirror: true, unselectAuto: true,
             selectOverlap: function(eventExisting) { return eventExisting.display === 'background'; },
-            events: calendarEvents,
+            events: function(info, successCallback, failureCallback) {
+                // Função para carregar eventos dinamicamente
+                fetch(window.location.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        // Extrair os dados do HTML retornado
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const eventsDataElement = doc.getElementById('calendar-events-data');
+                        
+                        if (eventsDataElement) {
+                            try {
+                                const parsedData = JSON.parse(eventsDataElement.textContent);
+                                if (Array.isArray(parsedData)) {
+                                    successCallback(parsedData);
+                                } else {
+                                    successCallback([]);
+                                }
+                            } catch (e) {
+                                console.error("Erro ao processar eventos:", e);
+                                successCallback([]);
+                            }
+                        } else {
+                            successCallback([]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erro ao carregar eventos:", error);
+                        failureCallback(error);
+                    });
+            },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             eventDidMount: function(info) { if (info.event.title && info.el) { info.el.setAttribute('title', info.event.title); } },
             select: function(selectionInfo) {
-                alert("CALLBACK SELECT ACIONADO!"); // DEBUG COM ALERTA
                 console.log('DEBUG (JS File): Período selecionado (select):', selectionInfo.start.toISOString(), 'a', selectionInfo.end.toISOString());
                 if (!dispAvulsaModalInstance) {console.error("DEBUG (JS File): dispAvulsaModalInstance não definida no callback select!"); return;}
                 document.getElementById('dispAvulsaModalAlertPlaceholder').innerHTML = ''; 
@@ -116,9 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (calendarInstance) { calendarInstance.unselect(); }
             },
             eventClick: function(info) {
-                alert("CALLBACK EVENTCLICK ACIONADO!"); // DEBUG COM ALERTA
                 console.log('DEBUG (JS File): Evento clicado:', info.event.title, info.event.extendedProps);
-                // ... (resto da lógica do eventClick como na Resposta #151) ...
                 document.getElementById('alertPlaceholderGlobal').innerHTML = ''; 
                 const eventType = info.event.extendedProps.tipo;
                 let originalId = info.event.extendedProps.id_original;
@@ -154,8 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (salvarDispAvulsaBtn) {
             console.log("DEBUG (JS File): Botão 'salvarDispAvulsaBtn' ENCONTRADO. Anexando listener.");
             salvarDispAvulsaBtn.addEventListener('click', function() {
-                alert("Botão SALVAR DISP AVULSA (modal) CLICADO!"); // ALERTA DE TESTE
                 console.log("DEBUG (JS File): Botão 'salvarDispAvulsaBtn' CLICADO!");
+                
+                // Mostrar indicador de carregamento
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+                this.disabled = true;
+                
                 const startTimeStr = document.getElementById('dispAvulsaModalStartTimeISO').value;
                 const endTimeStr = document.getElementById('dispAvulsaModalEndTimeISO').value;
                 const payload = { data_hora_inicio_especifica: startTimeStr, data_hora_fim_especifica: endTimeStr };
@@ -173,10 +205,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     console.log("DEBUG (JS File): Dados API (salvarDispAvulsaBtn) sucesso:", data);
-                    if(data.status==='success'){ showAlert(data.message||"Disponibilidade adicionada!", "success", "alertPlaceholderGlobal", false); if(calendarInstance)calendarInstance.refetchEvents(); if(dispAvulsaModalInstance)dispAvulsaModalInstance.hide();}
-                    else{showAlert('Erro: '+ (data.message || 'Desconhecido'), "danger", "dispAvulsaModalAlertPlaceholder");}
+                    if(data.status==='success'){
+                        showAlert(data.message||"Disponibilidade adicionada com sucesso!", "success", "alertPlaceholderGlobal", false);
+                        if(calendarInstance) {
+                            calendarInstance.refetchEvents();
+                        }
+                        if(dispAvulsaModalInstance) {
+                            dispAvulsaModalInstance.hide();
+                        }
+                    } else {
+                        showAlert('Erro: '+ (data.message || 'Desconhecido'), "danger", "dispAvulsaModalAlertPlaceholder");
+                    }
                 })
-                .catch(e => {console.error('Erro AJAX (salvarDispAvulsaBtn):',e); showAlert('Erro: '+e.message, "danger", "dispAvulsaModalAlertPlaceholder");});
+                .catch(e => {
+                    console.error('Erro AJAX (salvarDispAvulsaBtn):',e); 
+                    showAlert('Erro: '+e.message, "danger", "dispAvulsaModalAlertPlaceholder");
+                })
+                .finally(() => {
+                    // Restaurar botão
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
             });
             console.log("DEBUG (JS File): Listener para 'salvarDispAvulsaBtn' ANEXADO.");
         } else { console.error("DEBUG (JS File): Botão 'salvarDispAvulsaBtn' NÃO encontrado!");}
@@ -186,13 +235,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (salvarEdicaoDispEspecificaBtn) {
             console.log("DEBUG (JS File): Botão 'salvarEdicaoDispEspecificaBtn' ENCONTRADO. Anexando listener.");
             salvarEdicaoDispEspecificaBtn.addEventListener('click', function() {
-                alert("Botão SALVAR EDIÇÃO DISP ESPECÍFICA (modal) CLICADO!"); // ALERTA DE TESTE
                 console.log("DEBUG (JS File): Botão 'salvarEdicaoDispEspecificaBtn' CLICADO!");
+                
+                // Mostrar indicador de carregamento
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+                this.disabled = true;
+                
                 const regraId = document.getElementById('editarDispEspecificaId').value;
                 const startTimeFormValue = document.getElementById('editarDispEspecificaStartTime').value;
                 const endTimeFormValue = document.getElementById('editarDispEspecificaEndTime').value;
                 document.getElementById('editarDispEspecificaModalAlertPlaceholder').innerHTML = '';
-                if (!regraId || !startTimeFormValue || !endTimeFormValue) { showAlert("ID, início e fim são obrigatórios.", "warning", "editarDispEspecificaModalAlertPlaceholder"); return; }
+                if (!regraId || !startTimeFormValue || !endTimeFormValue) { 
+                    showAlert("ID, início e fim são obrigatórios.", "warning", "editarDispEspecificaModalAlertPlaceholder"); 
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    return; 
+                }
                 const startTimeISO = new Date(startTimeFormValue).toISOString();
                 const endTimeISO = new Date(endTimeFormValue).toISOString();
                 if (!urlApiEditarRegraBase) { console.error("URL base para editar regra não definida!"); return;}
@@ -203,8 +262,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ data_hora_inicio_especifica: startTimeISO, data_hora_fim_especifica: endTimeISO })
                 })
                 .then(r => { console.log("DEBUG (JS File): Resposta API (Editar) status:", r.status); if(!r.ok){return r.json().then(eD => {throw new Error(eD.message||'Erro servidor')})} return r.json()})
-                .then(d => { console.log("DEBUG (JS File): Dados API (Editar) sucesso:", d); if(d.status==='success'){ showAlert(d.message||"Atualizado!", "success", "alertPlaceholderGlobal",false); if(calendarInstance)calendarInstance.refetchEvents(); if(editarDispEspecificaModalInstance)editarDispEspecificaModalInstance.hide();}else{showAlert('Erro: '+d.message, "danger", "editarDispEspecificaModalAlertPlaceholder");}})
-                .catch(e => {console.error('Erro AJAX Editar Disp Específica:',e); showAlert('Erro: '+e.message, "danger", "editarDispEspecificaModalAlertPlaceholder");});
+                .then(d => { 
+                    console.log("DEBUG (JS File): Dados API (Editar) sucesso:", d); 
+                    if(d.status==='success'){ 
+                        showAlert(d.message||"Disponibilidade atualizada com sucesso!", "success", "alertPlaceholderGlobal", false); 
+                        if(calendarInstance) {
+                            calendarInstance.refetchEvents();
+                        }
+                        if(editarDispEspecificaModalInstance) {
+                            editarDispEspecificaModalInstance.hide();
+                        }
+                    } else {
+                        showAlert('Erro: '+d.message, "danger", "editarDispEspecificaModalAlertPlaceholder");
+                    }
+                })
+                .catch(e => {
+                    console.error('Erro AJAX Editar Disp Específica:',e); 
+                    showAlert('Erro: '+e.message, "danger", "editarDispEspecificaModalAlertPlaceholder");
+                })
+                .finally(() => {
+                    // Restaurar botão
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
             });
             console.log("DEBUG (JS File): Listener para 'salvarEdicaoDispEspecificaBtn' ANEXADO.");
         } else { console.error("DEBUG (JS File): Botão 'salvarEdicaoDispEspecificaBtn' NÃO encontrado!");}
@@ -214,9 +294,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (excluirDispEspecificaDoModalBtn) {
             console.log("DEBUG (JS File): Botão 'excluirDispEspecificaDoModalBtn' ENCONTRADO. Anexando listener.");
             excluirDispEspecificaDoModalBtn.addEventListener('click', function() {
-                alert("Botão EXCLUIR DISP ESPECÍFICA (modal) CLICADO!"); // ALERTA DE TESTE
                 console.log("DEBUG (JS File): Botão 'excluirDispEspecificaDoModalBtn' CLICADO!");
-                // ... (lógica AJAX para excluir como na Resposta #151) ...
+                
                 const idsJson = document.getElementById('editarDispEspecificaAgrupadaIds').value;
                 document.getElementById('editarDispEspecificaModalAlertPlaceholder').innerHTML = '';
                 if (!idsJson) { showAlert("IDs não encontrados.", "danger", "editarDispEspecificaModalAlertPlaceholder"); return; }
@@ -226,6 +305,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!Array.isArray(idsParaExcluir) || idsParaExcluir.length === 0) { showAlert("Nenhuma disp. para exclusão.", "warning", "editarDispEspecificaModalAlertPlaceholder"); return; }
                 const confirmMessage = idsParaExcluir.length > 1 ? `Excluir este bloco (afeta ${idsParaExcluir.length} regras)?` : `Excluir esta disponibilidade?`;
                 if (confirm(confirmMessage)) {
+                    // Mostrar indicador de carregamento
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Excluindo...';
+                    this.disabled = true;
+                    
                     if(!urlApiExcluirRegrasLista) { console.error("URL para excluir lista não definida!"); return; }
                     const apiUrl = urlApiExcluirRegrasLista; 
                     console.log("DEBUG (JS File): Enviando para API (Excluir Lista):", apiUrl, {ids: idsParaExcluir});
@@ -234,8 +318,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: JSON.stringify({ ids: idsParaExcluir })
                     })
                     .then(r => {if(!r.ok){return r.json().then(eD => {throw new Error(eD.message||'Erro servidor')})} return r.json()})
-                    .then(d => { if(d.status==='success'){ showAlert(d.message||"Excluído(s)!", "success", "alertPlaceholderGlobal", false); if(calendarInstance) calendarInstance.refetchEvents(); if(editarDispEspecificaModalInstance) editarDispEspecificaModalInstance.hide(); }else{showAlert('Erro: '+d.message,"danger", "editarDispEspecificaModalAlertPlaceholder");}})
-                    .catch(e => {console.error('Erro AJAX Excluir Grupo Disp Específica:',e); showAlert('Erro: '+e.message, "danger", "editarDispEspecificaModalAlertPlaceholder");});
+                    .then(d => { 
+                        if(d.status==='success'){ 
+                            showAlert(d.message||"Disponibilidade excluída com sucesso!", "success", "alertPlaceholderGlobal", false); 
+                            if(calendarInstance) {
+                                calendarInstance.refetchEvents();
+                            }
+                            if(editarDispEspecificaModalInstance) {
+                                editarDispEspecificaModalInstance.hide();
+                            }
+                        } else {
+                            showAlert('Erro: '+d.message,"danger", "editarDispEspecificaModalAlertPlaceholder");
+                        }
+                    })
+                    .catch(e => {
+                        console.error('Erro AJAX Excluir Grupo Disp Específica:',e); 
+                        showAlert('Erro: '+e.message, "danger", "editarDispEspecificaModalAlertPlaceholder");
+                    })
+                    .finally(() => {
+                        // Restaurar botão
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    });
                 }
             });
             console.log("DEBUG (JS File): Listener para 'excluirDispEspecificaDoModalBtn' ANEXADO.");
