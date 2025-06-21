@@ -131,7 +131,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            eventDidMount: function(info) { if (info.event.title && info.el) { info.el.setAttribute('title', info.event.title); } },
+            eventDidMount: function(info) { 
+                if (info.event.title && info.el) { 
+                    info.el.setAttribute('title', info.event.title); 
+                }
+                
+                // Aplicar atributos de dados para estilização CSS
+                if (info.event.extendedProps && info.event.extendedProps.tipo) {
+                    info.el.setAttribute('data-event-type', info.event.extendedProps.tipo);
+                }
+                
+                if (info.event.extendedProps && info.event.extendedProps.status) {
+                    info.el.setAttribute('data-status', info.event.extendedProps.status);
+                }
+                
+                // Adicionar classes CSS específicas baseadas no tipo de evento
+                if (info.event.extendedProps && info.event.extendedProps.tipo) {
+                    const eventType = info.event.extendedProps.tipo;
+                    if (eventType === 'disponibilidade_semanal' || 
+                        eventType === 'disponibilidade_especifica' || 
+                        eventType === 'disponibilidade_especifica_agrupada') {
+                        info.el.classList.add('fc-event-disponibilidade');
+                    } else if (eventType === 'agendamento') {
+                        info.el.classList.add('fc-event-agendamento');
+                    }
+                }
+            },
             select: function(selectionInfo) {
                 console.log('DEBUG (JS File): Período selecionado (select):', selectionInfo.start.toISOString(), 'a', selectionInfo.end.toISOString());
                 if (!dispAvulsaModalInstance) {console.error("DEBUG (JS File): dispAvulsaModalInstance não definida no callback select!"); return;}
