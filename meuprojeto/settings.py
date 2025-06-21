@@ -199,10 +199,26 @@ try:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     # Tentar criar a pasta se não existir
     os.makedirs(MEDIA_ROOT, exist_ok=True)
-except Exception:
-    # Se não conseguir, usar pasta temporária
+
+    # Criar pastas de mídia se não existirem
+    media_directories = [
+        MEDIA_ROOT,
+        os.path.join(MEDIA_ROOT, 'documentos'),
+        os.path.join(MEDIA_ROOT, 'fotos_perfil'),
+        os.path.join(MEDIA_ROOT, 'fotos_perfil', 'profissionais'),
+        os.path.join(MEDIA_ROOT, 'fotos_perfil', 'pacientes'),
+    ]
+    
+    for directory in media_directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory, mode=0o755, exist_ok=True)
+            print(f"Pasta de mídia criada: {directory}")
+except Exception as e:
+    print(f"Erro ao criar pastas de mídia: {e}")
+    # Fallback para pasta temporária se não conseguir criar
+    import tempfile
     MEDIA_ROOT = tempfile.mkdtemp()
-    print(f"WARNING: Using temporary directory for media: {MEDIA_ROOT}")
+    print(f"Usando pasta temporária para mídia: {MEDIA_ROOT}")
 
 # Garantir que a pasta media seja criada se não existir
 if not os.path.exists(MEDIA_ROOT):

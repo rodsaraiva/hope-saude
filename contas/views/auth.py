@@ -10,7 +10,7 @@ from django.conf import settings
 
 from ..forms import RegistroUsuarioForm, RegistroProfissionalForm, PerfilProfissionalForm, PerfilPacienteForm
 from ..models import PerfilProfissional, PerfilPaciente
-from .utils import get_user_profile
+from .utils import get_user_profile, ensure_media_directories
 
 
 def index(request):
@@ -57,29 +57,25 @@ def registro_profissional(request):
         messages.error(request, 'Acesso negado. Esta página é apenas para profissionais.')
         return redirect('contas:meu_perfil')
     
-    # Criar pasta media se não existir
-    try:
-        media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
-        documentos_dir = os.path.join(media_root, 'documentos')
-        os.makedirs(documentos_dir, exist_ok=True)
-    except Exception as e:
-        print(f"Erro ao criar pasta media: {e}")
-        # Se não conseguir criar, usar pasta temporária
-        import tempfile
-        temp_dir = tempfile.mkdtemp()
-        os.environ['DJANGO_MEDIA_ROOT'] = temp_dir
-        print(f"Usando pasta temporária: {temp_dir}")
+    # Garantir que as pastas de mídia existam
+    ensure_media_directories()
     
     if request.method == 'POST':
         form = RegistroProfissionalForm(request.POST, request.FILES, instance=request.user.perfil_profissional)
         if form.is_valid():
             try:
+                # Verificar se há arquivo sendo enviado
+                if 'documento_registro' in request.FILES:
+                    print(f"Arquivo recebido: {request.FILES['documento_registro'].name}")
+                    
                 form.save()
                 messages.success(request, 'Cadastro profissional completado com sucesso!')
                 return redirect('contas:meu_perfil')
             except Exception as e:
+                print(f"Erro ao salvar: {e}")
                 messages.error(request, f'Erro ao salvar o cadastro: {str(e)}')
         else:
+            print(f"Formulário inválido: {form.errors}")
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = RegistroProfissionalForm(instance=request.user.perfil_profissional)

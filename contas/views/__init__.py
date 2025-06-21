@@ -57,6 +57,7 @@ from .utils import (
     validate_agendamento_permission,
     api_success_response,
     api_error_response,
+    ensure_media_directories,
 )
 
 __all__ = [
@@ -101,4 +102,5 @@ __all__ = [
     'validate_agendamento_permission',
     'api_success_response',
     'api_error_response',
+    'ensure_media_directories',
 ] 

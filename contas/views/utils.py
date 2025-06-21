@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+import os
 
 
 def get_user_profile(user):
@@ -22,6 +23,36 @@ def validate_agendamento_permission(user, agendamento):
     is_paciente = hasattr(user, 'perfil_paciente') and agendamento.paciente == user.perfil_paciente
     is_profissional = hasattr(user, 'perfil_profissional') and agendamento.profissional == user.perfil_profissional
     return is_paciente or is_profissional
+
+
+def ensure_media_directories():
+    """
+    Garante que as pastas de mídia necessárias existam.
+    """
+    try:
+        from django.conf import settings
+        media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
+        
+        # Lista de pastas que precisam existir
+        directories = [
+            media_root,
+            os.path.join(media_root, 'documentos'),
+            os.path.join(media_root, 'fotos_perfil'),
+            os.path.join(media_root, 'fotos_perfil', 'profissionais'),
+            os.path.join(media_root, 'fotos_perfil', 'pacientes'),
+        ]
+        
+        for directory in directories:
+            if not os.path.exists(directory):
+                os.makedirs(directory, mode=0o755, exist_ok=True)
+                print(f"Pasta criada: {directory}")
+            else:
+                print(f"Pasta já existe: {directory}")
+                
+        return True
+    except Exception as e:
+        print(f"Erro ao criar pastas de mídia: {e}")
+        return False
 
 
 def api_success_response(data=None, status_code=200):
