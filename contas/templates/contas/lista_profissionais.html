@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container mt-4 mb-5">
     <h1 class="display-5 fw-bold mb-4 text-center" style="color: var(--hope-titulos-principais);">Encontre o Profissional de Saúde Ideal para Você</h1>
-    <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principal);">Utilize nossos filtros para encontrar médicos, psicólogos e psiquiatras que melhor se adequam às suas necessidades de saúde.</p>
+    <p class="lead text-center col-md-8 mx-auto mb-5" style="color: var(--hope-texto-principais);">Utilize nossos filtros para encontrar médicos que melhor se adequam às suas necessidades de saúde.</p>
 
     {# Formulário de Busca e Filtro (mantido como na Resposta #161) #}
     <form method="get" action="{% url 'contas:lista_profissionais' %}" class="mb-5 p-4 form-filtro-profissionais shadow-soft">
@@ -46,9 +46,9 @@
     </form>
 
     {% if search_query or selected_specialty_ids %}
-        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Resultados da sua busca:</h2>
+        <h2 class="h4 mb-4" style="color: var(--hope-texto-principais);">Resultados da sua busca:</h2>
     {% else %}
-        <h2 class="h4 mb-4" style="color: var(--hope-texto-principal);">Conheça Nossos Profissionais de Saúde:</h2>
+        <h2 class="h4 mb-4" style="color: var(--hope-texto-principais);">Conheça Nossos Profissionais de Saúde:</h2>
     {% endif %}
 
     {% if page_obj %}
