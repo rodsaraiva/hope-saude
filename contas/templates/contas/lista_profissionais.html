@@ -131,6 +131,13 @@
         outline: none;
     }
 
+    /* Lista de profissionais em grid */
+    .professionals-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
     /* Cards de profissionais */
     .professional-card {
         background: white;
@@ -331,7 +338,17 @@
     .fade-in-delay-3 { animation-delay: 0.6s; }
 
     /* Responsividade */
+    @media (max-width: 992px) {
+        .professionals-list {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @media (max-width: 768px) {
+        .professionals-list {
+            grid-template-columns: 1fr;
+        }
+        
         .container-modern {
             padding: 0 1rem;
         }
