@@ -185,21 +185,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_production')
 # Configuração para Whitenoise (apenas esta linha)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- CONFIGURAÇÕES DE MÍDIA SIMPLES E EFETIVAS ---
+# --- CONFIGURAÇÕES DE MÍDIA FORÇADAS ---
 # URL base para servir os arquivos de mídia enviados pelos usuários
 MEDIA_URL = '/media/'
 
-# Solução direta: usar um diretório que sabemos que funciona
-if DEBUG:
-    # Em desenvolvimento, usa o diretório local
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    print(f"📁 Desenvolvimento: usando diretório local: {MEDIA_ROOT}")
-else:
-    # Em produção, força o uso de um diretório que funciona
-    import tempfile
-    MEDIA_ROOT = os.path.join(tempfile.gettempdir(), 'hope_saude_media')
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
-    print(f"📁 Produção: usando diretório temporário: {MEDIA_ROOT}")
+# Força o uso de um diretório que funciona independentemente do ambiente
+import tempfile
+MEDIA_ROOT = os.path.join(tempfile.gettempdir(), 'hope_saude_media')
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+print(f"📁 Usando diretório garantido: {MEDIA_ROOT}")
 
 # Configuração de storage para arquivos de mídia
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
