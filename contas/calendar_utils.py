@@ -118,7 +118,7 @@ def gerar_slots_disponiveis_para_paciente(perfil_profissional, hoje, dias_a_most
     fim_busca_geral_agendamentos = timezone.make_aware(datetime.combine(data_fim_periodo_calendario, time.max), tz_padrao)
 
     regras_disponibilidade_prof = perfil_profissional.regras_disponibilidade.all()
-    agendamentos_existentes = Agendamento.objects.filter(
+    agendamentos_existentes = Agendamento.objects.filter(  # type: ignore[attr-defined]
         profissional=perfil_profissional,
         data_hora__gte=agora, 
         data_hora__lt=fim_busca_geral_agendamentos,
@@ -196,7 +196,7 @@ def gerar_blocos_disponiveis_para_paciente(perfil_profissional, dias_a_mostrar=7
     fim_busca_geral_agendamentos = timezone.make_aware(datetime.combine(data_fim_periodo_calendario, time.max), tz_padrao)
 
     regras_disponibilidade_prof = perfil_profissional.regras_disponibilidade.all()
-    agendamentos_existentes_objs = Agendamento.objects.filter(
+    agendamentos_existentes_objs = Agendamento.objects.filter(  # type: ignore[attr-defined]
         profissional=perfil_profissional,
         data_hora__gte=agora,
         data_hora__lt=fim_busca_geral_agendamentos,

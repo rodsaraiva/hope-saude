@@ -2,7 +2,7 @@
 
 from django.urls import path
 from . import views
-from .views.api import api_disponibilidade_profissional
+from .views.api import api_disponibilidade_profissional, api_duracoes_profissional
 
 app_name = 'contas'
 
@@ -35,4 +35,5 @@ urlpatterns = [
     path('api/regras-disponibilidade/editar/<int:regra_id>/', views.api_editar_regra_disponibilidade, name='api_editar_regra_disponibilidade'),
     path('api/agendamentos/<int:agendamento_id>/obter-sala-video/', views.api_obter_ou_criar_sala_video, name='api_obter_ou_criar_sala_video'),
     path('api/profissional/<int:profissional_id>/disponibilidade/', api_disponibilidade_profissional, name='api_disponibilidade_profissional'),
+    path('api/profissional/<int:profissional_id>/duracoes/', api_duracoes_profissional, name='api_duracoes_profissional'),
 ]

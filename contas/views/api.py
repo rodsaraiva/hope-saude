@@ -10,7 +10,7 @@ import json
 from dateutil import parser
 from django.http import JsonResponse
 from ..calendar_utils import gerar_blocos_disponiveis_para_paciente
-from ..models import PerfilProfissional
+from ..models import PerfilProfissional, ConsultaProfissionalDuracao
 
 from ..models import RegraDisponibilidade, Agendamento, Avaliacao
 from .utils import api_success_response, api_error_response, validate_agendamento_permission
@@ -314,4 +314,23 @@ def api_disponibilidade_profissional(request, profissional_id):
         dias_a_mostrar=14,  # aumentar o range para garantir que todas as disponibilidades apareçam
         duracao_consulta_timedelta=duracao_consulta
     )
-    return JsonResponse(calendar_events, safe=False) 
+    return JsonResponse(calendar_events, safe=False)
+
+
+@require_GET
+def api_duracoes_profissional(request, profissional_id):
+    try:
+        profissional = PerfilProfissional.objects.get(pk=profissional_id)  # type: ignore[attr-defined]
+    except PerfilProfissional.DoesNotExist:  # type: ignore[attr-defined]
+        return JsonResponse({'error': 'Profissional não encontrado.'}, status=404)
+    duracoes = ConsultaProfissionalDuracao.objects.filter(profissional=profissional).order_by('duracao_minutos')  # type: ignore[attr-defined]
+    data = [
+        {
+            'id': d.id,
+            'duracao_minutos': d.duracao_minutos,
+            'duracao_label': d.get_duracao_minutos_display(),
+            'preco': str(d.preco)
+        }
+        for d in duracoes
+    ]
+    return JsonResponse(data, safe=False) 
