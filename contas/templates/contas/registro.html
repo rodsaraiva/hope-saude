@@ -49,9 +49,11 @@
 
     /* Container moderno */
     .container-modern {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 0;
     }
 
     /* Seção principal */
@@ -59,6 +61,7 @@
         min-height: 100vh;
         display: flex;
         align-items: center;
+        justify-content: center;
         background: var(--hope-gradient-soft);
         padding: 2rem 0;
     }
@@ -71,6 +74,9 @@
         overflow: hidden;
         border: none;
         transition: all 0.3s ease;
+        max-width: 500px;
+        width: 100%;
+        margin: 48px auto;
     }
 
     .card-modern:hover {
@@ -228,13 +234,15 @@
     /* Responsividade */
     @media (max-width: 768px) {
         .container-modern {
-            padding: 0 1rem;
+            padding: 0 0.5rem;
         }
-
+        .card-modern {
+            max-width: 98vw;
+            margin: 24px auto;
+        }
         .card-body-modern {
             padding: 2rem 1.5rem;
         }
-
         .card-header-modern {
             padding: 1.5rem;
         }
@@ -246,118 +254,114 @@
 
 <section class="main-section">
     <div class="container-modern">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-7 col-xl-6">
-                <div class="card-modern fade-in">
-                    <div class="card-header-modern">
-                        <h1>
-                            <i class="bi bi-person-plus-fill me-2"></i>Crie sua Conta Hope Saúde
-                        </h1>
-                        <p>Conecte-se com profissionais de saúde qualificados</p>
+        <div class="card-modern fade-in">
+            <div class="card-header-modern">
+                <h1>
+                    <i class="bi bi-person-plus-fill me-2"></i>Crie sua Conta Hope Saúde
+                </h1>
+                <p>Conecte-se com profissionais de saúde qualificados</p>
+            </div>
+            <div class="card-body-modern">
+                {% if form.errors and not form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Por favor, corrija os erros nos campos abaixo.
                     </div>
-                    <div class="card-body-modern">
-                        {% if form.errors and not form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                Por favor, corrija os erros nos campos abaixo.
-                            </div>
-                        {% endif %}
-                        {% if form.non_field_errors %}
-                            {% for error in form.non_field_errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                {% endif %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            <!-- Username -->
-                            <div class="mb-4">
-                                <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
-                                {{ form.username }}
-                                {% if form.username.help_text %}<small class="form-text">{{ form.username.help_text }}</small>{% endif %}
-                                {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            </div>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% if form.username.help_text %}<small class="form-text">{{ form.username.help_text }}</small>{% endif %}
+                        {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
 
-                            <!-- Nome e Sobrenome -->
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
-                                    {{ form.first_name }}
-                                    {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
-                                    {{ form.last_name }}
-                                    {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                                </div>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="mb-4">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
-                                {{ form.email }}
-                                {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            </div>
-
-                            <!-- Senha -->
-                            <div class="mb-4">
-                                <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
-                                {{ form.password1 }}
-                                {% if form.password1.help_text %}<small class="form-text">{{ form.password1.help_text }}</small>{% endif %}
-                                {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            </div>
-
-                            <!-- Confirmar Senha -->
-                            <div class="mb-4">
-                                <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
-                                {{ form.password2 }}
-                                {% if form.password2.help_text %}<small class="form-text">{{ form.password2.help_text }}</small>{% endif %}
-                                {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            </div>
-                            
-                            <!-- Tipo de Conta -->
-                            <div class="mb-4">
-                                <label class="form-label d-block">{{ form.tipo_conta.label }}</label>
-                                <div class="row">
-                                    {% for radio in form.tipo_conta %}
-                                        <div class="col-md-6 mb-2">
-                                            <div class="form-check">
-                                                {{ radio.tag }}
-                                                <label for="{{ radio.id_for_label }}" class="form-check-label">
-                                                    {% if radio.choice_label == 'Paciente' %}
-                                                        <i class="bi bi-person-heart me-2"></i>
-                                                    {% else %}
-                                                        <i class="bi bi-person-badge me-2"></i>
-                                                    {% endif %}
-                                                    {{ radio.choice_label }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                                {% for error in form.tipo_conta.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                                <small class="form-text">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Profissionais incluem médicos registrados
-                                </small>
-                            </div>
-                            
-                            <!-- Botão de Submit -->
-                            <div class="d-grid">
-                                <button type="submit" class="btn-modern btn-primary-modern">
-                                    <i class="bi bi-person-plus"></i>
-                                    Criar Conta
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <hr class="my-4">
-                        <div class="text-center">
-                            <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: var(--hope-azul-sereno);">Faça login</a></p>
+                    <!-- Nome e Sobrenome -->
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- Senha -->
+                    <div class="mb-4">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
+                        {{ form.password1 }}
+                        {% if form.password1.help_text %}<small class="form-text">{{ form.password1.help_text }}</small>{% endif %}
+                        {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- Confirmar Senha -->
+                    <div class="mb-4">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+                        {{ form.password2 }}
+                        {% if form.password2.help_text %}<small class="form-text">{{ form.password2.help_text }}</small>{% endif %}
+                        {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    
+                    <!-- Tipo de Conta -->
+                    <div class="mb-4">
+                        <label class="form-label d-block">{{ form.tipo_conta.label }}</label>
+                        <div class="row">
+                            {% for radio in form.tipo_conta %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ radio.tag }}
+                                        <label for="{{ radio.id_for_label }}" class="form-check-label">
+                                            {% if radio.choice_label == 'Paciente' %}
+                                                <i class="bi bi-person-heart me-2"></i>
+                                            {% else %}
+                                                <i class="bi bi-person-badge me-2"></i>
+                                            {% endif %}
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% for error in form.tipo_conta.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Profissionais incluem médicos registrados
+                        </small>
+                    </div>
+                    
+                    <!-- Botão de Submit -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn-modern btn-primary-modern">
+                            <i class="bi bi-person-plus"></i>
+                            Criar Conta
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                <div class="text-center">
+                    <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: var(--hope-azul-sereno);">Faça login</a></p>
                 </div>
             </div>
         </div>
