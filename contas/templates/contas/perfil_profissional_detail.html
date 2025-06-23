@@ -381,10 +381,11 @@
                         <!-- Botões de Ação -->
                         <div class="d-flex gap-3 justify-content-center mt-4 fade-in fade-in-delay-3">
                             {% if request.user.is_authenticated and request.user.perfil_paciente %}
-                                <a href="{% url 'contas:agendar_consulta' perfil.id %}" class="btn-modern btn-primary-modern">
+                                <button class="btn-modern btn-primary-modern" disabled title="Escolha um horário disponível para agendar">
                                     <i class="bi bi-calendar-plus"></i>
                                     Agendar Consulta
-                                </a>
+                                </button>
+                                {# Quando implementar a escolha de horário, troque por um link para a página de seleção de horário #}
                             {% elif not request.user.is_authenticated %}
                                 <div class="alert alert-info mt-3" role="alert"><i class="bi bi-box-arrow-in-right me-1"></i> <a href="{% url 'login' %}?next={{ request.path }}" class="alert-link link-hope">Faça login como paciente</a> para solicitar um agendamento.</div>
                             {% endif %}
