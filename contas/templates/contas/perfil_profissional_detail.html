@@ -292,8 +292,8 @@
 
 <section class="main-section">
     <div class="container-modern">
-        <div class="row">
-            <div class="col-lg-8">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
                 <!-- Card Principal do Profissional -->
                 <div class="card-modern fade-in">
                     <div class="card-header-modern">
@@ -471,30 +471,6 @@
                 </div>
                 {% endif %}
             </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <div class="card-modern fade-in fade-in-delay-2">
-                    <div class="card-body-modern">
-                        <h3>
-                            <i class="bi bi-clock me-2"></i>
-                            Próximas Consultas
-                        </h3>
-                        {% if proximas_consultas %}
-                            {% for consulta in proximas_consultas %}
-                            <div class="info-item mb-3">
-                                <div class="info-label">Data e Hora</div>
-                                <div class="info-value">{{ consulta.data_hora|date:"d/m/Y H:i" }}</div>
-                                <div class="info-label mt-2">Paciente</div>
-                                <div class="info-value">{{ consulta.paciente.user.get_full_name }}</div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted">Nenhuma consulta agendada.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
@@ -504,9 +480,9 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 {% if request.user.is_authenticated and request.user.perfil_paciente %}
-    <script>const isPaciente = true;</script>
+    <script>var isPaciente = true;</script>
 {% else %}
-    <script>const isPaciente = false;</script>
+    <script>var isPaciente = false;</script>
 {% endif %}
 
 <script>

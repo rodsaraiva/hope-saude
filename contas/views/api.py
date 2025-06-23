@@ -311,6 +311,7 @@ def api_disponibilidade_profissional(request, profissional_id):
     duracao_consulta = timedelta(hours=1)
     calendar_events = gerar_blocos_disponiveis_para_paciente(
         perfil_profissional=perfil,
+        dias_a_mostrar=14,  # aumentar o range para garantir que todas as disponibilidades apareçam
         duracao_consulta_timedelta=duracao_consulta
     )
     return JsonResponse(calendar_events, safe=False) 
