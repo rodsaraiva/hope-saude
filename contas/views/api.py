@@ -2,12 +2,15 @@
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
 import json
 from dateutil import parser
+from django.http import JsonResponse
+from ..calendar_utils import gerar_blocos_disponiveis_para_paciente
+from ..models import PerfilProfissional
 
 from ..models import RegraDisponibilidade, Agendamento, Avaliacao
 from .utils import api_success_response, api_error_response, validate_agendamento_permission
@@ -292,4 +295,22 @@ def api_submeter_avaliacao(request):
 
     except Exception as e:
         print(f"Erro inesperado em api_submeter_avaliacao: {e}")
-        return api_error_response(message="Ocorreu um erro interno.", status_code=500) 
+        return api_error_response(message="Ocorreu um erro interno.", status_code=500)
+
+
+@require_GET
+def api_disponibilidade_profissional(request, profissional_id):
+    """
+    Retorna os horários disponíveis para agendamento de um profissional em formato JSON.
+    """
+    try:
+        perfil = PerfilProfissional.objects.get(pk=profissional_id)  # type: ignore[attr-defined]
+    except PerfilProfissional.DoesNotExist:  # type: ignore[attr-defined]
+        return JsonResponse({'error': 'Profissional não encontrado.'}, status=404)
+
+    duracao_consulta = timedelta(hours=1)
+    calendar_events = gerar_blocos_disponiveis_para_paciente(
+        perfil_profissional=perfil,
+        duracao_consulta_timedelta=duracao_consulta
+    )
+    return JsonResponse(calendar_events, safe=False) 
