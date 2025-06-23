@@ -10,7 +10,7 @@ from django.urls import reverse
 from datetime import timedelta, datetime
 import stripe
 
-from ..models import PerfilProfissional, Agendamento, RegraDisponibilidade
+from ..models import PerfilProfissional, Agendamento, RegraDisponibilidade, ConsultaProfissionalDuracao
 from .utils import validate_agendamento_permission
 
 
@@ -159,6 +159,18 @@ def criar_agendamento(request, profissional_id, timestamp_str):
         messages.error(request, "Este profissional não está aceitando agendamentos pagos no momento.")
         return redirect('contas:perfil_profissional_detail', pk=profissional_id)
 
+    duracao_id = request.GET.get('duracao_id')
+    consulta_duracao = None
+    if duracao_id:
+        try:
+            consulta_duracao = ConsultaProfissionalDuracao.objects.get(pk=duracao_id, profissional=profissional)  # type: ignore[attr-defined]
+        except ConsultaProfissionalDuracao.DoesNotExist:  # type: ignore[attr-defined]
+            messages.error(request, "Duração de consulta inválida.")
+            return redirect('contas:perfil_profissional_detail', pk=profissional_id)
+    else:
+        messages.error(request, "Escolha a duração da consulta.")
+        return redirect('contas:perfil_profissional_detail', pk=profissional_id)
+
     try:
         slot_datetime = datetime.fromisoformat(timestamp_str).astimezone(timezone.get_default_timezone())
     except ValueError:
@@ -179,11 +191,12 @@ def criar_agendamento(request, profissional_id, timestamp_str):
         profissional=profissional,
         data_hora=slot_datetime,
         status='PENDENTE',
-        status_pagamento='PENDENTE'
+        status_pagamento='PENDENTE',
+        consulta_duracao=consulta_duracao
     )
     
     # --- NOVA LÓGICA: dividir/excluir disponibilidade ---
-    slot_fim = slot_datetime + timedelta(hours=1)  # ou use a duração correta
+    slot_fim = slot_datetime + timedelta(minutes=consulta_duracao.duracao_minutos)
     # Busca todas as regras de disponibilidade específicas que abrangem o slot
     regras = RegraDisponibilidade.objects.filter(  # type: ignore[attr-defined]
         profissional=profissional,
@@ -219,7 +232,7 @@ def criar_agendamento(request, profissional_id, timestamp_str):
 
     try:
         # Cria um PaymentIntent no Stripe
-        valor_em_centavos = int(profissional.valor_consulta * 100)
+        valor_em_centavos = int(consulta_duracao.preco * 100)
         
         intent = stripe.PaymentIntent.create(
             amount=valor_em_centavos,

@@ -3,7 +3,7 @@
 from django.contrib import admin
 from .models import (
     PerfilProfissional, PerfilPaciente, Especialidade, Agendamento,
-    RegraDisponibilidade, Avaliacao  # <-- RegraDisponibilidade adicionado
+    RegraDisponibilidade, Avaliacao, ConsultaProfissionalDuracao  # <-- Adicionado
     # Remova Disponibilidade e DisponibilidadeAvulsa dos imports se estiverem aqui
 )
 from django.utils import timezone
@@ -104,3 +104,10 @@ class AvaliacaoAdmin(admin.ModelAdmin):
     # raw_id_fields é útil quando há muitos usuários, para não carregar um dropdown gigante
     raw_id_fields = ('agendamento', 'avaliador', 'avaliado')
     readonly_fields = ('data_criacao',) # Não permite editar a data de criação
+
+@admin.register(ConsultaProfissionalDuracao)
+class ConsultaProfissionalDuracaoAdmin(admin.ModelAdmin):
+    list_display = ('profissional', 'duracao_minutos', 'preco')
+    list_filter = ('profissional', 'duracao_minutos')
+    search_fields = ('profissional__user__username',)
+    raw_id_fields = ('profissional',)

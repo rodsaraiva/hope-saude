@@ -233,6 +233,8 @@ class Agendamento(models.Model):
     atualizado_em = models.DateTimeField(auto_now=True)
     url_videochamada = models.URLField(max_length=500, null=True, blank=True, verbose_name="URL da Videochamada")
     
+    consulta_duracao = models.ForeignKey('ConsultaProfissionalDuracao', on_delete=models.PROTECT, null=True, blank=True, related_name='agendamentos', help_text='Duração e preço escolhidos para esta consulta')
+    
     def __str__(self):
         data_formatada = timezone.localtime(self.data_hora).strftime("%d/%m/%Y %H:%M") if self.data_hora else "[Data não def]"
         return (f"Consulta de {self.paciente.user.username} com "
@@ -356,3 +358,23 @@ class Avaliacao(models.Model):
 
     def __str__(self):
         return f'Avaliação de {self.avaliador.user.username} para {self.avaliado.user.username} (Nota: {self.nota})'
+
+class ConsultaProfissionalDuracao(models.Model):
+    DURACAO_CHOICES = [
+        (30, '30 minutos'),
+        (45, '45 minutos'),
+        (60, '1 hora'),
+        (75, '1h15min'),
+        (90, '1h30min'),
+    ]
+    profissional = models.ForeignKey(PerfilProfissional, on_delete=models.CASCADE, related_name='consultas_duracao')
+    duracao_minutos = models.PositiveIntegerField(choices=DURACAO_CHOICES)
+    preco = models.DecimalField(max_digits=7, decimal_places=2, help_text='Preço para esta duração (R$)')
+
+    class Meta:
+        unique_together = ('profissional', 'duracao_minutos')
+        verbose_name = 'Duração e Preço de Consulta'
+        verbose_name_plural = 'Durações e Preços de Consulta'
+
+    def __str__(self):
+        return f"{self.profissional} - {self.get_duracao_minutos_display()} - R$ {self.preco}"

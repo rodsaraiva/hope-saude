@@ -420,6 +420,11 @@
                       </div>
                       <div class="modal-body">
                         <p id="detalhes-horario"></p>
+                        <div class="mb-3">
+                          <label for="select-duracao" class="form-label">Escolha a duração da consulta:</label>
+                          <select id="select-duracao" class="form-select"></select>
+                        </div>
+                        <div id="preco-duracao" class="fw-bold"></div>
                       </div>
                       <div class="modal-footer">
                         <a id="btn-agendar" href="#" class="btn-modern btn-primary-modern">
@@ -486,7 +491,7 @@
 {% endif %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // ID do profissional vindo do contexto Django
     const profissionalId = {{ perfil.id }};
     const calendarioEl = document.getElementById('calendario-disponibilidade');
@@ -530,10 +535,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const startStr = start.toLocaleString('pt-BR', options);
             const endStr = end ? end.toLocaleString('pt-BR', options) : '';
             document.getElementById('detalhes-horario').innerText = `Você deseja agendar uma consulta em:\n${startStr}${endStr ? ' até ' + endStr : ''}?`;
+            // Buscar opções de duração/preço do profissional
+            let duracoes = [];
+            try {
+                const resp = await fetch(`/api/profissional/${profissionalId}/duracoes/`);
+                if (resp.ok) {
+                    duracoes = await resp.json();
+                }
+            } catch (e) {}
+            // Preenche o select de durações
+            const selectDuracao = document.getElementById('select-duracao');
+            selectDuracao.innerHTML = '';
+            duracoes.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.textContent = `${d.duracao_label} - R$ ${d.preco}`;
+                opt.setAttribute('data-preco', d.preco);
+                selectDuracao.appendChild(opt);
+            });
+            // Atualiza o preço exibido
+            const precoDiv = document.getElementById('preco-duracao');
+            function atualizarPreco() {
+                const opt = selectDuracao.selectedOptions[0];
+                precoDiv.textContent = opt ? `Valor: R$ ${opt.getAttribute('data-preco')}` : '';
+            }
+            selectDuracao.addEventListener('change', atualizarPreco);
+            atualizarPreco();
             // Monta a URL de agendamento
             const timestampStr = start.toISOString();
-            const agendarUrl = `/contas/agendamentos/criar/${profissionalId}/${encodeURIComponent(timestampStr)}/`;
-            document.getElementById('btn-agendar').setAttribute('href', agendarUrl);
+            const duracaoId = selectDuracao.value;
+            document.getElementById('btn-agendar').onclick = function(e) {
+                e.preventDefault();
+                const duracaoId = selectDuracao.value;
+                window.location.href = `/contas/agendamentos/criar/${profissionalId}/${encodeURIComponent(timestampStr)}/?duracao_id=${duracaoId}`;
+            };
             // Abre o modal
             const modal = new bootstrap.Modal(document.getElementById('modalConfirmarAgendamento'));
             modal.show();
