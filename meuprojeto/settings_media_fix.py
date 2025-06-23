@@ -1,3 +1,11 @@
+import os
+from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
+
+# Garante que BASE_DIR e DEBUG estejam definidos
+BASE_DIR = getattr(settings, 'BASE_DIR', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEBUG = getattr(settings, 'DEBUG', False)
+
 # --- CONFIGURAÇÕES DE MÍDIA ROBUSTAS ---
 # URL base para servir os arquivos de mídia enviados pelos usuários
 MEDIA_URL = '/media/'

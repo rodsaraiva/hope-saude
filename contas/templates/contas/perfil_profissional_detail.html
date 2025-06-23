@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         events: async function(fetchInfo, successCallback, failureCallback) {
             // Busca horários disponíveis via AJAX
             try {
-                const resp = await fetch(`/contas/api/profissional/${profissionalId}/disponibilidade/`);
+                const resp = await fetch(`/api/profissional/${profissionalId}/disponibilidade/`);
                 if (!resp.ok) throw new Error('Erro ao buscar horários disponíveis');
                 const data = await resp.json();
                 // Espera que data seja uma lista de eventos no formato FullCalendar
