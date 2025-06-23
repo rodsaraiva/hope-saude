@@ -10,7 +10,7 @@ from django.urls import reverse
 from datetime import timedelta, datetime
 import stripe
 
-from ..models import PerfilProfissional, Agendamento
+from ..models import PerfilProfissional, Agendamento, RegraDisponibilidade
 from .utils import validate_agendamento_permission
 
 
@@ -182,6 +182,41 @@ def criar_agendamento(request, profissional_id, timestamp_str):
         status_pagamento='PENDENTE'
     )
     
+    # --- NOVA LÓGICA: dividir/excluir disponibilidade ---
+    slot_fim = slot_datetime + timedelta(hours=1)  # ou use a duração correta
+    # Busca todas as regras de disponibilidade específicas que abrangem o slot
+    regras = RegraDisponibilidade.objects.filter(  # type: ignore[attr-defined]
+        profissional=profissional,
+        tipo_regra='ESPECIFICA',
+        data_hora_inicio_especifica__lt=slot_fim,
+        data_hora_fim_especifica__gt=slot_datetime
+    )
+    for regra in regras:
+        inicio = regra.data_hora_inicio_especifica
+        fim = regra.data_hora_fim_especifica
+        # Caso 1: o slot ocupa toda a disponibilidade
+        if inicio >= slot_datetime and fim <= slot_fim:
+            regra.delete()
+        # Caso 2: o slot está no meio da disponibilidade (divide em duas)
+        elif inicio < slot_datetime and fim > slot_fim:
+            regra.data_hora_fim_especifica = slot_datetime
+            regra.save()
+            RegraDisponibilidade.objects.create(  # type: ignore[attr-defined]
+                profissional=profissional,
+                tipo_regra='ESPECIFICA',
+                data_hora_inicio_especifica=slot_fim,
+                data_hora_fim_especifica=fim
+            )
+        # Caso 3: o slot está no início da disponibilidade
+        elif inicio < slot_datetime < fim <= slot_fim:
+            regra.data_hora_fim_especifica = slot_datetime
+            regra.save()
+        # Caso 4: o slot está no final da disponibilidade
+        elif slot_datetime <= inicio < slot_fim < fim:
+            regra.data_hora_inicio_especifica = slot_fim
+            regra.save()
+    # --- FIM DA LÓGICA ---
+
     try:
         # Cria um PaymentIntent no Stripe
         valor_em_centavos = int(profissional.valor_consulta * 100)

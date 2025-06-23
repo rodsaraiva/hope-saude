@@ -186,10 +186,8 @@ def gerar_slots_disponiveis_para_paciente(perfil_profissional, hoje, dias_a_most
 def gerar_blocos_disponiveis_para_paciente(perfil_profissional, dias_a_mostrar=7, duracao_consulta_timedelta=timedelta(hours=1), incremento_geracao_slot_timedelta=timedelta(minutes=30)):
     """
     Gera blocos de horários visuais para o calendário do paciente.
-    Esta função encapsula a lógica de:
-    1. Gerar todos os slots potenciais baseados nas Regras de Disponibilidade.
-    2. Filtrar slots já agendados e horários passados.
-    3. Agrupar slots individuais contíguos em blocos maiores para exibição.
+    Cada regra de disponibilidade cadastrada (específica ou semanal) vira um bloco único,
+    exceto se houver agendamento ocupando parte do tempo.
     """
     hoje = timezone.localdate()
     data_fim_periodo_calendario = hoje + timedelta(days=dias_a_mostrar)
@@ -205,97 +203,72 @@ def gerar_blocos_disponiveis_para_paciente(perfil_profissional, dias_a_mostrar=7
         status__in=['PENDENTE', 'CONFIRMADO']
     )
 
-    booked_intervals = []
-    for ag in agendamentos_existentes_objs:
-        booked_intervals.append((ag.data_hora, ag.data_hora + duracao_consulta_timedelta))
+    # Lista de intervalos ocupados
+    booked_intervals = [(ag.data_hora, ag.data_hora + duracao_consulta_timedelta) for ag in agendamentos_existentes_objs]
 
-    # --- 1. Gerar TODOS os Slots Potenciais ---
-    all_potential_slots_set = set()
-    for i in range(dias_a_mostrar):
-        dia_atual_iter = hoje + timedelta(days=i)
-        dia_semana_atual_iter = dia_atual_iter.weekday()
-
-        for regra in regras_disponibilidade_prof:
-            if regra.tipo_regra == 'SEMANAL' and regra.dia_semana == dia_semana_atual_iter:
-                if regra.hora_inicio_recorrente and regra.hora_fim_recorrente:
-                    bloco_inicio_dt = timezone.make_aware(datetime.combine(dia_atual_iter, regra.hora_inicio_recorrente), tz_padrao)
-                    bloco_fim_dt = timezone.make_aware(datetime.combine(dia_atual_iter, regra.hora_fim_recorrente), tz_padrao)
-                    hora_inicio_slot_potencial = bloco_inicio_dt
-                    while hora_inicio_slot_potencial < bloco_fim_dt:
-                        if hora_inicio_slot_potencial + duracao_consulta_timedelta <= bloco_fim_dt:
-                            all_potential_slots_set.add(hora_inicio_slot_potencial)
-                        hora_inicio_slot_potencial += incremento_geracao_slot_timedelta
-            
-            elif regra.tipo_regra == 'ESPECIFICA':
-                if regra.data_hora_inicio_especifica and regra.data_hora_fim_especifica:
-                    bloco_inicio_dt_especifico = regra.data_hora_inicio_especifica.astimezone(tz_padrao)
-                    bloco_fim_dt_especifico = regra.data_hora_fim_especifica.astimezone(tz_padrao)
-                    if bloco_inicio_dt_especifico.date() <= dia_atual_iter <= bloco_fim_dt_especifico.date():
-                        hora_inicio_slot_potencial = timezone.make_aware(datetime.combine(dia_atual_iter, time.min), tz_padrao)
-                        if bloco_inicio_dt_especifico > hora_inicio_slot_potencial:
-                            hora_inicio_slot_potencial = bloco_inicio_dt_especifico
-                        limite_fim_dia_atual = timezone.make_aware(datetime.combine(dia_atual_iter + timedelta(days=1), time.min), tz_padrao)
-                        fim_real_bloco_no_dia = min(bloco_fim_dt_especifico, limite_fim_dia_atual)
-                        while hora_inicio_slot_potencial < fim_real_bloco_no_dia:
-                            if hora_inicio_slot_potencial + duracao_consulta_timedelta <= fim_real_bloco_no_dia:
-                                all_potential_slots_set.add(hora_inicio_slot_potencial)
-                            hora_inicio_slot_potencial += incremento_geracao_slot_timedelta
-
-    # --- 2. Filtrar Slots ---
-    slots_validos_final = []
-    for slot_inicio_potencial in sorted(list(all_potential_slots_set)):
-        if slot_inicio_potencial <= agora:
-            continue
-        
-        slot_fim_potencial = slot_inicio_potencial + duracao_consulta_timedelta
-        slot_ocupado = any(slot_inicio_potencial < booked_end and slot_fim_potencial > booked_start for booked_start, booked_end in booked_intervals)
-        
-        if not slot_ocupado:
-            slots_validos_final.append(slot_inicio_potencial)
-
-    # --- 3. Agrupar em Blocos Visuais ---
     blocos_visuais = []
-    if not slots_validos_final:
-        return []
+    cor_bloco = '#28a745'
+    borda_bloco = '#23923d'
 
-    bloco_atual_start_dt = slots_validos_final[0]
-    bloco_atual_end_dt_visual = slots_validos_final[0] + duracao_consulta_timedelta
-    horarios_iniciais_no_bloco_atual_iso = [slots_validos_final[0].isoformat()]
-
-    for i in range(1, len(slots_validos_final)):
-        slot_atual_inicio_dt = slots_validos_final[i]
-        ultimo_slot_no_bloco_dt = datetime.fromisoformat(horarios_iniciais_no_bloco_atual_iso[-1])
-
-        # Se o slot atual é contíguo e o bloco não ficou muito grande
-        if slot_atual_inicio_dt == (ultimo_slot_no_bloco_dt + incremento_geracao_slot_timedelta) and slot_atual_inicio_dt < (bloco_atual_start_dt + timedelta(hours=4)):
-            horarios_iniciais_no_bloco_atual_iso.append(slot_atual_inicio_dt.isoformat())
-            bloco_atual_end_dt_visual = slot_atual_inicio_dt + duracao_consulta_timedelta
-        else: # Quebra de continuidade, finaliza o bloco anterior
-            blocos_visuais.append({
-                'title': 'Horários Disponíveis',
-                'start': bloco_atual_start_dt.isoformat(),
-                'end': bloco_atual_end_dt_visual.isoformat(),
-                'extendedProps': {
-                    'tipo': 'bloco_disponivel_paciente',
-                    'horarios_iniciais_disponiveis_iso': list(horarios_iniciais_no_bloco_atual_iso)
-                },
-                'color': '#28a745', 'borderColor': '#23923d'
-            })
-            # E começa um novo bloco
-            bloco_atual_start_dt = slot_atual_inicio_dt
-            bloco_atual_end_dt_visual = slot_atual_inicio_dt + duracao_consulta_timedelta
-            horarios_iniciais_no_bloco_atual_iso = [slot_atual_inicio_dt.isoformat()]
-
-    # Adiciona o último bloco que estava sendo construído
-    blocos_visuais.append({
-        'title': 'Horários Disponíveis',
-        'start': bloco_atual_start_dt.isoformat(),
-        'end': bloco_atual_end_dt_visual.isoformat(),
-        'extendedProps': {
-            'tipo': 'bloco_disponivel_paciente',
-            'horarios_iniciais_disponiveis_iso': horarios_iniciais_no_bloco_atual_iso
-        },
-        'color': '#28a745', 'borderColor': '#23923d'
-    })
-
+    for regra in regras_disponibilidade_prof:
+        if regra.tipo_regra == 'SEMANAL' and regra.dia_semana is not None and regra.hora_inicio_recorrente and regra.hora_fim_recorrente:
+            for i in range(dias_a_mostrar):
+                dia = hoje + timedelta(days=i)
+                if dia.weekday() == regra.dia_semana:
+                    bloco_inicio = timezone.make_aware(datetime.combine(dia, regra.hora_inicio_recorrente), tz_padrao)
+                    bloco_fim = timezone.make_aware(datetime.combine(dia, regra.hora_fim_recorrente), tz_padrao)
+                    if bloco_fim <= agora:
+                        continue
+                    # Verifica se há agendamento ocupando parte do bloco
+                    blocos_livres = [(bloco_inicio, bloco_fim)]
+                    for booked_start, booked_end in booked_intervals:
+                        novos_blocos = []
+                        for livre_inicio, livre_fim in blocos_livres:
+                            # Se não há interseção, mantém
+                            if booked_end <= livre_inicio or booked_start >= livre_fim:
+                                novos_blocos.append((livre_inicio, livre_fim))
+                            else:
+                                # Divide o bloco livre em até dois
+                                if livre_inicio < booked_start:
+                                    novos_blocos.append((livre_inicio, booked_start))
+                                if booked_end < livre_fim:
+                                    novos_blocos.append((booked_end, livre_fim))
+                        blocos_livres = novos_blocos
+                    for livre_inicio, livre_fim in blocos_livres:
+                        if livre_fim > livre_inicio:
+                            blocos_visuais.append({
+                                'title': 'Horários Disponíveis',
+                                'start': livre_inicio.isoformat(),
+                                'end': livre_fim.isoformat(),
+                                'color': cor_bloco,
+                                'borderColor': borda_bloco,
+                                'extendedProps': {'tipo': 'bloco_disponivel_paciente', 'id_regra': regra.id}
+                            })
+        elif regra.tipo_regra == 'ESPECIFICA' and regra.data_hora_inicio_especifica and regra.data_hora_fim_especifica:
+            bloco_inicio = regra.data_hora_inicio_especifica.astimezone(tz_padrao)
+            bloco_fim = regra.data_hora_fim_especifica.astimezone(tz_padrao)
+            if bloco_fim <= agora:
+                continue
+            blocos_livres = [(bloco_inicio, bloco_fim)]
+            for booked_start, booked_end in booked_intervals:
+                novos_blocos = []
+                for livre_inicio, livre_fim in blocos_livres:
+                    if booked_end <= livre_inicio or booked_start >= livre_fim:
+                        novos_blocos.append((livre_inicio, livre_fim))
+                    else:
+                        if livre_inicio < booked_start:
+                            novos_blocos.append((livre_inicio, booked_start))
+                        if booked_end < livre_fim:
+                            novos_blocos.append((booked_end, livre_fim))
+                blocos_livres = novos_blocos
+            for livre_inicio, livre_fim in blocos_livres:
+                if livre_fim > livre_inicio:
+                    blocos_visuais.append({
+                        'title': 'Horários Disponíveis',
+                        'start': livre_inicio.isoformat(),
+                        'end': livre_fim.isoformat(),
+                        'color': cor_bloco,
+                        'borderColor': borda_bloco,
+                        'extendedProps': {'tipo': 'bloco_disponivel_paciente', 'id_regra': regra.id}
+                    })
     return blocos_visuais
